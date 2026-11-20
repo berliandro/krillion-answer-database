@@ -5,7 +5,7 @@ Remote: https://github.com/berliandro/krillion-answer-database.git (branch `main
 
 | Job | Worker session | Status | Owns | Artifact | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| scrape-001 | `ses_e071ce061ffeFCztEbdH7fgiyW` | running | `data/answers.jsonl`, `data/scrape-notes.md`, `scripts/harvest.js` (append/notes/harvester only) | `data/answers.jsonl` | 218 lines imported: full=218, krillion=26, search questions=4 (verified via `krillion_db.py stats`, `search animal`, and live webapp `GET /api/search?q=vacation` → Gozo) |
+| scrape-001 | `ses_e071ce061ffeFCztEbdH7fgiyW` | running | `data/answers.jsonl`, `data/scrape-notes.md`, `scripts/harvest.js` (append/notes/harvester only) | `data/answers.jsonl` | 298 lines imported: full=298, krillion=38, search questions=6 (verified via `krillion_db.py stats`, `search pancake` → Bee Pollen, and live webapp `GET /api/search?q=pancake`) |
 
 Notes:
 - Worker uses Chrome (`browse` MCP + `chrome-browser-mcp` skill) per user request.
