@@ -6,7 +6,9 @@ Remote: https://github.com/berliandro/krillion-answer-database.git (branch `main
 | Job | Worker session | Status | Owns | Artifact | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | scrape-001 | `ses_e071ce061ffeFCztEbdH7fgiyW` | done | `data/answers.jsonl`, `data/scrape-notes.md`, `scripts/harvest.js` | `data/answers.jsonl` | 2147 lines / 302 krillion / 42 prompts (final report); harvester process killed; handed off to burst harvester |
-| gameplay-001 | `ses_e06f05a44ffeywiGB4J3PET0Fq` | running (single harvester) | `data/answers_gameplay.jsonl`, `scripts/harvest_game.js`, `data/gameplay-notes.md` | `data/answers_gameplay.jsonl` | Model `opencode-go/hy4-flash-free` variant `high`; found the burst recipe; building/running `harvest_game.js` |
+| gameplay-001 | `ses_e06f05a44ffeywiGB4J3PET0Fq` | running (single harvester) | `data/answers_gameplay.jsonl`, `scripts/harvest_game.js`, `data/gameplay-notes.md` | `data/answers_gameplay.jsonl` | Model `opencode-go/hy4-flash-free` variant `high`; 9216 lines / 1216 krillion; ~277 answers/min sustained. Lap-token fix being applied (see below). |
+
+Combined DB: 14,339 answers / 2,122 krillion / 289 questions (checkpoint `944550e`). Static site regenerated each checkpoint with the animated loader.
 
 Combined DB stats at last checkpoint: full=1510, krillion=207, search questions=31, jsonl_lines=1510 (verified via `krillion_db.py stats`, `search "fictional bear"` → Gentle Ben, `search "blue"` → Cap).
 
@@ -20,6 +22,7 @@ Notes:
 - **BURST RECIPE (breakthrough, 20:25):** the ~65s rate-limit window is GLOBAL and shared by all 7 tickets from ONE `/deal`. Probe one `/answers`; on 425 read `wait`, sleep `wait+2s`; then fetch all 7 prompts of that deal in one burst -> 7/7 x 200, ~350 answers/batch in ~0.3s. ~300 answers/min vs ~50/min (~6x). No gameplay needed; plain Node `fetch` with no cookies works.
 - `gameplay-001` runs the SINGLE optimized harvester (`scripts/harvest_game.js`); SCRAPE1's `harvest.js` is stopped to avoid contending for the global window. Both write separate JSONL files; `krillion_db.py import` de-dupes by (question, answer).
 - Model: GAMEPLAY1 on `opencode-go/hy4-flash-free` variant `high` (set via `POST /api/session/{id}/model` with `{"model":{"id":"hy4-flash-free","providerID":"opencode-go","variant":"high"}}`).
+- **Lap-token issue (21:13):** new unique answers/checkpoint collapsed from ~1000 to 238 while throughput stayed ~277/min. `harvest_game.js` calls `/deal` with `{"mode":"classic"}` and no `lap`. The site client round-trips `lap` (`Z()` reads, `ee()` writes) — without it the server likely re-deals the same lap. Worker steered to persist and re-send `lap`; verify new-answer rate recovers.
 - The user's 7-prompt game result was parsed into `data/answers_gameplay.jsonl` (307 rows). `krillion_db.py import` now reads ALL `data/answers*.jsonl` files, so the two workers can append independently without write conflicts.
 - Start button XPath (if needed): `/html/body/div[3]/main/div[2]/div/div/div[5]/div[3]/button[1]`.
 - Do not interrupt either worker; both paths run in parallel intentionally.
