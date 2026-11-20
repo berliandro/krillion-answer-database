@@ -5,7 +5,7 @@ Remote: https://github.com/berliandro/krillion-answer-database.git (branch `main
 
 | Job | Worker session | Status | Owns | Artifact | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| scrape-001 | `ses_e071ce061ffeFCztEbdH7fgiyW` | handing off (stopping harvester) | `data/answers.jsonl`, `data/scrape-notes.md`, `scripts/harvest.js` | `data/answers.jsonl` | ~683+ lines from the slow per-prompt API path; superseded by burst recipe |
+| scrape-001 | `ses_e071ce061ffeFCztEbdH7fgiyW` | done | `data/answers.jsonl`, `data/scrape-notes.md`, `scripts/harvest.js` | `data/answers.jsonl` | 2147 lines / 302 krillion / 42 prompts (final report); harvester process killed; handed off to burst harvester |
 | gameplay-001 | `ses_e06f05a44ffeywiGB4J3PET0Fq` | running (single harvester) | `data/answers_gameplay.jsonl`, `scripts/harvest_game.js`, `data/gameplay-notes.md` | `data/answers_gameplay.jsonl` | Model `opencode-go/hy4-flash-free` variant `high`; found the burst recipe; building/running `harvest_game.js` |
 
 Combined DB stats at last checkpoint: full=1510, krillion=207, search questions=31, jsonl_lines=1510 (verified via `krillion_db.py stats`, `search "fictional bear"` → Gentle Ben, `search "blue"` → Cap).
