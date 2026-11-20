@@ -148,9 +148,9 @@ Snapshot taken 2026-11-21. These numbers move as the harvesters run; this sectio
 
 | Metric | Count |
 | --- | --- |
-| Full answer rows | 56,592 |
-| One in a Krillion answers | 8,214 |
-| Questions collected | 1,151 |
+| Full answer rows | 57,496 |
+| One in a Krillion answers | 8,338 |
+| Questions collected | 1,170 |
 | Target prompts | ~3,000 (the real bank may be closer to ~2,600) |
 
 ## Roadmap
