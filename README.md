@@ -25,3 +25,19 @@ python webapp/app.py
 ```
 
 The webapp searches only the small Search DB. Rebuild it any time with `python scripts/krillion_db.py rebuild`.
+
+## Public shareable site (GitHub Pages)
+https://berliandro.github.io/krillion-answer-database/
+
+This is a fully static page — `index.html` fetches `search-data.json` on load with a streaming progress bar and loading animation, then searches entirely client-side. No server needed. It is a **snapshot**, so regenerate it after importing new answers:
+
+```powershell
+python scripts/build_static.py
+git add index.html search-data.json
+git commit -m "Refresh static search index"
+git push
+```
+
+At ~3,000 questions the search data is only ~155 KB (~52 KB gzipped), which is fine on a phone.
+
+GitHub Pages rebuilds automatically from `main` (usually within ~1 minute). The local webapp at http://127.0.0.1:8765 always reads the live DB and needs no rebuild.

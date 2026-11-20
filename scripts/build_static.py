@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Build a fully static, shareable search page for GitHub Pages.
 
-Reads the small FTS search DB and emits a single self-contained index.html
-with all Q&A embedded as JSON and client-side search. No server needed.
+Reads the small FTS search DB and emits:
+  index.html       - single self-contained UI
+  search-data.json - compact Q&A array, fetched with a real progress bar
 
 Run: python scripts/build_static.py
 """
@@ -12,17 +13,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SEARCH_DB = ROOT / "data" / "krillion_search.db"
-OUT = ROOT / "index.html"
+OUT_HTML = ROOT / "index.html"
+OUT_DATA = ROOT / "search-data.json"
 
 with sqlite3.connect(SEARCH_DB) as c:
     rows = c.execute("SELECT question, answer FROM search_answers ORDER BY question").fetchall()
 
 data = [{"q": q, "a": a} for q, a in rows]
 payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-# Prevent the embedded JSON from closing the script tag.
-payload = payload.replace("</", "<\\/")
+OUT_DATA.write_text(payload, encoding="utf-8", newline="\n")
 
-HTML = """<!doctype html>
+HTML = r"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -59,24 +60,96 @@ HTML = """<!doctype html>
   }
   .copy:hover { background: #2d3859; }
   .empty { color: #8b95ab; text-align: center; padding: 40px 0; }
+
+  /* Loading screen */
+  #loader {
+    position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+    background: #0b0f1a; transition: opacity .4s ease, visibility .4s ease;
+  }
+  #loader.done { opacity: 0; visibility: hidden; pointer-events: none; }
+  .spinner {
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 3px solid #2a3350; border-top-color: #5b7cfa;
+    animation: spin .85s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .load-title { font-size: 1rem; font-weight: 600; }
+  .bar { width: min(320px, 70vw); height: 6px; background: #1a2236; border-radius: 99px; overflow: hidden; }
+  .fill {
+    height: 100%; width: 0%; border-radius: 99px;
+    background: linear-gradient(90deg, #5b7cfa, #8f6bff);
+    transition: width .2s ease;
+  }
+  .load-status { color: #8b95ab; font-size: .8rem; font-variant-numeric: tabular-nums; min-height: 1.2em; }
+  .ready { color: #7ee2a8; }
+  .retry {
+    background: #222b45; color: #cdd7f0; border: 1px solid #36426a;
+    border-radius: 8px; padding: 8px 14px; cursor: pointer; display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 2s; }
+    #loader, .fill { transition: none; }
+  }
 </style>
 </head>
 <body>
+
+<div id="loader">
+  <div class="spinner" id="spinner"></div>
+  <div class="load-title" id="load-title">Loading answer database…</div>
+  <div class="bar"><div class="fill" id="fill"></div></div>
+  <div class="load-status" id="load-status">Connecting…</div>
+  <button class="retry" id="retry" onclick="location.reload()">Retry</button>
+</div>
+
 <div class="wrap">
   <h1>Krillion Answer Search</h1>
-  <p class="sub">Type a question and get the answer instantly. __COUNT__ questions indexed.</p>
-  <input id="q" type="search" autocomplete="off" autofocus placeholder="Name any one famous park">
+  <p class="sub">Type a question and get the answer instantly. <span id="count">—</span> questions indexed.</p>
+  <input id="q" type="search" autocomplete="off" autofocus placeholder="Name any one famous park" disabled>
   <div class="meta" id="meta"></div>
   <div class="results" id="results"></div>
 </div>
+
 <script>
-const DATA = __PAYLOAD__;
-const input = document.getElementById('q');
-const results = document.getElementById('results');
-const meta = document.getElementById('meta');
+const DATA = [];
+const $ = id => document.getElementById(id);
+const fill = $('fill'), status = $('load-status'), title = $('load-title');
 
 function escape(s) {
   return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function fmt(n) { return (n / 1024).toFixed(0) + ' KB'; }
+
+async function loadDatabase() {
+  const res = await fetch('search-data.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const total = Number(res.headers.get('content-length')) || 0;
+
+  // Real streaming progress when the browser supports it.
+  if (res.body && res.body.getReader) {
+    const reader = res.body.getReader();
+    const chunks = [];
+    let received = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      received += value.length;
+      if (total) {
+        fill.style.width = Math.min(100, received / total * 100) + '%';
+        status.textContent = fmt(received) + ' / ' + fmt(total);
+      } else {
+        status.textContent = fmt(received) + ' loaded';
+      }
+    }
+    const bytes = new Uint8Array(received);
+    let pos = 0;
+    for (const c of chunks) { bytes.set(c, pos); pos += c.length; }
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
+  return await res.json();
 }
 
 function score(item, q) {
@@ -84,7 +157,7 @@ function score(item, q) {
   const answer = item.a.toLowerCase();
   if (question === q) return 100;
   if (question.startsWith(q)) return 80;
-  const words = q.split(/\\s+/).filter(Boolean);
+  const words = q.split(/\s+/).filter(Boolean);
   if (words.every(w => question.includes(w))) return 60;
   if (question.includes(q)) return 50;
   if (words.every(w => answer.includes(w))) return 30;
@@ -94,20 +167,21 @@ function score(item, q) {
 
 function render(query) {
   const q = query.trim().toLowerCase();
-  if (!q) { results.innerHTML = ''; meta.textContent = ''; return; }
-  const hits = DATA.map(it => ({it, s: score(it, q)})).filter(x => x.s > 0)
+  if (!q) { $('results').innerHTML = ''; $('meta').textContent = ''; return; }
+  const hits = DATA.map(it => ({ it, s: score(it, q) })).filter(x => x.s > 0)
     .sort((a, b) => b.s - a.s || a.it.q.localeCompare(b.it.q)).slice(0, 20);
-  meta.textContent = hits.length ? hits.length + ' result' + (hits.length === 1 ? '' : 's') : '';
+  $('meta').textContent = hits.length
+    ? hits.length + ' result' + (hits.length === 1 ? '' : 's') : '';
   if (!hits.length) {
-    results.innerHTML = '<div class="empty">No matching answer in the index yet.</div>';
+    $('results').innerHTML = '<div class="empty">No matching answer in the index yet.</div>';
     return;
   }
-  results.innerHTML = hits.map((h, i) => `
+  $('results').innerHTML = hits.map((h, i) => `
     <div class="card">
       <div><div class="q">${escape(h.it.q)}</div><div class="a">${escape(h.it.a)}</div></div>
       <button class="copy" data-i="${i}">Copy</button>
     </div>`).join('');
-  results.querySelectorAll('.copy').forEach(btn => {
+  $('results').querySelectorAll('.copy').forEach(btn => {
     btn.addEventListener('click', async () => {
       const it = hits[Number(btn.dataset.i)].it;
       try { await navigator.clipboard.writeText(it.a); btn.textContent = 'Copied'; }
@@ -117,12 +191,35 @@ function render(query) {
   });
 }
 
-input.addEventListener('input', () => render(input.value));
+async function init() {
+  try {
+    const data = await loadDatabase();
+    DATA.push(...data);
+    fill.style.width = '100%';
+    status.textContent = '✓ ' + data.length + ' questions ready';
+    status.classList.add('ready');
+    title.textContent = 'Ready';
+    $('count').textContent = data.length.toLocaleString();
+    $('spinner').style.display = 'none';
+    $('q').disabled = false;
+    $('q').addEventListener('input', e => render(e.target.value));
+    setTimeout(() => $('loader').classList.add('done'), 450);
+    $('q').focus();
+  } catch (e) {
+    title.textContent = 'Could not load database';
+    status.textContent = String(e.message || e);
+    $('spinner').style.display = 'none';
+    $('retry').style.display = 'inline-block';
+  }
+}
+init();
 </script>
 </body>
 </html>
 """
 
-HTML = HTML.replace("__PAYLOAD__", payload).replace("__COUNT__", str(len(data)))
-OUT.write_text(HTML, encoding="utf-8")
-print(f"wrote {OUT} with {len(data)} questions ({OUT.stat().st_size} bytes)")
+OUT_HTML.write_text(HTML, encoding="utf-8")
+print(
+    f"wrote {OUT_HTML.name} + {OUT_DATA.name}: "
+    f"{len(data)} questions, {OUT_DATA.stat().st_size} bytes of data"
+)
