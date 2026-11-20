@@ -46237,3 +46237,1223 @@
 {"question":"Name a book series","answer":"The Cadfael Chronicles","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
 {"question":"Name a book series","answer":"The Alexandria Quartet","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
 {"question":"Name a book series","answer":"Nero Wolfe","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"France","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Spain","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Italy","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Germany","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"United States","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Japan","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Canada","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Australia","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Brazil","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"China","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"India","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Mexico","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Russia","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Greece","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Portugal","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Argentina","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Egypt","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Ireland","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Norway","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Sweden","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Denmark","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Finland","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Poland","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Turkey","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Switzerland","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Uruguay","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Paraguay","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Bolivia","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Ecuador","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Costa Rica","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Panama","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Guatemala","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Dominican Republic","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Haiti","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Sri Lanka","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Oman","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Bhutan","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Brunei","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Laos","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Maldives","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Mauritius","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Madagascar","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Namibia","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Botswana","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Zambia","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Liberia","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Guinea-Bissau","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Central African Republic","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Samoa","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Grenada","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a country","answer":"Palestine","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Ice","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Paint","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Gum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Sticker","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Food","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Wax","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Snow","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Dirt","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Sand","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Mold","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Frost","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Mud","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Burnt Food","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Sticker Residue","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Slush","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Grit","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Grease","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Rust","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Limescale","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Mildew","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Glue","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Caulk","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Clay","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Soil","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Soot","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Ash","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Motor Oil","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Salt Deposits","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Soap Scum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Lichen","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Varnish","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Wood Stain","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Gravel","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Charcoal","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Smoke Residue","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Iron Oxide","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Mineral Scale","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Calcium Deposits","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Biofilm","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Slime","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Flour Paste","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Starch Paste","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Efflorescence","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Bat Guano","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Nicotine Residue","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Grout Haze","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Greasepaint","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people scrape off a surface","answer":"Spider Egg Sac","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Beanie","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Coat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Gloves","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Hat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Jacket","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Mittens","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Scarf","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Socks","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Sweater","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Boots","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Earmuffs","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Parka","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Puffer Jacket","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Santa Hat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Ski Jacket","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Stockings","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Thermal Leggings","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Thermal Underwear","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Overcoat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Shawl","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"3-in-1 Jacket","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Anorak","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Balaclava","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Corduroy Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Fleece Vest","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Goggles","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Hunting Boots","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Long Johns","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Onesie","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Ski Boots","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Deck Jacket","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Mukluks","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Nightcap","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Union Suit","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Jorongo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Nose Warmer","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Scoodie","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Valenki","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Durumagi","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Gunia","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Luhkka","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Murmolka","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an item of winter clothing","answer":"Qashabiya","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Swimming","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Gymnastics","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Athletics","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Basketball","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Soccer","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Volleyball","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Tennis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Boxing","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Diving","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Figure Skating","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Fencing","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Judo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Rowing","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Badminton","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Table Tennis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Taekwondo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Weightlifting","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Handball","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Field Hockey","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Golf","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Rugby Sevens","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Sailing","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Shooting","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Canoe Slalom","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Canoe Sprint","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"BMX Freestyle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Track Cycling","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Road Cycling","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Greco-Roman Wrestling","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Freestyle Wrestling","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Eventing","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Halfpipe","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Slopestyle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Military Patrol","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Winter Pentathlon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Ice Stock Sport","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Roller Hockey","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Speed Skiing","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Ski Ballet","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Glima","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Budo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"La Canne","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Savate","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Equestrian Long Jump","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Longue Paume","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Kaatsen","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an Olympic sport","answer":"Alpinism","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Lime Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Dark Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Light Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Emerald","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Forest Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Mint Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Olive green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Olive","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Sea Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Aqua","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Cyan","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Teal","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Jade","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Sage","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Hunter Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Kelly Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Neon Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Grass Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Apple Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Pine Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Moss Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Hooker's Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Myrtle Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Harlequin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Laurel Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Artichoke","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Clover Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Wintergreen","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Persian Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Castleton Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Dartmouth Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Smaragdine","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Chrome Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Phthalo Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Paris Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Sap Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Terre Verte","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Zomp","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Xanadu","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Feldgrau","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Kombu Green","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Sinople","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Prasine","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Reseda Green","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Erin","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Verdun Green","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Wageningen Green","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Viridine","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a shade of green","answer":"Wintergreen dream","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Bowser","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Ganon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Dr. Eggman","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Sephiroth","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"GLaDOS","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Ender Dragon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Freddy Fazbear","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Albert Wesker","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Handsome Jack","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Vaas Montenegro","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Big Smoke","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Micah Bell","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"King K. Rool","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"King Dedede","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Ridley","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Pyramid Head","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Nemesis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Dr. Wily","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Mother Brain","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Zeus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"M. Bison","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Shao Kahn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Dracula","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Diablo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"The Lich King","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Springtrap","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Huggy Wuggy","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Pagan Min","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Joseph Seed","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Officer Tenpenny","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Margit","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Godrick","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Ornstein and Smough","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"The Hollow Knight","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"The Devil","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Papyrus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Foxy","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Jevil","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Gravemind","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Zachary Hale Comstock","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Frank Fontaine","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Kuja","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Ultimecia","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Fawful","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Skull Face","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Osmund Saddler","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"General RAAM","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Nihilanth","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Tabuu","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"DJ Octavio","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Manfred von Karma","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Tatanga","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Zoma","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Queen Sectonia","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Psy-Crow","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Black Shadow","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a video game villain or boss","answer":"Baron Praxis","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"House","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Light","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Bean","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Tea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Card","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Land","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Peace","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Thumb","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Day","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Giant","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Grocer","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Room","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Belt","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Beret","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Onion","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Pepper","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Salad","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Energy","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Eyed","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Back","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Horn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Wood","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Book","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Zone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Flag","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Man","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Peas","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Olive","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Turtle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Finch","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Fly","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Gage","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Stone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Mail","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Shoots","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Goddess","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Woodpecker","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Lung","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Field","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Lacewing","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Bottle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Anaconda","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Weed","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Paper","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Shank","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Sward","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Brier","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Heart","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Stick","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Sand","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Sickness","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Ling","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a word that can follow \"green\"","answer":"Stuff","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Claw","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Horn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Tooth","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Shell","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Antler","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Quill","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Tusk","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Fang","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Stinger","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Beak","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Hoof","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Talon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Spine","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Scales","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Tail","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Pincer","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Hide","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Mane","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Spur","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Mandible","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Scent Gland","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Ink Sac","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Venom Gland","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Scute","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a body part an animal has for fighting or protection","answer":"Electric Organ","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Yangtze River","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Ganges","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Dead Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Caspian Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"South China Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Mekong River","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Sea of Japan","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Yellow River","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Aral Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Lake Baikal","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Persian Gulf","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Bay of Bengal","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Arabian Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Yellow Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"East China Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Red Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Black Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Sea of Okhotsk","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Andaman Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Gulf of Thailand","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Strait of Malacca","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Philippine Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Java Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Sulu Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Bohai Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Bering Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Gulf of Tonkin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Gulf of Oman","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Gulf of Aden","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Sea of Marmara","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Strait of Hormuz","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Banda Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Celebes Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Flores Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Arafura Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Timor Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Laptev Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Kara Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"East Siberian Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Chukchi Sea","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Palk Strait","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Halmahera Sea","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Savu Sea","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Laccadive Sea","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Gulf of Kutch","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Gulf of Khambhat","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Indigirka River","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Zarafshan River","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Lake Khanka","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Lake Sarez","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a water body in Asia","answer":"Lop Nur","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Biceps","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Triceps","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Abs","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Quadriceps","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Glutes","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Heart","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Pecs","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Lats","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Deltoids","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Trapezius","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Hamstrings","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Calves","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Masseter","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Gluteus Maximus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Adductors","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Serratus Anterior","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Pectoralis Major","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Pectoralis Minor","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Rectus Abdominis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"External Oblique","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Internal Oblique","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Transversus Abdominis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Gluteus Medius","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Gluteus Minimus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Tensor Fasciae Latae","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Brachioradialis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Subscapularis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Teres Major","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Teres Minor","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Rhomboid Major","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Rhomboid Minor","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Levator Scapulae","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Psoas Major","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Iliacus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Pectineus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Piriformis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Corrugator Supercilii","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Procerus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Risorius","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Depressor Anguli Oris","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Depressor Labii Inferioris","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Levator Labii Superioris","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Levator Anguli Oris","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Zygomaticus Major","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Zygomaticus Minor","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Auricularis Anterior","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Depressor Supercilii","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Palmaris Brevis","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Cremaster","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Tensor Tympani","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Psoas Tertia","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Auricularis Muscles","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Subcostales","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Levatores Costarum","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Triangularis Sterni","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a muscle in the body","answer":"Chondroglossus","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Bang","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Boom","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Buzz","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Meow","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Hiss","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Crash","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Pop","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Ding","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Whack","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Knock","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Clang","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Chirp","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Splash","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Sizzle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Tweet","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Bark","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Rattle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Clap","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Tap","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Tick","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Tock","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Ring","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Honk","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Snore","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Roar","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Rustle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Fizzle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Plunk","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Kerplunk","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Squawk","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Snicker","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Cackle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Chug","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Ping","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Clatter","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Kerplop","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Bada-bing","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Bada-boom","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Piffle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Phut","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Poot","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Fwoosh","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Zing","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Zoom","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Harrumph","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Whump","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Whiffling","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Trawk","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Nyaa","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Troom","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Skritch","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Flump","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Tromp","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an onomatopoeia","answer":"Kerblam","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Coq au Vin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Crêpes","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Croissant","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Macaron","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Pain au Chocolat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Omelette","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Beef Bourguignon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Crème Brûlée","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Crème Caramel","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Croque Monsieur","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Duck Confit","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Éclair","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Foie Gras","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"French Onion Soup","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Frog Legs","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Mille-Feuille","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Bouillabaisse","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Cassoulet","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Chateaubriand","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Croque Madame","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Duck à l'Orange","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Escargot","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Galette","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Gratin Dauphinois","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Lobster Thermidor","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Moules Marinières","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Canelé","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Choucroute Garnie","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Clafoutis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Tartiflette","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Vichyssoise","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Aligot","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Blanquette de Veau","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a classic French dish","answer":"Brandade","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Wood","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Metal","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Plastic","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Glass","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Cotton","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Steel","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Leather","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Stone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Paper","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Fabric","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Silk","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Wool","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Rubber","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Iron","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Gold","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Brick","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Polyester","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Denim","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Aluminum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Cardboard","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Silver","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Velvet","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Linen","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Marble","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Carbon Fiber","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Titanium","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Bronze","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Brass","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Granite","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Satin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Tweed","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Chiffon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Zinc","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Nickel","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Slate","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Limestone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Asphalt","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Plaster","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Drywall","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Terracotta","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Taffeta","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Adobe","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Bakelite","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Gore-Tex","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Parchment","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Damask","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Brocade","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Mylar","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Travertine","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Terrazzo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Nomex","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Tyvek","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Dyneema","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Gutta-Percha","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Nitinol","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Wattle and Daub","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Qiviut","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a material","answer":"Shagreen","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Happy","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Sad","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Angry","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Afraid","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Surprised","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Excited","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Anxious","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Bored","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Embarrassed","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Jealous","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Proud","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Lonely","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Frustrated","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Hopeful","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Disgusted","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Guilty","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Relieved","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Afternoon delight","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Curious","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Content","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Nostalgic","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Grateful","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Loneliness","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Love","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Hurt","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Anticipation","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Reluctant","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Resentful","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Agitation","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Irritation","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Elation","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Anguish","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Indignation","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Fearfulness","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Love-Strike","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Wistfulness","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Yearning","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Benevolence","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Camaraderie","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Fiero","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Sentimentality","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Ambivalence","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Disquiet","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Trepidation","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Consternation","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Monachopsis","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Opia","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Liberosis","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Rubatosis","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Mauerbauertraurigkeit","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Iktsuarpok","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Koi No Yokan","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Anemoia","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Taijin Kyofusho","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an emotion people feel","answer":"Gigil","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Garfield","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Tom","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Cheshire Cat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Puss in Boots","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Sylvester","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Hello Kitty","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Felix the Cat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Salem","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Crookshanks","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"The Cat in the Hat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Mrs. Norris","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Figaro","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Lucifer","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Duchess","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Thomas O'Malley","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Scratchy","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Mr. Bigglesworth","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Pete the Cat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Doraemon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Meowth","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Berlioz","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Si and Am","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Heathcliff","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Dinah","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Luna","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Jiji","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Catbus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Top Cat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Stimpy","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"CatDog","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Artemis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Baron","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Persian","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Mr. Jinks","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Smelly Cat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Mr. Tinkles","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Sergeant Tibbs","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Gideon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Tom Kitten","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Macavity","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Muta","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Rufus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Sagwa","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Old Deuteronomy","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Skimbleshanks","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Bustopher Jones","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Behemoth","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Greebo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Isis","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Ser Pounce","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Miss Moppet","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Tabitha Twitchit","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Simpkin","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Jennyanydots","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Mungojerrie","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Growltiger","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Gus the Theatre Cat","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Mehitabel","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Slinky Malinki","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a fictional cat","answer":"Six-Dinner Sid","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Hawaii","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Maui","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Oahu","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Manhattan","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Long Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Kauai","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Staten Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Alcatraz","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Key West","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Puerto Rico","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Ellis Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Nantucket","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Martha's Vineyard","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Catalina","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Molokai","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Lanai","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Liberty Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Roosevelt Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Rikers Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Hilton Head Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Sanibel Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Marco Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Amelia Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Whidbey Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Bainbridge Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Mount Desert Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Roanoke Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Chincoteague","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Assateague","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Tybee Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Kahoolawe","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Vieques","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Tangier Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Belle Isle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Grand Isle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Dauphin Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Vashon Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Cumberland Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Sapelo Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Bald Head Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Gasparilla Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Peaks Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Monhegan","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Vinalhaven","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Washington Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"South Bass Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"San Clemente Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Lopez Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Fidalgo Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Camano Island","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Theodore Roosevelt Island","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Harkers Island","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Tilghman Island","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Isle au Haut","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Pollepel Island","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Wellesley Island","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name an island in the United States","answer":"Tinian","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Eclair","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Cream Puff","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Custard Tart","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Pastel de Nata","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Profiteroles","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Mille-Feuille","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Custard Doughnut","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Boston Cream Doughnut","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Egg Tart","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Vanilla Slice","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Danish Pastry","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Cream Horn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Paris-Brest","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Religieuse","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Saint-Honore","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Croquembouche","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Sfogliatella","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Bomboloni","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Berliner","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Galaktoboureko","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Torta della Nonna","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Bougatsa","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Flan Patissier","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Custard Bun","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Cremeschnitte","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Kremowka","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Tompouce","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Zeppole di San Giuseppe","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Pain aux Raisins","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Bienenstich","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Cremeschnitte Austrian","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Karpatka","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Bigne di San Giuseppe","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Crostata di Crema","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Diplomatico","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Bola de Berlim","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Malasada","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Xuixo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Napolitana de Crema","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Milhojas","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Custard Taiyaki","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Chausson Napolitain","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Puits d'Amour","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Conversation Tart","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Ensaimada de Crema","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a pastry with custard filling","answer":"Trubochki","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Sock","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Shirt","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Jeans","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Dress","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Sweater","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"T-Shirt","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Jacket","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Stocking","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Tights","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Teddy Bear","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Curtain","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Pillowcase","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Coat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Cotton Socks","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Leggings","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Sweatpants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Suit Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Jean Jacket","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"School Uniform","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Shoe","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Blanket","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Wool Socks","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Yoga Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Khaki Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Cargo Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Denim Skirt","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Corduroy Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Work Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Boiler Suit","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Dress Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Waistcoat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Duffel Coat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Trench Coat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Snow Bib","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Ski Bib","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Ski Pants","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Bikini Top","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Rash Guard","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Wetsuit","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Goalkeeper Gloves","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Bike Jersey","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Half Slip","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Kandura","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Jellaba","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Boubou","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Barong Tagalog","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Blanket Binding","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Cafe Curtain","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Diving Glove","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Wader Strap","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Haori","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Changshan","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Huipil","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Longyi","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something people mend with a needle","answer":"Spinnaker","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Guitar","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Violin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Flute","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Drum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Ukulele","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Cello","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Bass Guitar","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Clarinet","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Recorder","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Mandolin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Oboe","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Piano","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Xylophone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Harp","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Banjo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Double Bass","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Acoustic Guitar","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Classical Guitar","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Bassoon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Saxophone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Harmonica","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Accordion","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Marimba","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Tambourine","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Bongo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Shawm","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Bagpipe","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Fife","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Piccolo","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Bass Clarinet","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"English Horn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Contrabassoon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Dulcimer","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Mbira","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Maracas","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Xylorimba","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Bass Xylophone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Alto Xylophone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Tenor Xylophone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Sopranino Xylophone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Claves","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Flexatone","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Timbila","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Bassanello","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Bordonua","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Mohan Veena","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Chitra Veena","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Mvet","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Krar","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Sapeh","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Tumbura","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Dulcitar","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Tzouras","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Gusle","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a musical instrument made of wood","answer":"Kinnor","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Arrow","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Needle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Pin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Knife","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Pencil","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Pointed Needle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Sword","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Spear","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Pen","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Scissors","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Nail","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Pushpin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Dagger","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Icicle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Paperclip","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Fishing Hook","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Acorn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Cactus","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Rose Thorn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Crown","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Spike","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Bayonet","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Lance","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Rapier","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Awl","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Gimlet","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Fork","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Chisel","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Spur","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Grape Leaf Thorn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Porcupine Quill","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Wasp Stinger","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Eraserless Pencil","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Hedgehog Quill","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Caltrop","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Seashell Point","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Needlefish","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Darning Needle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Bee Sting","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Barbed Wire Tip","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Pinwheel Tip","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Brooch Pin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Hatpin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Awl Blade","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Gouge","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Crowbar End","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Aiguille","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Lanceolate Leaf","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Pike Pole","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Pyramidion","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Acicular Crystal","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a thing with a point","answer":"Needle Valve","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Fire","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Wood","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Candle","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Paper","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Sun","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Match","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Coal","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Gasoline","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Toast","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Stove","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Spicy Food","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Hot Sauce","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Calories","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Forest","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Marshmallow","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Charcoal","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Oven","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Iron","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Curling Iron","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Hot Coffee","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Acid","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Chili Pepper","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Jalapeno","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Alcohol","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Incense","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Hot Water","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Steam","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Bleach","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Whiskey","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Rope Burn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Carpet Burn","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Friction","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Dry Ice","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Bridges","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Money","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Sulfur","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Methane","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Rome","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Library of Alexandria","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Satellite","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Garlic","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Sugar","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Milk","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Car Seat","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Mustard","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Phosphorus","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Peat","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Thermite","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name something that burns","answer":"Dung","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Democratic Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Republican Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Labour Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Conservative Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Green Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Libertarian Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Liberal Democrats","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Communist Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Nazi Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Whig Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Scottish National Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Reform UK","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"UK Independence Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Liberal Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Socialist Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Federalist Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Democratic-Republican Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Sinn Féin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Plaid Cymru","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Bull Moose Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Black Panther Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"New Democratic Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Bloc Québécois","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Christian Democratic Union","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Social Democratic Party of Germany","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Know Nothing Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Free Soil Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Populist Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Constitution Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Dixiecrats","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Reform Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Democratic Unionist Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Parti Québécois","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Monster Raving Loony Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"British National Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Prohibition Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Anti-Masonic Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Greenback Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Working Families Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Forward Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"People's Party of Canada","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Social Democratic Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Alliance Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Ulster Unionist Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Social Democratic and Labour Party","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Liberty Party","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Peace and Freedom Party","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Kadima","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Yesh Atid","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Shas","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Trinamool Congress","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Komeito","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"People Power Party","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"All Progressives Congress","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a political party","answer":"Freedom and Justice Party","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Cumin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Chili Powder","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Mexican Oregano","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Cinnamon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Black Pepper","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Paprika","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Coriander","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Clove","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Allspice","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Bay Leaf","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Anise","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Nutmeg","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Sesame Seeds","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Cayenne","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Turmeric","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Annatto","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Star Anise","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Mustard Seed","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Fennel Seed","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Saffron","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Cardamom","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Mace","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"White Pepper","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Red Pepper Flakes","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Ancho Chili Powder","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Ground Cinnamon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Cumin Seed","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Ground Cumin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Mexican Bay Leaf","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Fenugreek","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Celery Seed","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Caraway","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Nigella","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Asafoetida","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Ground Allspice","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Cascabel Chili","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Chile Piquin","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Morita Chili","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Jalapeno Powder","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Mirasol Chili","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"New Mexico Chili Powder","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"California Chili Powder","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Ground Anise","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Mexican Cinnamon","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Ground Sesame","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Avocado Leaf","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Recado Rojo","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Xoconostle Powder","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a spice used in Mexican cooking","answer":"Yerba Santa","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Louvre","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"British Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Metropolitan Museum of Art","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Smithsonian","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Natural History Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Museum of Modern Art","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Tate Modern","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"National Gallery","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Guggenheim","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Uffizi","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Prado","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Vatican Museums","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Rijksmuseum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Van Gogh Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Victoria and Albert Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Science Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Hermitage","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Musée d'Orsay","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"American Museum of Natural History","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"National Portrait Gallery","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Imperial War Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Centre Pompidou","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Guggenheim Bilbao","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Acropolis Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Egyptian Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Field Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Museum of Science and Industry","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"National Gallery of Art","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Whitney Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Serpentine Gallery","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Tate Liverpool","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Fitzwilliam Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Kelvingrove","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Scottish National Gallery","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Wallace Collection","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Courtauld Gallery","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"National Maritime Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"National Railway Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Jorvik Viking Centre","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Sir John Soane's Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Horniman Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Royal Armouries","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Pitt Rivers Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Beamish","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Walker Art Gallery","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"The Lowry","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Baltic Centre for Contemporary Art","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Hepworth Wakefield","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Neues Museum","is_krillion":false,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Eise Eisinga Planetarium","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Kon-Tiki Museum","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Larco Museum","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Livrustkammaren","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Moomin Museum","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Museum of Bad Art","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Museum of Broken Relationships","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Nukus Museum of Art","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Ukrainian National Chernobyl Museum","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
+{"question":"Name a museum or art gallery","answer":"Wouda pumping station","is_krillion":true,"source_url":"https://playdaily.org/krillion"}
