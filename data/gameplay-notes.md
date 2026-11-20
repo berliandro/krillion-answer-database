@@ -40,3 +40,12 @@ Conclusion: gameplay and DOM expansion are unnecessary. Fastest loop is
 `data/answers_gameplay.jsonl` (tier 5 => `is_krillion:true`), stores restart state
 in `%TEMP%\opencode\krillion-gameplay-state.json`, and notifies the coordinator
 every 1000 appended lines. Run as the single active harvester from 2026-11-20.
+
+### Lap token round-trip (2026-11-20, coordinator finding)
+A deal without `lap` keeps returning the initial lap token (`l1....AAAAAAAAA...`),
+so the server keeps sampling from the same lap and dedupe drops grow. The site
+client round-trips `lap` from the store into every `deal({mode,lap})` call.
+Fixed: `deal(state.lap)`, persist `lap.lap` immediately after each response,
+restore it on restart. Measured: control batch without lap added 241/325 answers
+(5/7 fresh prompts); next batch with lap added 343/343 (7/7 fresh). New average
+~313 new/batch vs ~236 before; ~1250 new per 4-batch checkpoint, ~300/min.

@@ -119,15 +119,25 @@ function appendNotes(state) {
 }
 
 async function api(url, init) {
-  const res = await fetch(ORIGIN + url, {
-    signal: AbortSignal.timeout(20000),
-    headers: { 'content-type': 'application/json' },
-    ...init,
-  });
-  const text = await res.text();
-  let json = null;
-  try { json = JSON.parse(text); } catch (_) {}
-  return { status: res.status, json, text };
+  // Network blips happen (UND_ERR_CONNECT_TIMEOUT); retry before giving up.
+  let lastErr;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const res = await fetch(ORIGIN + url, {
+        signal: AbortSignal.timeout(20000),
+        headers: { 'content-type': 'application/json' },
+        ...init,
+      });
+      const text = await res.text();
+      let json = null;
+      try { json = JSON.parse(text); } catch (_) {}
+      return { status: res.status, json, text };
+    } catch (e) {
+      lastErr = e;
+      if (attempt < 3) await sleep(2000 * (attempt + 1));
+    }
+  }
+  throw lastErr;
 }
 
 async function deal(lapToken) {
@@ -311,4 +321,11 @@ async function main() {
     ' elapsedSec=' + ((now() - state.startedAt) / 1000).toFixed(1));
 }
 
-main().catch((e) => { console.error(e); process.exitCode = 1; });
+main().catch((e) => {
+  console.error('[harvest_game] fatal: ' + e.message);
+  // Keep the harvester alive across transient network/service failures so it
+  // can resume from persisted state instead of needing a manual relaunch.
+  if (!stopping) {
+    setTimeout(() => main().catch((err) => console.error('[harvest_game] fatal: ' + err.message)), 15000);
+  }
+});
