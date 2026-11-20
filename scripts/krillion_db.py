@@ -83,36 +83,43 @@ def rebuild():
     print(f"rebuilt search DB: {len(rows)} questions")
 
 
+def answer_files():
+    """All append-only answer sources: API harvester + gameplay harvester + manual."""
+    return sorted(DATA.glob("answers*.jsonl"))
+
+
 def import_answers():
-    if not JSONL.exists():
-        print("no answers.jsonl found")
+    files = answer_files()
+    if not files:
+        print("no answers*.jsonl found")
         return
     inserted = 0
     skipped = 0
     with sqlite3.connect(FULL_DB) as c:
-        for line in JSONL.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                rec = json.loads(line)
-            except json.JSONDecodeError:
-                skipped += 1
-                continue
-            question = str(rec.get("question", "")).strip()
-            answer = str(rec.get("answer", "")).strip()
-            if not question or not answer:
-                skipped += 1
-                continue
-            is_krillion = 1 if rec.get("is_krillion") else 0
-            source_url = rec.get("source_url")
-            cur = c.execute(
-                "INSERT OR IGNORE INTO answers(question, answer, is_krillion, source_url) "
-                "VALUES(?, ?, ?, ?)",
-                (question, answer, is_krillion, source_url),
-            )
-            inserted += cur.rowcount
-    print(f"inserted={inserted} skipped={skipped}")
+        for path in files:
+            for line in path.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    skipped += 1
+                    continue
+                question = str(rec.get("question", "")).strip()
+                answer = str(rec.get("answer", "")).strip()
+                if not question or not answer:
+                    skipped += 1
+                    continue
+                is_krillion = 1 if rec.get("is_krillion") else 0
+                source_url = rec.get("source_url")
+                cur = c.execute(
+                    "INSERT OR IGNORE INTO answers(question, answer, is_krillion, source_url) "
+                    "VALUES(?, ?, ?, ?)",
+                    (question, answer, is_krillion, source_url),
+                )
+                inserted += cur.rowcount
+    print(f"files={[p.name for p in files]} inserted={inserted} skipped={skipped}")
     rebuild()
 
 
@@ -140,8 +147,8 @@ def stats():
     with sqlite3.connect(SEARCH_DB) as c:
         small = c.execute("SELECT COUNT(*) FROM search_answers").fetchone()[0]
     jsonl_lines = 0
-    if JSONL.exists():
-        jsonl_lines = sum(1 for ln in JSONL.read_text(encoding="utf-8").splitlines() if ln.strip())
+    for path in answer_files():
+        jsonl_lines += sum(1 for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip())
     print(
         f"full_answers={total} krillion_answers={krillion} "
         f"search_questions={small} jsonl_lines={jsonl_lines}"
