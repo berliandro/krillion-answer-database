@@ -52,6 +52,7 @@ function writeState(s) {
 
 function loadSeen() {
   const seen = new Set();
+  const seenQuestions = new Set();
   const files = fs.readdirSync(DATA).filter((f) => /^answers.*\.jsonl$/i.test(f));
   for (const f of files) {
     const content = fs.readFileSync(path.join(DATA, f), 'utf8');
@@ -59,11 +60,14 @@ function loadSeen() {
       if (!line.trim()) continue;
       try {
         const o = JSON.parse(line);
-        if (o.question != null && o.answer != null) seen.add(keyOf(o.question, o.answer));
+        if (o.question != null && o.answer != null) {
+          seen.add(keyOf(o.question, o.answer));
+          seenQuestions.add(o.question);
+        }
       } catch (_) {}
     }
   }
-  return { seen, files };
+  return { seen, seenQuestions, files };
 }
 
 function checkpoint(state) {
@@ -126,10 +130,12 @@ async function api(url, init) {
   return { status: res.status, json, text };
 }
 
-async function deal() {
+async function deal(lapToken) {
+  const body = { mode: 'classic' };
+  if (lapToken) body.lap = lapToken;
   const r = await api('/api/krillion/deal', {
     method: 'POST',
-    body: JSON.stringify({ mode: 'classic' }),
+    body: JSON.stringify(body),
   });
   if (r.status !== 200 || !r.json || !Array.isArray(r.json.prompts)) {
     throw new Error('deal failed: ' + r.status + ' ' + r.text.slice(0, 200));
@@ -152,7 +158,7 @@ async function getBank(prompt, ticket) {
 
 async function main() {
   const previous = readState();
-  const { seen, files } = loadSeen();
+  const { seen, seenQuestions, files } = loadSeen();
   const state = {
     startedAt: now(),
     batches: 0,
@@ -160,9 +166,11 @@ async function main() {
     totalKrillion: 0,
     lastMilestone: Math.floor((previous.totalNew || 0) / 1000),
     totalNewBefore: previous.totalNew || 0,
+    lap: previous.lap || null,
   };
   console.log('[harvest_game] dedupe files=' + files.join(',') + ' seen=' + seen.size +
-    ' resumed batches=' + (previous.batches || 0));
+    ' resumed batches=' + (previous.batches || 0) +
+    ' lap=' + (state.lap ? state.lap.slice(0, 24) : 'none'));
 
   // Resume safely: do not burst into a window the previous run was already
   // waiting out. The probe below still gives the authoritative wait.
@@ -178,15 +186,26 @@ async function main() {
 
     const t0 = now();
     let lap;
-    try { lap = await deal(); }
+    try { lap = await deal(state.lap); }
     catch (e) {
       console.error('[harvest_game] deal error: ' + e.message);
       await sleep(10000);
       continue;
     }
+    state.lap = lap.lap || state.lap;
+    writeState({
+      batches: (previous.batches || 0) + state.batches,
+      totalNew: (previous.totalNew || 0) + state.totalNew,
+      totalKrillion: (previous.totalKrillion || 0) + state.totalKrillion,
+      lap: state.lap,
+      lastBurstAt: previous.lastBurstAt || 0,
+      updatedAt: now(),
+    });
     const dealMs = now() - t0;
     const prompts = lap.prompts;
     const tickets = lap.tickets || {};
+    const freshPrompts = prompts.filter((p) => !seenQuestions.has(p.text)).length;
+    prompts.forEach((p) => seenQuestions.add(p.text));
 
     // Step 2: one probe to learn the remaining window. If it succeeds, reuse
     // that bank instead of re-fetching the same ticket (saves one call).
@@ -263,9 +282,10 @@ async function main() {
     state.totalNew += bankNew;
     state.totalKrillion += bankKrillion;
     writeState({
-      batches: previous.batches ? previous.batches + state.batches : state.batches,
+      batches: (previous.batches || 0) + state.batches,
       totalNew: (previous.totalNew || 0) + state.totalNew,
       totalKrillion: (previous.totalKrillion || 0) + state.totalKrillion,
+      lap: state.lap,
       lastBurstAt: now(),
       updatedAt: now(),
     });
@@ -273,9 +293,10 @@ async function main() {
     console.log('[harvest_game] batch=' + state.batches +
       ' seconds=' + ((now() - t0) / 1000).toFixed(1) +
       ' dealMs=' + dealMs + ' waitMs=' + waitMs + ' burstMs=' + burstMs +
-      ' prompts=' + prompts.length + ' answers=' + bankAnswers +
-      ' added=' + bankNew + ' krillion=' + bankKrillion +
-      ' totalAdded=' + state.totalNew);
+      ' prompts=' + prompts.length + ' fresh=' + freshPrompts +
+      ' answers=' + bankAnswers + ' added=' + bankNew +
+      ' krillion=' + bankKrillion + ' totalAdded=' + state.totalNew +
+      ' lap=' + String(state.lap || '').slice(0, 24));
 
     const milestone = Math.floor(state.totalNew / 1000);
     if (milestone > state.lastMilestone) {
