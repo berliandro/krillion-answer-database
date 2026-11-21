@@ -14,7 +14,8 @@ meant unless a step is genuinely blocked.
 | `injection/data/failed_prompts.jsonl` | Prompts that had no bank, and unreachable-bridge events |
 | `injection/data/fetch_queue.jsonl` | Missing prompts whose banks are being/were fetched |
 | `injection/data/corrections.jsonl` | Authoritative demotions (only from dive-end bank data) |
-| `injection/data/learned.jsonl` | All answers seen from dive-end banks |
+| `injection/data/learned.jsonl` | Answers from dive-end banks — only our own (`source: own`) and the game's graded banks (`source: api`) |
+| `injection/data/other_users_quarantine.jsonl` | Other players' answers removed from the archive; never import these |
 | `data/answers_injection.jsonl` | New answer rows in the importer's format |
 
 ## Steps

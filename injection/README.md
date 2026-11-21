@@ -129,5 +129,10 @@ from `playdaily.org`, respecting the cooldown and de-duplicating. Disable with
 `KRILLION_NO_FETCH=1`. Queue: `/api/fetch-queue?t=krillion-local-v1`.
 
 The userscript retries each failed request up to 3 times with a 12-second
-timeout before showing an error. **"Process the log"** is a standing workflow —
-see `PROCESS-LOG.md`.
+timeout before showing an error.
+
+**Other players are never recorded.** In multiplayer/1v1 only our own answers
+(`source: own`) and the game's own graded banks (`source: api`) enter the archive.
+Past rows from other players were quarantined in
+`injection/data/other_users_quarantine.jsonl`. **"Process the log"** is a
+standing workflow — see `PROCESS-LOG.md`.

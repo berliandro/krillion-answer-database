@@ -101,6 +101,11 @@ never modified.
    with `KRILLION_NO_FETCH=1`.
 4. **Auto-enter is paused when several banks match.** A wrong-bank auto pick
    would produce misleading evidence.
+5. **Never record other players' answers.** In multiplayer/1v1 the site AI-grades
+   arbitrary user answers inconsistently (100 once, 60 or 85 later). Bank capture
+   keeps only our own rows (`.kr-line[data-me]`, `source: own`) and the game's own
+   graded banks (`source: api`). Past `dom` rows were quarantined to
+   `data/other_users_quarantine.jsonl`.
 
 ### "Process the log"
 
