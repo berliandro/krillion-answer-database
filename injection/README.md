@@ -115,7 +115,12 @@ http://127.0.0.1:8768/api/failed?t=krillion-local-v1
 ```
 
 Every submitted answer is logged to `injection/data/evidence.jsonl` (view at
-`/api/evidence?t=krillion-local-v1`). **Play scores never demote an answer** —
+`/api/evidence?t=krillion-local-v1`). Whenever the script is unsure which prompt
+it is looking at — two banks with percentages, no match, or a score under 100 —
+it also records the **exact prompt shown by the game** and the candidate banks in
+`injection/data/prompt_review.jsonl` (view at
+`/api/prompt-review?t=krillion-local-v1`). That log is what "process the log"
+uses to improve the matching logic over time. **Play scores never demote an answer** —
 the game AI-grades unknown answers inconsistently. Only the dive-end graded bank
 can change the rare tier; the policy is in `DECISIONS.md`.
 

@@ -9,6 +9,7 @@ meant unless a step is genuinely blocked.
 | File | Contents |
 | --- | --- |
 | `injection/data/evidence.jsonl` | Every submitted answer: on-screen prompt, bank chosen, answer, points, mode, whether the match was exact, how many banks were shown, auto on/off |
+| `injection/data/prompt_review.jsonl` | The **actual prompt shown by the game** when matching was ambiguous (`ambiguous`), nothing was found (`no-match`), or the score was below 100 (`low-score`), with the candidate banks and their scores |
 | `injection/data/aliases.jsonl` | Potential rewordings of a prompt (log only — never applied to matching) |
 | `injection/data/failed_prompts.jsonl` | Prompts that had no bank, and unreachable-bridge events |
 | `injection/data/fetch_queue.jsonl` | Missing prompts whose banks are being/were fetched |
@@ -20,9 +21,14 @@ meant unless a step is genuinely blocked.
 
 1. **Read** all logs above. Report counts and any anomalies (e.g. many
    `no-match`, repeated unreachable events, fetch failures).
-2. **Review `evidence.jsonl`:** group by `(chosen_bank, answer, points)` and by
-   `screen_prompt`. Remember: play scores never demote. Look for prompts where
-   a different bank repeatedly scores 100 — these are the only alias *candidates*.
+2. **Review `prompt_review.jsonl` and `evidence.jsonl`.** This is the AI-judgement
+   step the user asked for: read the real on-screen wording, group repeated
+   `ambiguous` / `low-score` / `no-match` entries, and decide what is wrong —
+   a missing phrase in the bridge's query rewrites, a near-duplicate bank we
+   keep confusing, a prompt not in the archive, or genuinely inconsistent AI
+   grading. Propose a concrete fix (usually a rewrite rule in `bridge.py`,
+   never an alias pinned into the matcher from one observation). Remember:
+   play scores never demote.
 3. **Apply authoritative demotions:** these are already in `corrections.jsonl`
    from bank data. Verify each record has `mode: "bank"`. If any older play-
    based correction exists there, remove it.

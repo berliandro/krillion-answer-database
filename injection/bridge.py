@@ -31,6 +31,7 @@ BASE_DB = DATA_DIR / "krillion_only.db"
 IMPORT_JSONL = DATA_DIR / "answers_injection.jsonl"
 MISSES = INJ / "data" / "failed_prompts.jsonl"
 EVIDENCE = INJ / "data" / "evidence.jsonl"
+PROMPT_REVIEW = INJ / "data" / "prompt_review.jsonl"
 FETCH_QUEUE = INJ / "data" / "fetch_queue.jsonl"
 CORRECTIONS = DATA / "corrections.jsonl"
 LEARNED = DATA / "learned.jsonl"
@@ -58,7 +59,7 @@ except Exception as _e:
     normalise = lambda s: " ".join(str(s).strip().lower().split())
 
 DATA.mkdir(parents=True, exist_ok=True)
-for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES, EVIDENCE, FETCH_QUEUE):
+for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES, EVIDENCE, PROMPT_REVIEW, FETCH_QUEUE):
     f.touch(exist_ok=True)
 if not CHANGELOG.exists():
     CHANGELOG.write_text(
@@ -164,6 +165,24 @@ def add_evidence(body):
     with EVIDENCE.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     return {"ok": True, "action": "logged"}
+
+
+def add_prompt_review(body):
+    """Record the prompt the game actually showed when matching was uncertain
+    or a submitted answer scored below 100. This is how we learn the real
+    wording and fix the matcher later, instead of blaming the answer."""
+    prompt = str(body.get("screen_prompt", "")).strip()
+    kind = str(body.get("kind", "ambiguous")).strip()
+    if not prompt:
+        return {"ok": False, "error": "screen_prompt is required"}
+    rec = {"at": now(), "kind": kind, "screen_prompt": prompt}
+    for key in ("candidates", "chosen_bank", "answer", "points", "tier",
+                "mode", "exact", "auto"):
+        if key in body:
+            rec[key] = body[key]
+    with PROMPT_REVIEW.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return {"ok": True, "kind": kind}
 
 
 # Backwards compatibility for any older userscript copy still posting here.
@@ -387,6 +406,9 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/evidence":
             self._send(200, {"ok": True, "events": read_jsonl(EVIDENCE)[-100:]})
             return
+        if parsed.path == "/api/prompt-review":
+            self._send(200, {"ok": True, "prompts": read_jsonl(PROMPT_REVIEW)[-200:]})
+            return
         if parsed.path == "/api/fetch-queue":
             self._send(200, {"ok": True, "queue": read_jsonl(FETCH_QUEUE)[-50:]})
             return
@@ -433,6 +455,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, add_bank(body.get("rows", [])))
             elif parsed.path == "/api/miss":
                 self._send(200, add_miss(body))
+            elif parsed.path == "/api/prompt-review":
+                self._send(200, add_prompt_review(body))
             else:
                 self._send(404, {"ok": False, "error": "not found"})
 

@@ -441,6 +441,9 @@
           promptId: bankByPrompt[question] || '',
           ticket: ticketByPrompt[question] || '',
         });
+        reportPrompt('no-match', question, {
+          candidates: candidateInfo(), mode: mode(), auto: state.autoEnter,
+        });
         status('No 100-point answers recorded for this prompt.', 'error');
       } else if (!data.exact && state.groups.length > 1) {
         status(`Closest prompt: ${state.groups[0].question} — ${total} answers in ${state.groups.length} separate banks.`);
@@ -448,6 +451,13 @@
         status(`Matched “${state.groups[0].question}” — ${total} rare answers.`);
       } else {
         status(`${total} known 100-point answer${total === 1 ? '' : 's'}.`, 'ok');
+      }
+      // Whenever we are not sure which stored prompt this really is, record
+      // the exact wording the game showed together with the candidate banks.
+      if (!data.exact || state.groups.length > 1) {
+        reportPrompt('ambiguous', question, {
+          candidates: candidateInfo(), mode: mode(), auto: state.autoEnter,
+        });
       }
     } catch (e) {
       reportMiss(question, 'unreachable: ' + (e && e.message || e));
@@ -502,7 +512,17 @@
       });
       status(points >= 100
         ? `${answer} scored 100 — logged.`
-        : `${answer} scored ${points} — logged for review (no demotion from play).`, 'ok');
+        : `${answer} scored ${points} — prompt + answer logged for review.`, 'ok');
+      if (points < 100) {
+        // The prompt may be the problem, not the answer: a near-duplicate bank
+        // can make us show slightly wrong answers that only score 85.
+        reportPrompt('low-score', state.question, {
+          candidates: candidateInfo(),
+          chosen_bank: question,
+          answer, points, tier,
+          mode: mode(), exact: state.exact, auto: state.autoEnter,
+        });
+      }
     } catch (e) {
       status('Could not log score — bridge offline.', 'error');
     }
@@ -538,6 +558,21 @@
 
   // ---- resilient posting -------------------------------------------------
   const QUEUE_KEY = 'krillion.pending.v1';
+  function reportPrompt(kind, prompt, extra) {
+    const body = Object.assign({ kind, screen_prompt: prompt }, extra || {});
+    request('/api/prompt-review', {
+      method: 'POST', body, retries: 1,
+    }).catch(() => queuePost('/api/prompt-review', body));
+  }
+
+  function candidateInfo() {
+    return state.groups.map((g) => ({
+      question: g.question,
+      score: Number(g.score || 0),
+      answer_count: (g.answers || []).length,
+    }));
+  }
+
   function reportMiss(prompt, reason, extra) {
     const body = Object.assign({ prompt, reason }, extra || {});
     request('/api/miss', {
