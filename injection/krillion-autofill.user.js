@@ -24,7 +24,9 @@
   const SEL = {
     prompt: 'p.kr-prompt',
     intro: '.kr-intro',
+    form: 'form.kr-bar',
     input: 'input.kr-input',
+    send: 'button.kr-send',
     reveal: '.kr-reveal[role="status"]',
     revealTier: '.kr-reveal-tier',
     revealPoints: '.kr-reveal-points b',
@@ -47,7 +49,9 @@
     scored: new Set(),
     bankSent: '',
     collapsed: false,
+    autoEnter: false,
   };
+  const AUTO_KEY = 'krillion.autoEnter.v1';
   const seenDeals = {};   // promptId -> exact question text
   const seenBanks = [];   // full graded banks observed from the site's own API
 
@@ -161,15 +165,18 @@
       padding:3px 8px; font-size:11px; font-weight:650; line-height:1.2; flex:none;
     }
     #ka-count[hidden]{display:none}
-    #ka-toggle{
+    #ka-toggle,#ka-auto{
       appearance:none; background:var(--ka-surface-2); color:var(--ka-text);
       border:1px solid var(--ka-line-strong); border-radius:8px;
       padding:5px 10px; font:inherit; font-size:12px; line-height:1.2; cursor:pointer;
       transition:background-color .12s ease,border-color .12s ease;
     }
-    #ka-toggle:hover{background:var(--ka-raised);border-color:var(--ka-accent)}
-    #ka-toggle:active{background:var(--ka-surface)}
-    #ka-toggle:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
+    #ka-toggle:hover,#ka-auto:hover{background:var(--ka-raised);border-color:var(--ka-accent)}
+    #ka-toggle:active,#ka-auto:active{background:var(--ka-surface)}
+    #ka-toggle:focus-visible,#ka-auto:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
+    #ka-auto[aria-pressed="true"]{
+      background:#2c3a30; border-color:var(--ka-success); color:var(--ka-success);
+    }
     #ka-body{padding:12px;overflow:auto;display:grid;gap:10px;min-height:0}
     #ka-root[data-collapsed="true"] #ka-body{display:none}
     #ka-status{
@@ -217,7 +224,7 @@
     }
     @media (pointer: coarse){
       .ka-chip{min-height:44px}
-      #ka-toggle{min-height:44px;padding-inline:12px}
+      #ka-toggle,#ka-auto{min-height:44px;padding-inline:12px}
     }
     @media (max-width: 560px){
       #ka-root{
@@ -228,9 +235,9 @@
       }
     }
     @media (forced-colors: active){
-      #ka-root,#ka-toggle,.ka-chip{border:1px solid CanvasText}
+      #ka-root,#ka-toggle,#ka-auto,.ka-chip{border:1px solid CanvasText}
       .ka-chip[data-filled="true"]::before{background:Highlight}
-      #ka-toggle:focus-visible,.ka-chip:focus-visible{outline:2px solid Highlight}
+      #ka-toggle:focus-visible,#ka-auto:focus-visible,.ka-chip:focus-visible{outline:2px solid Highlight}
     }
     @media (prefers-reduced-motion: reduce){
       #ka-root{animation:ka-in-quiet .16s ease-out both}
@@ -245,6 +252,7 @@
     '<div id="ka-head">' +
       '<h2 id="ka-title">Krillion rare answers</h2>' +
       '<span id="ka-count" hidden></span>' +
+      '<button id="ka-auto" type="button" aria-pressed="false" title="When on, the script submits the answer after filling it">Auto: Off</button>' +
       '<button id="ka-toggle" type="button" aria-controls="ka-body" aria-expanded="true">Hide</button>' +
     '</div>' +
     '<div id="ka-body">' +
@@ -265,6 +273,24 @@
     $('ka-toggle').textContent = state.collapsed ? 'Show' : 'Hide';
     $('ka-toggle').setAttribute('aria-expanded', String(!state.collapsed));
   });
+
+  function setAuto(on) {
+    state.autoEnter = !!on;
+    try { GM_setValue(AUTO_KEY, state.autoEnter); } catch (e) { /* no storage */ }
+    const btn = $('ka-auto');
+    btn.setAttribute('aria-pressed', String(state.autoEnter));
+    btn.textContent = state.autoEnter ? 'Auto: On' : 'Auto: Off';
+    $('ka-foot').textContent = state.autoEnter
+      ? 'Auto-enter is ON — clicking an answer dives immediately.'
+      : 'Click an answer to fill the box. You press Enter to dive.';
+    status(state.autoEnter
+      ? 'Auto-enter on — clicking an answer will dive.'
+      : 'Auto-enter off — you press Enter.', state.autoEnter ? 'ok' : '');
+  }
+
+  try { state.autoEnter = !!GM_getValue(AUTO_KEY, false); } catch (e) { /* no storage */ }
+  setAuto(state.autoEnter);
+  $('ka-auto').addEventListener('click', () => setAuto(!state.autoEnter));
 
   function status(text, kind = '') {
     statusEl.textContent = text;
@@ -304,6 +330,24 @@
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  function submitAnswer() {
+    // requestSubmit fires a native submit React can see, unlike a synthetic
+    // keydown. Fall back to Enter, then the DIVE button.
+    const form = document.querySelector(SEL.form);
+    if (form && typeof form.requestSubmit === 'function') {
+      try { form.requestSubmit(); return true; } catch (e) { /* try fallback */ }
+    }
+    const input = document.querySelector(SEL.input);
+    if (input) {
+      input.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true,
+      }));
+    }
+    const send = document.querySelector(SEL.send);
+    if (send) { send.click(); return true; }
+    return false;
+  }
+
   function fill(answer, btn) {
     const input = document.querySelector(SEL.input);
     if (!input || !answer) return;
@@ -316,7 +360,12 @@
     state.answerQuestion[answer] = btn.dataset.q || state.question;
     listEl.querySelectorAll('.ka-chip').forEach((b) => { b.dataset.filled = 'false'; });
     btn.dataset.filled = 'true';
-    status(`Filled “${answer}” — press Enter to dive.`, 'ok');
+    if (state.autoEnter) {
+      status(`Auto-diving with “${answer}”…`, 'ok');
+      setTimeout(submitAnswer, 220);
+    } else {
+      status(`Filled “${answer}” — press Enter to dive.`, 'ok');
+    }
   }
 
   // ---- prompt + scoring --------------------------------------------------

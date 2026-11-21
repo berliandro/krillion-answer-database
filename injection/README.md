@@ -36,8 +36,12 @@ it never embeds the data, so the script stays small.
 ## What it does
 
 - Detects the exact prompt from `p.kr-prompt` and lists all known 100-point answers.
-- One click fills `input.kr-input` using the native value setter; **you press
-  Enter/DIVE** to submit.
+- One click fills `input.kr-input` using the native value setter.
+- **Auto: Off** (default): **you press Enter/DIVE** to submit, as before.
+- **Auto: On**: clicking an answer submits it immediately via the form's native
+  `requestSubmit()`, so the dive advances without a keypress. The setting is
+  remembered between page loads. Use the **Auto** button in the panel header to
+  switch it; the button turns green while active.
 - After submission it reads the score from `.kr-reveal-points` (solo) or
   `.kr-board-head` (multiplayer/1v1). If a known 100-point answer scores less
   than 100, the bridge removes it from the rare list and appends a dated entry
