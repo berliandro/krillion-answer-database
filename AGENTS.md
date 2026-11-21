@@ -27,3 +27,7 @@ Repo is currently empty — no manifests, README, or code. **Build the setup fir
 - Near-duplicate prompts are shown as separate labelled banks, never merged. Aliases/rewordings are logged, never applied to matching.
 - **"Process the log"** is a standing workflow request from the user: follow `injection/PROCESS-LOG.md` end to end (review logs → apply bank demotions → run `python scripts/krillion_db.py import` → rebuild static site → commit → changelog summary).
 - Two sessions may be active: one optimizing the webapp UI, one refining the userscript. Keep edits inside your owned paths.
+
+## Known collaborator sessions
+- **Temper Monkey — `ses_e2b203261ffe4C8zv7YnWRIa5T`** (directory `D:\! Coding\~ shit projects\tempermonkey`): the Tampermonkey/userscript expert. It researched the injection architecture (recommended userscript + loopback bridge) and ran an Impeccable UI refinement pass on `injection/krillion-autofill.user.js`. It has **handed file ownership back and made no further writes** — contact it via session-comm for future userscript/UI work, but do not assume it is actively editing.
+- Webapp optimizer — `ses_e02cd31c6ffeo6sOSvrJ4hF7XE`: owns webapp/site files (`README.md`, `index.html`, `scripts/*`, templates, `docs/*`, `PRODUCT.md`, `DESIGN.md`). Coordinate before editing those paths.
