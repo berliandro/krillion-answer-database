@@ -883,6 +883,21 @@
         restartFromResults();
       } else if (visible('.kr-intro') || visible('button.kr-begin')) {
         startMode();
+      } else if (bot.mode === 'duel') {
+        // The 1v1 arena has its own lobby with a start/find-match button.
+        const btn = [...document.querySelectorAll('button')].find((b) =>
+          b.offsetParent !== null
+          && !/kr-online|kr-begin|kr-wallet-card/.test(b.className)
+          && /find|match|start|search|enter|queue|duel|play/i.test(b.innerText || '')
+        );
+        if (btn && btn !== bot.lastAction) {
+          bot.lastAction = btn;
+          reportBot('duel-start', { note: (btn.innerText || '').trim().slice(0, 80) });
+          btn.click();
+          botStatus('starting duel');
+        } else {
+          botStatus('waiting for opponent');
+        }
       } else {
         botStatus('waiting');
       }
