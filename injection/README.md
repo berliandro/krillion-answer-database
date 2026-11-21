@@ -25,8 +25,9 @@ it never embeds the data, so the script stays small.
    python injection/bridge.py
    ```
 
-   Leave that window running while you play. It binds loopback only and requires
-   the header token `krillion-local-v1` (hard-coded in both files).
+   Leave that window running while you play. It binds loopback only. The token
+   (`krillion-local-v1`) travels in the URL query, not a custom header, so Edge
+   does not need a CORS preflight for https → localhost requests.
 
 3. In Tampermonkey, create a new script and paste the entire contents of
    `injection/krillion-autofill.user.js`. Save.
@@ -76,8 +77,21 @@ The bridge never merges them:
 
 No existing database or file owned by the webapp optimizer is modified.
 
-## Health check
+## Health check / diagnosing a failed prompt
 
-```powershell
-curl.exe -H "X-Krillion-Token: krillion-local-v1" http://127.0.0.1:8768/api/health
+Open this in Edge's address bar — if it returns JSON, the bridge is reachable
+from Edge itself:
+
 ```
+http://127.0.0.1:8768/api/health?t=krillion-local-v1
+```
+
+Prompts that cannot be answered, or requests that fail, are logged to
+`injection/data/failed_prompts.jsonl`. Read them from the browser at:
+
+```
+http://127.0.0.1:8768/api/failed?t=krillion-local-v1
+```
+
+The userscript now retries each failed request up to 3 times with a 12-second
+timeout before showing an error.

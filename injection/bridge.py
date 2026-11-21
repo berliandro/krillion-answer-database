@@ -10,6 +10,7 @@ Run:  python injection/bridge.py        (listens on 127.0.0.1:8768)
 import json
 import re
 import sqlite3
+import sys
 import threading
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -24,6 +25,7 @@ BASE_DB = DATA_DIR / "krillion_only.db"
 # New answers are also mirrored here so the optimizer's krillion_db.py import
 # can ingest them into the authoritative full DB and rebuild the derived DBs.
 IMPORT_JSONL = DATA_DIR / "answers_injection.jsonl"
+MISSES = INJ / "data" / "failed_prompts.jsonl"
 CORRECTIONS = DATA / "corrections.jsonl"
 LEARNED = DATA / "learned.jsonl"
 CHANGELOG = INJ / "CHANGELOG.md"
@@ -50,7 +52,7 @@ except Exception as _e:
     normalise = lambda s: " ".join(str(s).strip().lower().split())
 
 DATA.mkdir(parents=True, exist_ok=True)
-for f in (CORRECTIONS, LEARNED, IMPORT_JSONL):
+for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES):
     f.touch(exist_ok=True)
 if not CHANGELOG.exists():
     CHANGELOG.write_text(
@@ -119,7 +121,10 @@ def resolve_question(query):
             "answers": answers_for(exact, removed),
         }]
 
-    hits = MATCHER.search(query, limit=5, threshold=0.62) if MATCHER else []
+    # "beginning with" is a common paraphrase of the bank's "starting with".
+    # Without this rewrite a real bank scores only ~0.57 and misses the cutoff.
+    q = re.sub(r"\bbeginning\s+with\b", "starting with", query, flags=re.I)
+    hits = MATCHER.search(q, limit=5, threshold=0.62) if MATCHER else []
     # Stricter relative cut-off than the general matcher: only near-equal
     # candidates survive, so a "song" bank never tags along on a "film" query.
     if hits:
@@ -166,6 +171,18 @@ def add_correction(body):
         f"(scored {points}, tier {tier or 'unknown'}, {mode})"
     )
     return {"ok": True, "action": "removed"}
+
+
+def add_miss(body):
+    prompt = str(body.get("prompt", "")).strip()
+    reason = str(body.get("reason", "unknown")).strip()
+    if not prompt:
+        return {"ok": False, "error": "prompt is required"}
+    with MISSES.open("a", encoding="utf-8") as f:
+        f.write(json.dumps({
+            "at": now(), "prompt": prompt, "reason": reason,
+        }, ensure_ascii=False) + "\n")
+    return {"ok": True}
 
 
 def add_bank(rows):
@@ -231,7 +248,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urlparse(self.path)
-        if self.headers.get('X-Krillion-Token') != TOKEN:
+        params = parse_qs(parsed.query)
+        supplied = (params.get("t") or [self.headers.get('X-Krillion-Token', "")])[0]
+        if supplied != TOKEN:
             self._send(403, {"ok": False, "error": "bad token"})
             return
         if parsed.path in ("/api/status", "/api/health"):
@@ -240,7 +259,11 @@ class Handler(BaseHTTPRequestHandler):
                 "base_answers": sum(1 for _ in sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True).execute("SELECT 1 FROM answers")),
                 "corrections": len(read_jsonl(CORRECTIONS)),
                 "learned": len(read_jsonl(LEARNED)),
+                "misses": len(read_jsonl(MISSES)),
             })
+            return
+        if parsed.path == "/api/failed":
+            self._send(200, {"ok": True, "misses": read_jsonl(MISSES)[-50:]})
             return
         if parsed.path == "/api/userscript.js":
             src = (INJ / "krillion-autofill.user.js").read_text(encoding="utf-8")
@@ -265,7 +288,10 @@ class Handler(BaseHTTPRequestHandler):
         self._send(404, {"ok": False, "error": "not found"})
 
     def do_POST(self):
-        if self.headers.get('X-Krillion-Token') != TOKEN:
+        parsed = urlparse(self.path)
+        params = parse_qs(parsed.query)
+        supplied = (params.get("t") or [self.headers.get('X-Krillion-Token', "")])[0]
+        if supplied != TOKEN:
             self._send(403, {"ok": False, "error": "bad token"})
             return
         length = int(self.headers.get("Content-Length", 0) or 0)
@@ -276,12 +302,21 @@ class Handler(BaseHTTPRequestHandler):
             self._send(400, {"ok": False, "error": "invalid JSON"})
             return
         with LOCK:
-            if self.path == "/api/correction":
+            if parsed.path == "/api/correction":
                 self._send(200, add_correction(body))
-            elif self.path == "/api/bank":
+            elif parsed.path == "/api/bank":
                 self._send(200, add_bank(body.get("rows", [])))
+            elif parsed.path == "/api/miss":
+                self._send(200, add_miss(body))
             else:
                 self._send(404, {"ok": False, "error": "not found"})
+
+    def handle_error(self, request, client_address):
+        # Browsers abort in-flight requests on navigation; do not spam logs.
+        err = sys.exc_info()[1]
+        if isinstance(err, (BrokenPipeError, ConnectionResetError, ConnectionAbortedError)):
+            return
+        super().handle_error(request, client_address)
 
     def log_message(self, *args):
         pass

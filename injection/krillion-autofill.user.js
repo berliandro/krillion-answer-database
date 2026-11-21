@@ -82,87 +82,159 @@
   })();
 
   function request(path, options = {}) {
+    let left = options.retries === undefined ? 2 : options.retries;
     return new Promise((resolve, reject) => {
-      const details = {
-        method: options.method || 'GET',
-        url: BRIDGE + path,
-        timeout: 4000,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Krillion-Token': TOKEN,
-        },
-        data: options.body ? JSON.stringify(options.body) : undefined,
-        onload: (r) => {
-          try { resolve(JSON.parse(r.responseText)); }
-          catch (e) { reject(new Error('bridge returned non-JSON')); }
-        },
-        onerror: () => reject(new Error('bridge offline')),
-        ontimeout: () => reject(new Error('bridge timeout')),
+      const retry = (err) => {
+        if (left-- > 0) setTimeout(go, 400);
+        else reject(err);
       };
-      GM_xmlhttpRequest(details);
+      const go = () => {
+        GM_xmlhttpRequest({
+          method: options.method || 'GET',
+          // Token in the URL, not a custom header: custom headers force a CORS
+          // preflight that Edge/Tampermonkey can abort on https -> loopback.
+          url: BRIDGE + path + (path.indexOf('?') === -1 ? '?' : '&') + 't=' + encodeURIComponent(TOKEN),
+          timeout: 12000,
+          headers: {},
+          data: options.body ? JSON.stringify(options.body) : undefined,
+          onload: (r) => {
+            try { resolve(JSON.parse(r.responseText)); }
+            catch (e) { reject(new Error('bridge returned non-JSON')); }
+          },
+          onerror: () => retry(new Error('bridge offline')),
+          ontimeout: () => retry(new Error('bridge timeout')),
+        });
+      };
+      go();
     });
   }
 
   // ---- panel -------------------------------------------------------------
   GM_addStyle(`
     #ka-root{
-      position:fixed; top:18px; right:18px; z-index:2147483000; width:312px;
+      --ka-surface:#1d2228; --ka-surface-2:#262d34;
+      --ka-raised:#313a43; --ka-text:#eceee9; --ka-muted:#b4bcc0;
+      --ka-accent:#e0ae6a; --ka-success:#9fc6a8; --ka-error:#e6a19a;
+      --ka-line:#343c44; --ka-line-strong:#4d5a63;
+      position:fixed; top:18px; right:18px; z-index:2147483000;
+      width:min(312px, calc(100vw - 24px));
       max-height:min(74vh,640px); display:flex; flex-direction:column;
-      background:#111725; border:1px solid #2c3857; border-radius:14px;
-      box-shadow:0 14px 40px rgba(0,0,0,.38);
-      color:#e9eefb; font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
-      font-variant-numeric:tabular-nums; overflow:hidden;
-      opacity:1; transform:translateY(0);
-      animation:ka-in .42s cubic-bezier(.16,1,.3,1) both;
+      background:var(--ka-surface); border:1px solid var(--ka-line); border-radius:14px;
+      box-shadow:0 14px 40px rgba(0,0,0,.34), 0 2px 8px rgba(0,0,0,.16);
+      color:var(--ka-text); font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
+      font-variant-numeric:tabular-nums; overflow:hidden; overflow-wrap:anywhere;
+      caret-color:var(--ka-accent);
+      animation:ka-in .28s cubic-bezier(.16,1,.3,1) both;
     }
-    @keyframes ka-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-    #ka-root ::selection{background:#4d6bff55;color:#fff}
-    #ka-root *{scrollbar-color:#35426a #111725;scrollbar-width:thin}
-    #ka-root *::-webkit-scrollbar{width:8px}
-    #ka-root *::-webkit-scrollbar-thumb{background:#35426a;border-radius:99px}
+    @supports (color: oklch(0.24 0.012 250)){
+      #ka-root{
+        --ka-surface:oklch(0.29 0.014 250);
+        --ka-surface-2:oklch(0.35 0.016 250); --ka-raised:oklch(0.41 0.018 250);
+        --ka-text:oklch(0.94 0.01 90); --ka-muted:oklch(0.78 0.018 250);
+        --ka-accent:oklch(0.82 0.10 75); --ka-success:oklch(0.84 0.07 155);
+        --ka-line:oklch(0.38 0.014 250); --ka-line-strong:oklch(0.49 0.016 250);
+      }
+    }
+    @keyframes ka-in{from{opacity:0;transform:translate3d(8px,-6px,0) scale(.985)}to{opacity:1;transform:none}}
+    @keyframes ka-in-quiet{from{opacity:0}to{opacity:1}}
+    #ka-root::before{
+      content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity:.055; mix-blend-mode:soft-light;
+    }
+    #ka-root ::selection{background:rgba(224,174,106,.30);color:var(--ka-text)}
+    #ka-root *{scrollbar-color:var(--ka-line-strong) var(--ka-surface);scrollbar-width:thin}
+    #ka-root *::-webkit-scrollbar{width:8px;height:8px}
+    #ka-root *::-webkit-scrollbar-track{background:var(--ka-surface)}
+    #ka-root *::-webkit-scrollbar-thumb{background:var(--ka-line-strong);border-radius:99px;border:2px solid var(--ka-surface)}
     #ka-head{
       display:flex; align-items:center; gap:10px; padding:12px 14px;
-      border-bottom:1px solid #222d48; flex:none;
+      border-bottom:1px solid var(--ka-line); flex:none; min-width:0;
     }
-    #ka-title{font-size:14px;font-weight:650;letter-spacing:-.01em;margin:0;flex:1}
-    #ka-count{color:#9aabcf;font-size:12px;font-weight:500}
+    #ka-title{
+      font-size:14px; font-weight:650; letter-spacing:-.01em; line-height:1.25;
+      margin:0; flex:1; min-width:0; text-wrap:balance; color:var(--ka-text);
+    }
+    #ka-count{
+      color:var(--ka-accent); background:var(--ka-surface-2);
+      border:1px solid var(--ka-line); border-radius:999px;
+      padding:3px 8px; font-size:11px; font-weight:650; line-height:1.2; flex:none;
+    }
+    #ka-count[hidden]{display:none}
     #ka-toggle{
-      appearance:none; background:#1b2540; color:#c9d6f5; border:1px solid #35426a;
-      border-radius:8px; padding:4px 9px; font:inherit; font-size:12px; cursor:pointer;
+      appearance:none; background:var(--ka-surface-2); color:var(--ka-text);
+      border:1px solid var(--ka-line-strong); border-radius:8px;
+      padding:5px 10px; font:inherit; font-size:12px; line-height:1.2; cursor:pointer;
+      transition:background-color .12s ease,border-color .12s ease;
     }
-    #ka-toggle:hover{background:#263357}
-    #ka-toggle:focus-visible{outline:2px solid #90a6ff;outline-offset:2px}
-    #ka-body{padding:10px 12px 12px;overflow:auto;display:grid;gap:9px}
+    #ka-toggle:hover{background:var(--ka-raised);border-color:var(--ka-accent)}
+    #ka-toggle:active{background:var(--ka-surface)}
+    #ka-toggle:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
+    #ka-body{padding:12px;overflow:auto;display:grid;gap:10px;min-height:0}
     #ka-root[data-collapsed="true"] #ka-body{display:none}
     #ka-status{
-      margin:0; color:#9aabcf; font-size:12px; min-height:1.3em;
+      margin:0; color:var(--ka-muted); font-size:12px; line-height:1.45;
+      min-height:1.45em; display:flex; gap:8px; align-items:flex-start; text-wrap:pretty;
     }
-    #ka-status[data-kind="error"]{color:#ff9a9a}
-    #ka-status[data-kind="ok"]{color:#7ee2a8}
-    #ka-list{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+    #ka-status::before{
+      content:""; width:6px; height:6px; border-radius:50%;
+      background:currentColor; flex:none; margin-top:6px; opacity:.85;
+    }
+    #ka-status[data-kind="ok"]{color:var(--ka-success)}
+    #ka-status[data-kind="error"]{color:var(--ka-error)}
+    #ka-list{display:grid;gap:2px;margin:0;padding:0;list-style:none;min-width:0}
+    #ka-list>li{min-width:0}
     .ka-group{
-      display:flex; justify-content:space-between; gap:8px;
-      color:#9fb0d8; font-size:11px; line-height:1.35;
-      border-bottom:1px solid #222d48; padding:6px 2px 4px; margin-top:4px;
+      display:flex; justify-content:space-between; gap:8px; align-items:baseline;
+      color:var(--ka-muted); font-size:11px; line-height:1.35; letter-spacing:.01em;
+      border-bottom:1px solid var(--ka-line); padding:8px 2px 6px; margin-top:6px;
+      text-wrap:balance;
     }
-    .ka-group span{color:#7f91b9;flex:none;font-variant-numeric:tabular-nums}
+    .ka-group:first-child{margin-top:0}
+    .ka-group .ka-group-name{color:var(--ka-muted);min-width:0}
+    .ka-group .ka-match{color:var(--ka-accent);font-weight:650;flex:none}
     .ka-chip{
-      appearance:none; width:100%; text-align:left; cursor:pointer;
-      background:#192136; color:#eef3ff; border:1px solid #2b3859;
-      border-radius:9px; padding:8px 11px; font:inherit; font-size:13px;
-      transition:background .12s ease,border-color .12s ease;
+      position:relative; appearance:none; display:flex; align-items:center;
+      width:100%; min-height:38px; text-align:start; cursor:pointer;
+      background:transparent; color:var(--ka-text); border:1px solid transparent;
+      border-radius:8px; padding:8px 10px 8px 12px; font:inherit; font-size:13px;
+      line-height:1.35; transition:background-color .12s ease,color .12s ease,border-color .12s ease;
     }
-    .ka-chip:hover{background:#222e4d;border-color:#3e5083}
-    .ka-chip:focus-visible{outline:2px solid #90a6ff;outline-offset:2px}
-    .ka-chip[data-filled="true"]{border-color:#4b7f63;color:#bff0d3}
-    .ka-empty{color:#9aabcf;font-size:12px;text-align:center;padding:12px 0;margin:0}
+    .ka-chip::before{
+      content:""; position:absolute; inset-inline-start:0; top:50%;
+      width:3px; height:18px; transform:translateY(-50%);
+      border-radius:2px; background:transparent; transition:background-color .12s ease;
+    }
+    .ka-chip:hover{background:var(--ka-surface-2);border-color:var(--ka-line)}
+    .ka-chip:active{background:var(--ka-raised)}
+    .ka-chip:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
+    .ka-chip[data-filled="true"]{color:var(--ka-success);border-color:var(--ka-line-strong)}
+    .ka-chip[data-filled="true"]::before{background:var(--ka-accent)}
+    .ka-empty{color:var(--ka-muted);font-size:12px;text-align:center;padding:18px 10px;margin:0;text-wrap:pretty}
     #ka-foot{
-      border-top:1px solid #222d48; padding:8px 14px; color:#8496bd;
-      font-size:11px; flex:none;
+      border-top:1px solid var(--ka-line); padding:9px 14px; color:var(--ka-muted);
+      font-size:11px; line-height:1.4; flex:none; text-wrap:pretty;
+    }
+    @media (pointer: coarse){
+      .ka-chip{min-height:44px}
+      #ka-toggle{min-height:44px;padding-inline:12px}
+    }
+    @media (max-width: 560px){
+      #ka-root{
+        top:max(10px, env(safe-area-inset-top));
+        right:max(10px, env(safe-area-inset-right));
+        width:min(312px, calc(100vw - 20px));
+        max-height:min(78vh,600px);
+      }
+    }
+    @media (forced-colors: active){
+      #ka-root,#ka-toggle,.ka-chip{border:1px solid CanvasText}
+      .ka-chip[data-filled="true"]::before{background:Highlight}
+      #ka-toggle:focus-visible,.ka-chip:focus-visible{outline:2px solid Highlight}
     }
     @media (prefers-reduced-motion: reduce){
-      #ka-root{animation:none}
-      .ka-chip{transition:none}
+      #ka-root{animation:ka-in-quiet .16s ease-out both}
+      .ka-chip,.ka-chip::before{transition:background-color .12s ease,color .12s ease}
     }
   `);
 
@@ -171,15 +243,15 @@
   root.dataset.collapsed = 'false';
   root.innerHTML =
     '<div id="ka-head">' +
-      '<p id="ka-title">Krillion rare answers</p>' +
-      '<span id="ka-count"></span>' +
-      '<button id="ka-toggle" type="button">Hide</button>' +
+      '<h2 id="ka-title">Krillion rare answers</h2>' +
+      '<span id="ka-count" hidden></span>' +
+      '<button id="ka-toggle" type="button" aria-controls="ka-body" aria-expanded="true">Hide</button>' +
     '</div>' +
     '<div id="ka-body">' +
-      '<p id="ka-status" role="status" aria-live="polite">Connecting to local bridge…</p>' +
+      '<p id="ka-status" role="status" aria-live="polite" aria-atomic="true" data-kind="loading">Connecting to local bridge…</p>' +
       '<ul id="ka-list"></ul>' +
     '</div>' +
-    '<div id="ka-foot">Click an answer to fill it. Press Enter to dive.</div>';
+    '<div id="ka-foot">Click an answer to fill the box. You press Enter to dive.</div>';
   document.body.appendChild(root);
 
   const $ = (id) => root.querySelector('#' + id);
@@ -191,6 +263,7 @@
     state.collapsed = !state.collapsed;
     root.dataset.collapsed = String(state.collapsed);
     $('ka-toggle').textContent = state.collapsed ? 'Show' : 'Hide';
+    $('ka-toggle').setAttribute('aria-expanded', String(!state.collapsed));
   });
 
   function status(text, kind = '') {
@@ -201,8 +274,9 @@
   function render() {
     const total = state.groups.reduce((n, g) => n + g.answers.length, 0);
     countEl.textContent = total ? String(total) : '';
+    countEl.hidden = !total;
     if (!total) {
-      listEl.innerHTML = '<li class="ka-empty">No rare answers indexed for this prompt.</li>';
+      listEl.innerHTML = '<li class="ka-empty">No 100-point answers recorded for this prompt yet.</li>';
       return;
     }
     const multi = state.groups.length > 1;
@@ -210,8 +284,10 @@
     state.groups.forEach((g) => {
       // Near-duplicate prompts stay as distinct, labelled banks — never merged.
       if (multi) {
-        html += `<li class="ka-group"><span>${escapeHtml(g.question)}</span>` +
-                `<span>${Math.round((g.score || 0) * 100)}%</span></li>`;
+        const pct = Math.round((g.score || 0) * 100);
+        html += `<li class="ka-group" role="presentation" aria-label="Bank: ${escapeHtml(g.question)} — ${pct}% match">` +
+                `<span class="ka-group-name">${escapeHtml(g.question)}</span>` +
+                `<span class="ka-match">${pct}%</span></li>`;
       }
       g.answers.forEach((a) => {
         html += `<li><button class="ka-chip" type="button" data-a="${escapeHtml(a)}" data-q="${escapeHtml(g.question)}">${escapeHtml(a)}</button></li>`;
@@ -250,7 +326,7 @@
     state.groups = [];
     state.lastFilled = '';
     render();
-    status('Loading rare answers…');
+    status('Loading 100-point answers…', 'loading');
     try {
       const data = await request('/api/answers?q=' + encodeURIComponent(question));
       state.groups = data.groups || [{ question, score: 1, answers: data.answers || [] }];
@@ -258,16 +334,20 @@
       render();
       const total = state.answers.length;
       if (!total) {
-        status('No rare answers for this prompt in the archive.', 'error');
+        reportMiss(question, 'no-match');
+        status('No 100-point answers recorded for this prompt.', 'error');
       } else if (!data.exact && state.groups.length > 1) {
         status(`Closest prompt: ${state.groups[0].question} — ${total} answers in ${state.groups.length} separate banks.`);
       } else if (!data.exact) {
         status(`Matched “${state.groups[0].question}” — ${total} rare answers.`);
       } else {
-        status(`${total} known 100-point answer${total === 1 ? '' : 's'}.`);
+        status(`${total} known 100-point answer${total === 1 ? '' : 's'}.`, 'ok');
       }
     } catch (e) {
-      status('Local bridge offline — start injection/bridge.py.', 'error');
+      reportMiss(question, 'unreachable: ' + (e && e.message || e));
+      status(e && /timeout/.test(e.message)
+        ? 'The local archive took too long to answer — retrying on the next prompt.'
+        : 'Can’t reach the local archive. Start injection/bridge.py.', 'error');
     }
   }
 
@@ -344,6 +424,12 @@
 
   // ---- resilient posting -------------------------------------------------
   const QUEUE_KEY = 'krillion.pending.v1';
+  function reportMiss(prompt, reason) {
+    request('/api/miss', {
+      method: 'POST', body: { prompt, reason }, retries: 1,
+    }).catch(() => queuePost('/api/miss', { prompt, reason }));
+  }
+
   function queuePost(path, body) {
     try {
       const q = GM_getValue(QUEUE_KEY, []);
@@ -436,6 +522,6 @@
 
   const initial = promptText();
   if (initial) loadAnswers(initial);
-  else status('Waiting for a prompt to appear…');
+  else status('Waiting for the next prompt…', 'loading');
   flushQueue();
 })();
