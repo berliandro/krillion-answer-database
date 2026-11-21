@@ -6,3 +6,5 @@
 {"at": "2026-11-21T17:16:31Z", "prompt": "__PROMPT__", "reason": "no-match"}
 {"at": "2026-11-21T17:16:39Z", "prompt": "__PROMPT__", "reason": "no-match"}
 {"at": "2026-11-21T17:22:32Z", "prompt": "Name any kind of brush", "reason": "no-match"}
+{"at": "2026-11-21T17:29:55Z", "prompt": "Name any dish made with pork", "reason": "unreachable: bridge offline"}
+{"at": "2026-11-21T17:29:55Z", "prompt": "What's an example of a vegetable?", "reason": "unreachable: bridge offline"}
