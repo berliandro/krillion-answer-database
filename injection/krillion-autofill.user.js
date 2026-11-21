@@ -27,6 +27,7 @@
     form: 'form.kr-bar',
     input: 'input.kr-input',
     send: 'button.kr-send',
+    next: 'button.kr-next',
     reveal: '.kr-reveal[role="status"]',
     revealTier: '.kr-reveal-tier',
     revealPoints: '.kr-reveal-points b',
@@ -424,6 +425,7 @@
   // ---- prompt + scoring --------------------------------------------------
   async function loadAnswers(question) {
     state.question = question;
+    state.loadedPrompt = question;
     state.answers = [];
     state.groups = [];
     state.lastFilled = '';
@@ -554,6 +556,19 @@
     if (points === null) return;
     reportScore(q, answer, points, tier);
     state.lastFilled = '';
+
+    // Classic shows a per-prompt verdict with a NEXT button. Without this the
+    // bot stops after the first answer, and Auto mode leaves the user stuck.
+    const advanceKey = q + '\u0000' + answer + '\u0000' + points;
+    if ((state.autoEnter || bot.on) && state.advancedFor !== advanceKey) {
+      state.advancedFor = advanceKey;
+      setTimeout(() => {
+        const next = document.querySelector(SEL.next);
+        if (next && (next.offsetParent !== null || next.getClientRects().length > 0)) {
+          next.click();
+        }
+      }, 180);
+    }
   }
 
   // ---- resilient posting -------------------------------------------------
@@ -698,6 +713,7 @@
     const prompt = promptText();
     const input = document.querySelector(SEL.input);
     if (!prompt || !input || bot.answeredPrompt === prompt) return false;
+    if (state.loadedPrompt !== prompt) { botStatus('loading answers'); return false; }
     const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
     const list = groups[0].answers || [];
     const answer = pickAnswer(list);
