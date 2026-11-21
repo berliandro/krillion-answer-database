@@ -162,3 +162,5 @@ gameplay result. Newest entries are appended at the bottom.
 - 2026-11-21T16:56:00Z QUARANTINED 2536 answer(s) previously recorded from other players; future bank capture keeps only our own answers (source=own/api).
 - 2026-11-21T16:56:56Z learned 1 new answer(s) from expanded answer banks
 - 2026-11-21T16:56:56Z ignored 1 answer(s) from other players
+- 2026-11-21T16:59:37Z ignored 51 answer(s) from other players
+- 2026-11-21T17:11:12Z ignored 50 answer(s) from other players

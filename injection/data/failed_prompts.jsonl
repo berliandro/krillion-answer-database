@@ -2,3 +2,6 @@
 {"at": "2026-11-21T15:21:18Z", "prompt": "Name any animal with claws", "reason": "no-match"}
 {"at": "2026-11-21T15:36:18Z", "prompt": "Name any one kind of paper", "reason": "no-match"}
 {"at": "2026-11-21T16:13:56Z", "prompt": "Name any animal with two syllables", "reason": "unreachable: bridge offline"}
+{"at": "2026-11-21T16:56:29Z", "prompt": "Name any one doll or action figure", "reason": "unreachable: bridge offline"}
+{"at": "2026-11-21T17:16:31Z", "prompt": "__PROMPT__", "reason": "no-match"}
+{"at": "2026-11-21T17:16:39Z", "prompt": "__PROMPT__", "reason": "no-match"}
