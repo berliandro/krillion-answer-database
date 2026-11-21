@@ -86,6 +86,37 @@ def read_jsonl(path):
     return out
 
 
+_ALL_CACHE = None
+_ALL_KEY = None
+
+
+def all_answers_payload():
+    """The entire rare-answer archive for one-shot client-side preloading."""
+    global _ALL_CACHE, _ALL_KEY
+    src_path = ROOT / "krillion" / "krillion-data.json"
+    key = (
+        src_path.stat().st_mtime if src_path.exists() else 0,
+        CORRECTIONS.stat().st_mtime if CORRECTIONS.exists() else 0,
+    )
+    if _ALL_CACHE is None or _ALL_KEY != key:
+        _ALL_KEY = key
+        if src_path.exists():
+            data = json.loads(src_path.read_text(encoding="utf-8"))
+        else:
+            with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as c:
+                rows = c.execute("SELECT question, answer FROM answers ORDER BY question, answer").fetchall()
+            grouped = {}
+            for q, a in rows:
+                grouped.setdefault(q, []).append(a)
+            data = [{"q": q, "answers": a} for q, a in grouped.items()]
+        removed = removed_pairs()
+        for item in data:
+            q = item.get("q", "")
+            item["answers"] = [a for a in item.get("answers", []) if (q, a) not in removed]
+        _ALL_CACHE = data
+    return _ALL_CACHE
+
+
 def removed_pairs():
     return {
         (r.get("question", "").strip(), r.get("answer", "").strip())
@@ -405,6 +436,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/evidence":
             self._send(200, {"ok": True, "events": read_jsonl(EVIDENCE)[-100:]})
+            return
+        if parsed.path == "/api/all":
+            self._send(200, {"ok": True, "data": all_answers_payload()})
             return
         if parsed.path == "/api/prompt-review":
             self._send(200, {"ok": True, "prompts": read_jsonl(PROMPT_REVIEW)[-200:]})

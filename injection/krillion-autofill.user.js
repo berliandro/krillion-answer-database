@@ -52,6 +52,8 @@
     collapsed: false,
     autoEnter: false,
     exact: false,
+    premap: null,
+    netCache: new Map(),
   };
   const AUTO_KEY = 'krillion.autoEnter.v1';
   const seenDeals = {};   // promptId -> exact question text
@@ -423,6 +425,40 @@
   }
 
   // ---- prompt + scoring --------------------------------------------------
+  function normLocal(text) {
+    return String(text || '').trim().toLowerCase().replace(/\s+/g, ' ')
+      .replace(/\bbeginning\s+with\b/g, 'starting with');
+  }
+
+  function applyResult(data, question) {
+    state.groups = data.groups || [{ question, score: 1, answers: data.answers || [] }];
+    state.exact = !!data.exact;
+    state.answers = state.groups.reduce((all, g) => all.concat(g.answers), []);
+    render();
+    const total = state.answers.length;
+    if (!total) {
+      reportMiss(question, 'no-match', {
+        promptId: bankByPrompt[question] || '',
+        ticket: ticketByPrompt[question] || '',
+      });
+      reportPrompt('no-match', question, {
+        candidates: candidateInfo(), mode: mode(), auto: state.autoEnter,
+      });
+      status('No 100-point answers recorded for this prompt.', 'error');
+    } else if (!data.exact && state.groups.length > 1) {
+      status(`Closest prompt: ${state.groups[0].question} — ${total} answers in ${state.groups.length} separate banks.`);
+    } else if (!data.exact) {
+      status(`Matched “${state.groups[0].question}” — ${total} rare answers.`);
+    } else {
+      status(`${total} known 100-point answer${total === 1 ? '' : 's'}.`, 'ok');
+    }
+    if (!data.exact || state.groups.length > 1) {
+      reportPrompt('ambiguous', question, {
+        candidates: candidateInfo(), mode: mode(), auto: state.autoEnter,
+      });
+    }
+  }
+
   async function loadAnswers(question) {
     state.question = question;
     state.loadedPrompt = question;
@@ -430,42 +466,57 @@
     state.groups = [];
     state.lastFilled = '';
     render();
+
+    // The first prompt can appear before preloading finishes — wait for it.
+    if (!state.premap && state.preloadPromise) {
+      try { await state.preloadPromise; } catch (e) { /* continue with network */ }
+    }
+
+    // Fast path: the whole rare-answer archive was loaded once at page start.
+    const key = normLocal(question);
+    if (state.premap && state.premap.has(key)) {
+      const item = state.premap.get(key);
+      applyResult({
+        exact: true,
+        groups: [{ question: item.q, score: 1, answers: item.answers }],
+      }, question);
+      return;
+    }
+    if (state.netCache.has(key)) {
+      applyResult(state.netCache.get(key), question);
+      return;
+    }
+
     status('Loading 100-point answers…', 'loading');
     try {
       const data = await request('/api/answers?q=' + encodeURIComponent(question));
-      state.groups = data.groups || [{ question, score: 1, answers: data.answers || [] }];
-      state.exact = !!data.exact;
-      state.answers = state.groups.reduce((all, g) => all.concat(g.answers), []);
-      render();
-      const total = state.answers.length;
-      if (!total) {
-        reportMiss(question, 'no-match', {
-          promptId: bankByPrompt[question] || '',
-          ticket: ticketByPrompt[question] || '',
-        });
-        reportPrompt('no-match', question, {
-          candidates: candidateInfo(), mode: mode(), auto: state.autoEnter,
-        });
-        status('No 100-point answers recorded for this prompt.', 'error');
-      } else if (!data.exact && state.groups.length > 1) {
-        status(`Closest prompt: ${state.groups[0].question} — ${total} answers in ${state.groups.length} separate banks.`);
-      } else if (!data.exact) {
-        status(`Matched “${state.groups[0].question}” — ${total} rare answers.`);
-      } else {
-        status(`${total} known 100-point answer${total === 1 ? '' : 's'}.`, 'ok');
-      }
-      // Whenever we are not sure which stored prompt this really is, record
-      // the exact wording the game showed together with the candidate banks.
-      if (!data.exact || state.groups.length > 1) {
-        reportPrompt('ambiguous', question, {
-          candidates: candidateInfo(), mode: mode(), auto: state.autoEnter,
-        });
-      }
+      state.netCache.set(key, data);
+      applyResult(data, question);
     } catch (e) {
       reportMiss(question, 'unreachable: ' + (e && e.message || e));
       status(e && /timeout/.test(e.message)
         ? 'The local archive took too long to answer — retrying on the next prompt.'
         : 'Can’t reach the local archive. Start injection/bridge.py.', 'error');
+    }
+  }
+
+  async function preloadAnswers() {
+    try {
+      const data = await request('/api/all');
+      const map = new Map();
+      (data.data || []).forEach((item) => {
+        if (item && item.q) map.set(normLocal(item.q), { q: item.q, answers: item.answers || [] });
+      });
+      state.premap = map;
+      if (state.question && map.has(normLocal(state.question))) {
+        const item = map.get(normLocal(state.question));
+        applyResult({
+          exact: true,
+          groups: [{ question: item.q, score: 1, answers: item.answers }],
+        }, state.question);
+      }
+    } catch (e) {
+      state.premap = new Map();
     }
   }
 
@@ -847,4 +898,5 @@
   if (initial) loadAnswers(initial);
   else status('Waiting for the next prompt…', 'loading');
   flushQueue();
+  state.preloadPromise = preloadAnswers();
 })();

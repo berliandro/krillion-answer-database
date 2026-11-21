@@ -151,3 +151,11 @@ gameplay result. Newest entries are appended at the bottom.
 - 2026-11-21T15:18:47Z verified 'Linyi' for 'Name a city starting with L' at 100 points (classic)
 - 2026-11-21T15:21:04Z learned 28 new answer(s) from expanded answer banks
 - 2026-11-21T15:36:13Z learned 1 new answer(s) from expanded answer banks
+- 2026-11-21T15:49:45Z learned 52 new answer(s) from expanded answer banks
+- 2026-11-21T15:52:16Z learned 167 new answer(s) from expanded answer banks
+- 2026-11-21T15:56:21Z learned 154 new answer(s) from expanded answer banks
+- 2026-11-21T16:00:27Z learned 115 new answer(s) from expanded answer banks
+- 2026-11-21T16:16:33Z learned 76 new answer(s) from expanded answer banks
+- 2026-11-21T16:24:32Z learned 3 new answer(s) from expanded answer banks
+- 2026-11-21T16:36:23Z learned 52 new answer(s) from expanded answer banks
+- 2026-11-21T16:48:03Z learned 50 new answer(s) from expanded answer banks
