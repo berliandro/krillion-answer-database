@@ -4,7 +4,7 @@ Ideas recorded but **not started**. Nothing here is implemented.
 
 ## Auto-play / coin-farming companion script
 
-**Status:** parked (user asked to save the idea on 2026-11-21).
+**Status:** IMPLEMENTED 2026-11-21 — see the "Auto-play bot" section of `README.md`. The spec below is kept as the original request record.
 **Owner when started:** same `injection/` layer as the autofill userscript.
 
 ### The idea, restated from voice dictation

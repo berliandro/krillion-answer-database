@@ -43,14 +43,31 @@ it never embeds the data, so the script stays small.
   remembered between page loads. Use the **Auto** button in the panel header to
   switch it; the button turns green while active.
 - After submission it reads the score from `.kr-reveal-points` (solo) or
-  `.kr-board-head` (multiplayer/1v1). If a known 100-point answer scores less
-  than 100, the bridge removes it from the rare list and appends a dated entry
-  to `CHANGELOG.md`.
+  `.kr-board-head` (multiplayer/1v1) and **logs it as evidence only**. Play
+  scores never demote an answer; only the game's own dive-end bank is
+  authoritative (see `DECISIONS.md`).
 - At the end of a Classic dive it clicks the "Show answers" toggle and every
   row, then imports the revealed answers. It also captures the site's own
   `/api/krillion/answers` responses so complete tiers are recorded, not just
   the ~10 answers the page renders per tier.
 - Failed writes are queued in Tampermonkey storage (cap 20) and retried next run.
+
+## Auto-play bot
+
+The **Bot** toggle starts/stops full automatic play. While On, the script
+navigates and plays by itself and auto-restarts after each dive. Settings are
+remembered between page loads.
+
+- **Pick** dropdown: `Random 100-point answer` or `Top of list`.
+- **Mode** dropdown:
+  - `Classic` — begin a Classic dive.
+  - `Multiplayer · 5s / 50 prompts` — joins the open `THE MARATHON · 5 SEC` room (50 prompts, 5s each) for fast coin farming.
+  - `Multiplayer · most players` — joins the room with the highest player count in the lobby.
+  - `1 vs 1` — starts a duel.
+- The bot fills and submits answers itself (it overrides the manual Auto
+  setting while playing). Scores are logged as evidence only — never demotions.
+- If the requested room is not open, the bot waits rather than joining a
+  different room.
 
 ## Near-duplicate prompts (the "paraphrase" problem)
 

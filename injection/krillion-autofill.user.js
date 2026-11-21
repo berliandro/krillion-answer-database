@@ -235,6 +235,24 @@
       border-top:1px solid var(--ka-line); padding:9px 14px; color:var(--ka-muted);
       font-size:11px; line-height:1.4; flex:none; text-wrap:pretty;
     }
+    #ka-botbar{
+      border-top:1px solid var(--ka-line); padding:10px 14px 12px; flex:none;
+      display:grid; gap:8px; background:var(--ka-surface-2);
+    }
+    #ka-botbar[hidden]{display:none}
+    .ka-botrow{display:flex;align-items:center;gap:8px}
+    .ka-botrow label{color:var(--ka-muted);font-size:11px;flex:none}
+    .ka-botrow select{
+      flex:1; min-width:0; appearance:none; background:var(--ka-surface);
+      color:var(--ka-text); border:1px solid var(--ka-line-strong);
+      border-radius:7px; padding:5px 7px; font:inherit; font-size:12px;
+    }
+    .ka-botrow select:focus-visible{outline:2px solid var(--ka-accent);outline-offset:1px}
+    #ka-bot[aria-pressed="true"]{background:#2c3a30;border-color:var(--ka-success);color:var(--ka-success)}
+    @media (pointer: coarse){
+      .ka-botrow select{min-height:44px}
+      #ka-bot{min-height:44px}
+    }
     @media (pointer: coarse){
       .ka-chip{min-height:44px}
       #ka-toggle,#ka-auto{min-height:44px;padding-inline:12px}
@@ -271,6 +289,24 @@
     '<div id="ka-body">' +
       '<p id="ka-status" role="status" aria-live="polite" aria-atomic="true" data-kind="loading">Connecting to local bridge…</p>' +
       '<ul id="ka-list"></ul>' +
+    '</div>' +
+    '<div id="ka-botbar">' +
+      '<div class="ka-botrow">' +
+        '<button id="ka-bot" type="button" aria-pressed="false" title="Start or stop automatic play">Bot: Off</button>' +
+        '<span id="ka-botstate">idle</span>' +
+      '</div>' +
+      '<div class="ka-botrow"><label for="ka-pick">Pick</label>' +
+        '<select id="ka-pick">' +
+          '<option value="random">Random 100-point answer</option>' +
+          '<option value="top">Top of list</option>' +
+        '</select></div>' +
+      '<div class="ka-botrow"><label for="ka-mode">Mode</label>' +
+        '<select id="ka-mode">' +
+          '<option value="classic">Classic</option>' +
+          '<option value="marathon5">Multiplayer · 5s / 50 prompts</option>' +
+          '<option value="showoff">Multiplayer · most players</option>' +
+          '<option value="duel">1 vs 1</option>' +
+        '</select></div>' +
     '</div>' +
     '<div id="ka-foot">Click an answer to fill the box. You press Enter to dive.</div>';
   document.body.appendChild(root);
@@ -580,6 +616,163 @@
       status('Bridge offline — bank queued for the next dive.', 'error');
     }
   }
+
+  // ---- auto-play engine --------------------------------------------------
+  const BOT_KEY = 'krillion.bot.v1';
+  const PICK_KEY = 'krillion.bot.pick.v1';
+  const MODE_KEY = 'krillion.bot.mode.v1';
+  const bot = {
+    on: false, pick: 'random', mode: 'classic',
+    timer: null, busy: false, answered: new Set(), lastAction: '', state: 'idle',
+  };
+
+  function botStatus(text) {
+    bot.state = text;
+    const el = document.getElementById('ka-botstate');
+    if (el) el.textContent = text;
+  }
+
+  function setBot(on) {
+    bot.on = !!on;
+    try { GM_setValue(BOT_KEY, bot.on); } catch (e) { /* no storage */ }
+    const btn = document.getElementById('ka-bot');
+    btn.setAttribute('aria-pressed', String(bot.on));
+    btn.textContent = bot.on ? 'Bot: On' : 'Bot: Off';
+    if (bot.on) {
+      botStatus('starting…');
+      bot.timer = setInterval(botTick, 500);
+      botTick();
+    } else {
+      if (bot.timer) clearInterval(bot.timer);
+      bot.timer = null;
+      botStatus('idle');
+    }
+  }
+
+  function visible(sel) {
+    const el = document.querySelector(sel);
+    return !!(el && (el.offsetParent !== null || el.getClientRects().length > 0));
+  }
+
+  function pickAnswer(list) {
+    if (!list || !list.length) return '';
+    return bot.pick === 'top' ? list[0] : list[Math.floor(Math.random() * list.length)];
+  }
+
+  function answerCurrentPrompt() {
+    const prompt = promptText();
+    const input = document.querySelector(SEL.input);
+    if (!prompt || !input || bot.answeredPrompt === prompt) return false;
+    const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
+    const list = groups[0].answers || [];
+    const answer = pickAnswer(list);
+    if (!answer) return false;
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, answer);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    state.lastFilled = answer;
+    state.answerQuestion[answer] = groups[0].question || prompt;
+    bot.answeredPrompt = prompt;
+    botStatus('answered');
+    setTimeout(submitAnswer, 120);
+    return true;
+  }
+
+  function joinLobbyRoom() {
+    const rows = [...document.querySelectorAll('.kr-room-row')].filter(
+      (r) => !/kr-room-make/.test(r.className) && r.offsetParent !== null
+    );
+    if (!rows.length) return false;
+    let target = null;
+    if (bot.mode === 'marathon5') {
+      target = rows.find((r) => {
+        const name = (r.querySelector('.kr-room-name')?.textContent || '').toLowerCase();
+        const detail = (r.querySelector('.kr-room-detail')?.textContent || '').toLowerCase();
+        return (name.indexOf('5 sec') !== -1 || detail.indexOf('5s each') !== -1)
+          && detail.indexOf('50 prompts') !== -1;
+      });
+    } else if (bot.mode === 'showoff') {
+      let best = -1;
+      rows.forEach((r) => {
+        const count = parseInt((r.querySelector('.kr-room-count')?.textContent || '').trim(), 10) || 0;
+        if (count > best) { best = count; target = r; }
+      });
+    }
+    if (!target) return false;
+    target.click();
+    botStatus('joining room');
+    return true;
+  }
+
+  function startMode() {
+    const begin = document.querySelector('button.kr-begin');
+    const online = [...document.querySelectorAll('button.kr-online')];
+    if (bot.mode === 'classic') {
+      const classic = [...document.querySelectorAll('button.kr-mode')]
+        .find((b) => /classic/i.test(b.innerText));
+      if (classic && !/selected|active/i.test(classic.className)) classic.click();
+      if (begin && begin.offsetParent !== null) { begin.click(); botStatus('classic start'); return true; }
+      return false;
+    }
+    const wanted = bot.mode === 'duel' ? /1\s*vs\s*1/i : /multiplayer/i;
+    const btn = online.find((b) => wanted.test(b.innerText) && b.offsetParent !== null);
+    if (btn) { btn.click(); botStatus(bot.mode === 'duel' ? 'finding opponent' : 'opening lobby'); return true; }
+    return false;
+  }
+
+  function restartFromResults() {
+    const btns = [...document.querySelectorAll('button')].filter((b) => b.offsetParent !== null);
+    const again = btns.find((b) => /play again|dive again|restart|next|continue/i.test(b.innerText));
+    if (again && again !== bot.lastAction) {
+      bot.lastAction = again;
+      again.click();
+      botStatus('restarting');
+      return true;
+    }
+    return false;
+  }
+
+  function botTick() {
+    if (!bot.on || bot.busy) return;
+    bot.busy = true;
+    try {
+      const p = promptText();
+      if (p && p !== bot.lastPrompt) { bot.lastPrompt = p; bot.answeredPrompt = ''; }
+      if (p && visible(SEL.prompt) && visible(SEL.input)) {
+        answerCurrentPrompt();
+      } else if (visible('.kr-lobby-tab') || visible('.kr-room-row')) {
+        joinLobbyRoom();
+      } else if (visible('.kr-over') || visible('.kr-over-next')) {
+        restartFromResults();
+      } else if (visible('.kr-intro') || visible('button.kr-begin')) {
+        startMode();
+      } else {
+        botStatus('waiting');
+      }
+    } catch (e) {
+      botStatus('error: ' + (e && e.message || e));
+    } finally {
+      bot.busy = false;
+    }
+  }
+
+  try { bot.pick = GM_getValue(PICK_KEY, 'random'); } catch (e) { /* ignore */ }
+  try { bot.mode = GM_getValue(MODE_KEY, 'classic'); } catch (e) { /* ignore */ }
+  document.getElementById('ka-pick').value = bot.pick;
+  document.getElementById('ka-mode').value = bot.mode;
+  document.getElementById('ka-pick').addEventListener('change', (e) => {
+    bot.pick = e.target.value;
+    try { GM_setValue(PICK_KEY, bot.pick); } catch (err) { /* ignore */ }
+  });
+  document.getElementById('ka-mode').addEventListener('change', (e) => {
+    bot.mode = e.target.value;
+    try { GM_setValue(MODE_KEY, bot.mode); } catch (err) { /* ignore */ }
+  });
+  document.getElementById('ka-bot').addEventListener('click', () => setBot(!bot.on));
+  try {
+    if (GM_getValue(BOT_KEY, false)) setBot(true);
+  } catch (e) { /* ignore */ }
 
   // ---- watch the game ----------------------------------------------------
   let lastPrompt = '';
