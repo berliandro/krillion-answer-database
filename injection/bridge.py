@@ -450,6 +450,11 @@ class Handler(BaseHTTPRequestHandler):
                 "corrections": len(read_jsonl(CORRECTIONS)),
                 "learned": len(read_jsonl(LEARNED)),
                 "misses": len(read_jsonl(MISSES)),
+                "log_lines": {
+                    "evidence": len(read_jsonl(EVIDENCE)),
+                    "prompt_review": len(read_jsonl(PROMPT_REVIEW)),
+                    "bot_log": len(read_jsonl(BOT_LOG)),
+                },
             })
             return
         if parsed.path == "/api/failed":

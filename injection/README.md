@@ -141,3 +141,8 @@ timeout before showing an error.
 Past rows from other players were quarantined in
 `injection/data/other_users_quarantine.jsonl`. **"Process the log"** is a
 standing workflow — see `PROCESS-LOG.md`.
+
+Log files do not grow forever: `python injection/rotate_logs.py --apply`
+archives the full diagnostic logs to `injection/data/archive/*.jsonl.gz` and
+keeps only the recent lines active. Database-feeding files are never rotated.
+The "process the log" workflow always runs this step.

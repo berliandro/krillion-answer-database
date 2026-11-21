@@ -49,7 +49,21 @@ meant unless a step is genuinely blocked.
    naming the counts.
 7. **Append a summary** to `injection/CHANGELOG.md`: what was processed,
    inserted, demoted, still unresolved, and any follow-up needed.
-8. **Report back** to the user with the same numbers and any recommendation.
+8. **Rotate the diagnostic logs** so the repository does not grow forever:
+   ```powershell
+   python injection/rotate_logs.py            # dry run — show what would happen
+   python injection/rotate_logs.py --apply    # actually archive + trim
+   ```
+   Only `evidence.jsonl`, `prompt_review.jsonl`, `bot_log.jsonl`, and
+   `failed_prompts.jsonl` are rotated. The full old content is compressed to
+   `injection/data/archive/*.jsonl.gz` before the active file is trimmed, so
+   nothing is lost. `corrections.jsonl`, `learned.jsonl`,
+   `answers_injection.jsonl`, and `fetch_queue.jsonl` are NEVER rotated — they
+   feed the database. Include the rotation counts in the report.
+9. **Commit and push** the archives and trimmed logs together with the rest of
+   the processed data.
+10. **Report back** to the user with the same numbers, rotation counts, and any
+    recommendation.
 
 ## Never do
 
