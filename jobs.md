@@ -6,11 +6,11 @@ Remote: https://github.com/berliandro/krillion-answer-database.git (branch `main
 | Job | Worker session | Status | Owns | Artifact | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | scrape-001 | `ses_e071ce061ffeFCztEbdH7fgiyW` | done | `data/answers.jsonl`, `data/scrape-notes.md`, `scripts/harvest.js` | `data/answers.jsonl` | 2147 lines / 302 krillion / 42 prompts (final report); harvester process killed; handed off to burst harvester |
-| gameplay-001 | `ses_e06f05a44ffeywiGB4J3PET0Fq` | running (single harvester) | `data/answers_gameplay.jsonl`, `scripts/harvest_game.js`, `data/gameplay-notes.md` | `data/answers_gameplay.jsonl` | Model `opencode-go/hy4-flash-free` variant `high`; 9216 lines / 1216 krillion; ~277 answers/min sustained. Lap-token fix being applied (see below). |
+| gameplay-001 | `ses_e06f05a44ffeywiGB4J3PET0Fq` | done — prompt bank exhausted | `data/answers_gameplay.jsonl`, `scripts/harvest_game.js`, `data/gameplay-notes.md` | `data/answers_gameplay.jsonl` | Final: 121,094 lines; 888 batches, 120,056 new answers / 17,419 krillion. Last 60+ batches `fresh=0 added=0`; harvester stopped. Status confirmed by worker 2026-11-21 13:44. |
 
-Combined DB: 14,339 answers / 2,122 krillion / 289 questions (checkpoint `944550e`). Static site regenerated each checkpoint with the animated loader.
+Final DB (2026-11-21): 123,241 answers / 17,876 krillion / 2,512 questions; 0 duplicate answer pairs. Static site published.
 
-Combined DB stats at last checkpoint: full=1510, krillion=207, search questions=31, jsonl_lines=1510 (verified via `krillion_db.py stats`, `search "fictional bear"` → Gentle Ben, `search "blue"` → Cap).
+Both worker sessions are succeeded and idle; the harvester process is stopped. The project is complete and the README is its final record.
 
 Notes:
 - Worker uses Chrome (`browse` MCP + `chrome-browser-mcp` skill) per user request.

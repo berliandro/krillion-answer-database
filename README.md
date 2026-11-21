@@ -1,13 +1,13 @@
 # Krillion Answer Database
 
-> Collecting every graded answer from Krillion's prompts, with instant search for the rare 100-point ones.
+> Complete archive of Krillion's graded answers, with instant search for the rare 100-point ones.
 
-[![status](https://img.shields.io/badge/status-collecting-grey)](#progress)
+[![status](https://img.shields.io/badge/status-complete-green)](#final-tally)
 [![demo](https://img.shields.io/badge/demo-live-blue)](https://berliandro.github.io/krillion-answer-database/)
 
 This repo collects the graded answers from [Krillion Unlimited](https://playdaily.org/krillion) and makes them searchable while you play. Answers are graded across six tiers, from Plankton (10 points) to **One in a Krillion** (100 points); only the top tier is flagged `is_krillion: true`.
 
-It started as a way to help a friend chase a high score. The scrape kept going, and the result is a large answer archive with a small, fast search index on top. Unofficial; not affiliated with Daily Games.
+It started as a way to help a friend chase a high score. The scrape ran until the prompt bank was exhausted, and the result is a complete answer archive with a small, fast search index on top. Unofficial; not affiliated with Daily Games.
 
 ![Animated pixel-art underwater ruin with a drifting diver statue and seaweed](assets/krillion-underwater.gif)
 
@@ -69,30 +69,31 @@ The answers are not in the page HTML. We found the game's own JSON API in its Ne
 
 ```text
 data/       raw JSONL, Full DB, Search DB, notes
-assets/     animated banner and static frame
+assets/     animated banner, static frame, final stats chart
 scripts/    harvesters, krillion_db.py, build_static.py
 webapp/     local search server and UI
 index.html, search-data.json   static Pages site
 jobs.md, AGENTS.md             job tracker and project rules
 ```
 
-## Progress
+## Final tally
 
-*Snapshot taken 2026-11-21. Counts change as harvesters run; this section will be refreshed when collection is complete.*
+![Final archive: 123,241 graded answers, 17,876 One in a Krillion answers, and 2,512 prompts](assets/krillion-final-stats.png)
 
-| Metric | Count |
+| Metric | Final count |
 | --- | --- |
-| Full answer rows | 123,104 |
-| One in a Krillion answers | 17,852 |
-| Questions collected | 2,509 |
-| Target prompts | ~3,000 (the game appears to have closer to ~2,600) |
+| Graded answers | 123,241 |
+| One in a Krillion answers | 17,876 |
+| Prompts | 2,512 |
+| Duplicate answer pairs | 0 |
 
-## Roadmap
+The estimate was around 3,000 prompts; the game's bank held 2,512, and all of them were captured. The final 60+ harvest batches dealt only prompts already in the archive.
 
-- Harvest until the game runs out of new prompts.
-- Recognize and de-duplicate looping prompts as collection continues.
-- Add a database-size visualization once collection stabilizes.
-- Refresh the counts here when collection is complete.
+## The end
+
+The harvest stopped on 21 Nov 2026, when the game ran out of new prompts. The databases were rebuilt from the JSONL source and the static search site was published. Both the [public search](https://berliandro.github.io/krillion-answer-database/) and the local webapp remain live.
+
+The dive is over. The answers remain.
 
 ## Credits
 
