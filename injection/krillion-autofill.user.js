@@ -41,6 +41,8 @@
   const state = {
     question: '',
     answers: [],
+    groups: [],
+    answerQuestion: {},
     lastFilled: '',
     scored: new Set(),
     bankSent: '',
@@ -138,6 +140,12 @@
     #ka-status[data-kind="error"]{color:#ff9a9a}
     #ka-status[data-kind="ok"]{color:#7ee2a8}
     #ka-list{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+    .ka-group{
+      display:flex; justify-content:space-between; gap:8px;
+      color:#9fb0d8; font-size:11px; line-height:1.35;
+      border-bottom:1px solid #222d48; padding:6px 2px 4px; margin-top:4px;
+    }
+    .ka-group span{color:#7f91b9;flex:none;font-variant-numeric:tabular-nums}
     .ka-chip{
       appearance:none; width:100%; text-align:left; cursor:pointer;
       background:#192136; color:#eef3ff; border:1px solid #2b3859;
@@ -191,16 +199,27 @@
   }
 
   function render() {
-    countEl.textContent = state.answers.length ? String(state.answers.length) : '';
-    if (!state.answers.length) {
+    const total = state.groups.reduce((n, g) => n + g.answers.length, 0);
+    countEl.textContent = total ? String(total) : '';
+    if (!total) {
       listEl.innerHTML = '<li class="ka-empty">No rare answers indexed for this prompt.</li>';
       return;
     }
-    listEl.innerHTML = state.answers.map((a, i) =>
-      `<li><button class="ka-chip" type="button" data-i="${i}">${escapeHtml(a)}</button></li>`
-    ).join('');
+    const multi = state.groups.length > 1;
+    let html = '';
+    state.groups.forEach((g) => {
+      // Near-duplicate prompts stay as distinct, labelled banks — never merged.
+      if (multi) {
+        html += `<li class="ka-group"><span>${escapeHtml(g.question)}</span>` +
+                `<span>${Math.round((g.score || 0) * 100)}%</span></li>`;
+      }
+      g.answers.forEach((a) => {
+        html += `<li><button class="ka-chip" type="button" data-a="${escapeHtml(a)}" data-q="${escapeHtml(g.question)}">${escapeHtml(a)}</button></li>`;
+      });
+    });
+    listEl.innerHTML = html;
     listEl.querySelectorAll('.ka-chip').forEach((btn) => {
-      btn.addEventListener('click', () => fill(btn.dataset.i, btn));
+      btn.addEventListener('click', () => fill(btn.dataset.a, btn));
     });
   }
 
@@ -209,8 +228,7 @@
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  function fill(index, btn) {
-    const answer = state.answers[Number(index)];
+  function fill(answer, btn) {
     const input = document.querySelector(SEL.input);
     if (!input || !answer) return;
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
@@ -219,6 +237,7 @@
     input.dispatchEvent(new Event('change', { bubbles: true }));
     input.focus();
     state.lastFilled = answer;
+    state.answerQuestion[answer] = btn.dataset.q || state.question;
     listEl.querySelectorAll('.ka-chip').forEach((b) => { b.dataset.filled = 'false'; });
     btn.dataset.filled = 'true';
     status(`Filled “${answer}” — press Enter to dive.`, 'ok');
@@ -228,16 +247,25 @@
   async function loadAnswers(question) {
     state.question = question;
     state.answers = [];
+    state.groups = [];
     state.lastFilled = '';
     render();
     status('Loading rare answers…');
     try {
       const data = await request('/api/answers?q=' + encodeURIComponent(question));
-      state.answers = data.answers || [];
+      state.groups = data.groups || [{ question, score: 1, answers: data.answers || [] }];
+      state.answers = state.groups.reduce((all, g) => all.concat(g.answers), []);
       render();
-      status(state.answers.length
-        ? `${state.answers.length} known 100-point answer${state.answers.length === 1 ? '' : 's'}.`
-        : 'No rare answers for this prompt in the archive.', state.answers.length ? '' : 'error');
+      const total = state.answers.length;
+      if (!total) {
+        status('No rare answers for this prompt in the archive.', 'error');
+      } else if (!data.exact && state.groups.length > 1) {
+        status(`Closest prompt: ${state.groups[0].question} — ${total} answers in ${state.groups.length} separate banks.`);
+      } else if (!data.exact) {
+        status(`Matched “${state.groups[0].question}” — ${total} rare answers.`);
+      } else {
+        status(`${total} known 100-point answer${total === 1 ? '' : 's'}.`);
+      }
     } catch (e) {
       status('Local bridge offline — start injection/bridge.py.', 'error');
     }
@@ -288,8 +316,10 @@
 
   function checkVerdict() {
     if (!state.question || !state.lastFilled) return;
-    const q = state.question;
     const answer = state.lastFilled;
+    // Use the matched DB prompt, not the paraphrased text on screen, so a
+    // correction removes the right row from the rare-answer list.
+    const q = state.answerQuestion[answer] || state.question;
 
     const solo = document.querySelector(SEL.revealPoints);
     const board = document.querySelector(SEL.board);

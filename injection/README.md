@@ -47,6 +47,27 @@ it never embeds the data, so the script stays small.
   the ~10 answers the page renders per tier.
 - Failed writes are queued in Tampermonkey storage (cap 20) and retried next run.
 
+## Near-duplicate prompts (the "paraphrase" problem)
+
+Krillion has genuinely distinct prompts with nearly identical wording, e.g.
+`Name a Mario character` and `Name a character from Mario`, or a prompt ending in
+`with a ball` versus `without a ball`. Each has its OWN graded bank.
+
+The bridge never merges them:
+
+- **Exact match wins.** If the on-screen text matches a stored prompt (after
+  trivial normalisation), only that bank is shown.
+- **Fuzzy fallback keeps groups separate.** If the wording differs, the bridge
+  uses the repository's `scripts/paraphrase_match.py` matcher and returns up to
+  five *separately labelled* candidate prompts. The panel shows each bank under
+  its own heading with a match percentage; answer lists are never combined.
+- **Strict cut-off.** Only candidates scoring ≥90% of the best match survive, so
+  a `song` bank does not tag along on a `film` query. Negation words (`with` vs
+  `without`) are high-signal tokens.
+- **Corrections keep the right key.** Filling a chip remembers which *stored*
+  prompt it came from, so a later mismatch is recorded against that prompt —
+  not against the paraphrased text shown on screen.
+
 ## Files written by the bridge
 
 - `injection/data/corrections.jsonl` — answers demoted from the 100-point tier

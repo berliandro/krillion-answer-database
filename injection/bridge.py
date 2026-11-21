@@ -27,6 +27,24 @@ PORT = 8768
 TOKEN = 'krillion-local-v1'
 LOCK = threading.Lock()
 
+# Paraphrase tolerance lives in the repo's dependency-free matcher. It is
+# imported read-only; if that file ever changes, we fall back to exact match.
+MATCHER = None
+try:
+    import importlib.util
+    _spec = importlib.util.spec_from_file_location(
+        "krillion_paraphrase", ROOT / "scripts" / "paraphrase_match.py"
+    )
+    _mod = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_mod)
+    with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as _c:
+        _questions = [r[0] for r in _c.execute("SELECT DISTINCT question FROM answers ORDER BY question")]
+    MATCHER = _mod.Matcher(_questions)
+    normalise = _mod.normalise
+except Exception as _e:
+    print(f"paraphrase matcher unavailable, exact matching only: {_e}")
+    normalise = lambda s: " ".join(str(s).strip().lower().split())
+
 DATA.mkdir(parents=True, exist_ok=True)
 for f in (CORRECTIONS, LEARNED):
     f.touch(exist_ok=True)
@@ -68,14 +86,46 @@ def log_change(message):
         f.write(f"- {now()} {message}\n")
 
 
-def answers_for(question):
-    removed = removed_pairs()
+def answers_for(question, removed=None):
+    if removed is None:
+        removed = removed_pairs()
     with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as c:
         rows = c.execute(
             "SELECT answer FROM answers WHERE question = ? ORDER BY answer COLLATE NOCASE",
             (question,),
         ).fetchall()
     return [a for (a,) in rows if (question, a) not in removed]
+
+
+def resolve_question(query):
+    """Return DISTINCT candidate prompts, never a merged answer list.
+
+    Exact match wins outright. Otherwise fuzzy candidates are returned as
+    separately labelled groups so similar prompts (e.g. with/without a ball)
+    stay visually and logically separate.
+    """
+    removed = removed_pairs()
+    with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as c:
+        all_questions = [r[0] for r in c.execute("SELECT DISTINCT question FROM answers")]
+    nq = normalise(query)
+    exact = next((q for q in all_questions if normalise(q) == nq), None)
+    if exact:
+        return True, [{
+            "question": exact, "score": 1.0,
+            "answers": answers_for(exact, removed),
+        }]
+
+    hits = MATCHER.search(query, limit=5, threshold=0.62) if MATCHER else []
+    # Stricter relative cut-off than the general matcher: only near-equal
+    # candidates survive, so a "song" bank never tags along on a "film" query.
+    if hits:
+        best = max(h["score"] for h in hits)
+        hits = [h for h in hits if h["score"] >= max(0.62, best * 0.90)]
+    groups = [{
+        "question": h["question"], "score": h["score"],
+        "answers": answers_for(h["question"], removed),
+    } for h in hits]
+    return False, groups
 
 
 def add_correction(body):
@@ -186,8 +236,14 @@ class Handler(BaseHTTPRequestHandler):
             if not q:
                 self._send(400, {"ok": False, "error": "q is required"})
                 return
-            answers = answers_for(q)
-            self._send(200, {"ok": True, "question": q, "answers": answers, "count": len(answers)})
+            exact, groups = resolve_question(q)
+            self._send(200, {
+                "ok": True, "question": q, "exact": exact,
+                "groups": groups,
+                # flat list kept for older userscript versions
+                "answers": groups[0]["answers"] if groups else [],
+                "count": sum(len(g["answers"]) for g in groups),
+            })
             return
         self._send(404, {"ok": False, "error": "not found"})
 
