@@ -120,7 +120,12 @@ it is looking at — two banks with percentages, no match, or a score under 100 
 it also records the **exact prompt shown by the game** and the candidate banks in
 `injection/data/prompt_review.jsonl` (view at
 `/api/prompt-review?t=krillion-local-v1`). That log is what "process the log"
-uses to improve the matching logic over time. **Play scores never demote an answer** —
+uses to improve the matching logic over time.
+
+The bot also records which mode it started and which lobby room it actually
+chose (with the full room list) in `injection/data/bot_log.jsonl`, viewable at
+`/api/bot-log?t=krillion-local-v1`. Use it if the 5-second room selection ever
+looks wrong. **Play scores never demote an answer** —
 the game AI-grades unknown answers inconsistently. Only the dive-end graded bank
 can change the rare tier; the policy is in `DECISIONS.md`.
 

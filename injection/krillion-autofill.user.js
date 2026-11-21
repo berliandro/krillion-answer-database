@@ -624,6 +624,12 @@
 
   // ---- resilient posting -------------------------------------------------
   const QUEUE_KEY = 'krillion.pending.v1';
+  function reportBot(event, extra) {
+    const body = Object.assign({ event, mode: bot.mode }, extra || {});
+    request('/api/bot-log', { method: 'POST', body, retries: 1 })
+      .catch(() => queuePost('/api/bot-log', body));
+  }
+
   function reportPrompt(kind, prompt, extra) {
     const body = Object.assign({ kind, screen_prompt: prompt }, extra || {});
     request('/api/prompt-review', {
@@ -744,6 +750,7 @@
     btn.textContent = bot.on ? 'Bot: On' : 'Bot: Off';
     if (bot.on) {
       botStatus('starting…');
+      reportBot('bot-start', { note: bot.mode + ' / ' + bot.pick });
       bot.timer = setInterval(botTick, 500);
       botTick();
     } else {
@@ -788,25 +795,49 @@
     const rows = [...document.querySelectorAll('.kr-room-row')].filter(
       (r) => !/kr-room-make/.test(r.className) && r.offsetParent !== null
     );
-    if (!rows.length) return false;
+    const info = rows.map((r) => ({
+      row: r,
+      name: (r.querySelector('.kr-room-name')?.textContent || '').trim(),
+      detail: (r.querySelector('.kr-room-detail')?.textContent || '').trim(),
+      count: parseInt((r.querySelector('.kr-room-count')?.textContent || '').trim(), 10) || 0,
+    }));
     let target = null;
+    let reason = '';
+
     if (bot.mode === 'marathon5') {
-      target = rows.find((r) => {
-        const name = (r.querySelector('.kr-room-name')?.textContent || '').toLowerCase();
-        const detail = (r.querySelector('.kr-room-detail')?.textContent || '').toLowerCase();
-        return (name.indexOf('5 sec') !== -1 || detail.indexOf('5s each') !== -1)
-          && detail.indexOf('50 prompts') !== -1;
+      // Parse "50 prompts, 5s each" numerically instead of guessing by text.
+      const parsed = info.map((x) => {
+        const m = x.detail.toLowerCase().match(/(\d+)\s*prompts?\s*,\s*(\d+)\s*s(?:ec)?/);
+        return Object.assign({}, x, { prompts: m ? Number(m[1]) : 0, seconds: m ? Number(m[2]) : 0 });
       });
+      target = parsed.find((x) => x.seconds === 5 && x.prompts >= 50)
+        || parsed.find((x) => x.seconds === 5 && x.prompts >= 15);
+      reason = target ? 'matched 5-second room' : 'no 5-second room available';
     } else if (bot.mode === 'showoff') {
       let best = -1;
-      rows.forEach((r) => {
-        const count = parseInt((r.querySelector('.kr-room-count')?.textContent || '').trim(), 10) || 0;
-        if (count > best) { best = count; target = r; }
+      info.forEach((x) => { if (x.count > best) { best = x.count; target = x; } });
+      reason = target ? 'most populated room' : 'no rooms';
+    } else {
+      reason = 'mode does not join rooms';
+    }
+
+    const sig = (target ? target.name : '') + '|' + reason;
+    if (sig !== bot.lastRoomLog) {
+      bot.lastRoomLog = sig;
+      reportBot('room-select', {
+        reason,
+        room: target ? target.name : '',
+        detail: target ? target.detail : '',
+        count: target ? target.count : 0,
+        rooms: info.map((x) => `${x.name} | ${x.detail} | ${x.count}`).slice(0, 20),
       });
     }
-    if (!target) return false;
-    target.click();
-    botStatus('joining room');
+    if (!target) {
+      botStatus('waiting: ' + reason);
+      return false;
+    }
+    target.row.click();
+    botStatus('joining ' + target.name);
     return true;
   }
 
@@ -873,6 +904,7 @@
   document.getElementById('ka-mode').addEventListener('change', (e) => {
     bot.mode = e.target.value;
     try { GM_setValue(MODE_KEY, bot.mode); } catch (err) { /* ignore */ }
+    reportBot('mode-change', { note: bot.mode });
   });
   document.getElementById('ka-bot').addEventListener('click', () => setBot(!bot.on));
   try {

@@ -32,6 +32,7 @@ IMPORT_JSONL = DATA_DIR / "answers_injection.jsonl"
 MISSES = INJ / "data" / "failed_prompts.jsonl"
 EVIDENCE = INJ / "data" / "evidence.jsonl"
 PROMPT_REVIEW = INJ / "data" / "prompt_review.jsonl"
+BOT_LOG = INJ / "data" / "bot_log.jsonl"
 FETCH_QUEUE = INJ / "data" / "fetch_queue.jsonl"
 CORRECTIONS = DATA / "corrections.jsonl"
 LEARNED = DATA / "learned.jsonl"
@@ -59,7 +60,7 @@ except Exception as _e:
     normalise = lambda s: " ".join(str(s).strip().lower().split())
 
 DATA.mkdir(parents=True, exist_ok=True)
-for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES, EVIDENCE, PROMPT_REVIEW, FETCH_QUEUE):
+for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES, EVIDENCE, PROMPT_REVIEW, BOT_LOG, FETCH_QUEUE):
     f.touch(exist_ok=True)
 if not CHANGELOG.exists():
     CHANGELOG.write_text(
@@ -214,6 +215,16 @@ def add_prompt_review(body):
     with PROMPT_REVIEW.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     return {"ok": True, "kind": kind}
+
+
+def add_bot_log(body):
+    rec = {"at": now()}
+    for key in ("event", "mode", "room", "detail", "count", "rooms", "note"):
+        if key in body:
+            rec[key] = body[key]
+    with BOT_LOG.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return {"ok": True}
 
 
 # Backwards compatibility for any older userscript copy still posting here.
@@ -447,6 +458,9 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/evidence":
             self._send(200, {"ok": True, "events": read_jsonl(EVIDENCE)[-100:]})
             return
+        if parsed.path == "/api/bot-log":
+            self._send(200, {"ok": True, "events": read_jsonl(BOT_LOG)[-100:]})
+            return
         if parsed.path == "/api/all":
             self._send(200, {"ok": True, "data": all_answers_payload()})
             return
@@ -501,6 +515,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, add_miss(body))
             elif parsed.path == "/api/prompt-review":
                 self._send(200, add_prompt_review(body))
+            elif parsed.path == "/api/bot-log":
+                self._send(200, add_bot_log(body))
             else:
                 self._send(404, {"ok": False, "error": "not found"})
 
