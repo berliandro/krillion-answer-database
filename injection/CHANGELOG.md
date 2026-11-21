@@ -164,3 +164,5 @@ gameplay result. Newest entries are appended at the bottom.
 - 2026-11-21T16:56:56Z ignored 1 answer(s) from other players
 - 2026-11-21T16:59:37Z ignored 51 answer(s) from other players
 - 2026-11-21T17:11:12Z ignored 50 answer(s) from other players
+- 2026-11-21T17:22:21Z LOG ROTATION evidence.jsonl: 10 -> 2 (C:\Users\nberl\AppData\Local\Temp\opencode\rotate-test\archive\evidence-20261121T172221Z.jsonl.gz)
+- 2026-11-21T17:22:46Z ignored 50 answer(s) from other players
