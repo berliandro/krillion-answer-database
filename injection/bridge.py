@@ -19,7 +19,11 @@ from urllib.parse import parse_qs, unquote, urlparse
 ROOT = Path(__file__).resolve().parent.parent
 INJ = Path(__file__).resolve().parent
 DATA = INJ / "data"
-BASE_DB = ROOT / "data" / "krillion_only.db"
+DATA_DIR = ROOT / "data"
+BASE_DB = DATA_DIR / "krillion_only.db"
+# New answers are also mirrored here so the optimizer's krillion_db.py import
+# can ingest them into the authoritative full DB and rebuild the derived DBs.
+IMPORT_JSONL = DATA_DIR / "answers_injection.jsonl"
 CORRECTIONS = DATA / "corrections.jsonl"
 LEARNED = DATA / "learned.jsonl"
 CHANGELOG = INJ / "CHANGELOG.md"
@@ -46,7 +50,7 @@ except Exception as _e:
     normalise = lambda s: " ".join(str(s).strip().lower().split())
 
 DATA.mkdir(parents=True, exist_ok=True)
-for f in (CORRECTIONS, LEARNED):
+for f in (CORRECTIONS, LEARNED, IMPORT_JSONL):
     f.touch(exist_ok=True)
 if not CHANGELOG.exists():
     CHANGELOG.write_text(
@@ -193,6 +197,19 @@ def add_bank(rows):
         with LEARNED.open("a", encoding="utf-8") as f:
             for r in new_records:
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        # Mirror into the optimizer's ingest path so krillion_db.py import can
+        # fold these rows into the authoritative full DB.
+        with IMPORT_JSONL.open("a", encoding="utf-8") as f:
+            for r in new_records:
+                is_krillion = (
+                    r.get("tierIndex") == 5
+                    or "krillion" in r.get("tier", "").lower()
+                )
+                f.write(json.dumps({
+                    "question": r["question"], "answer": r["answer"],
+                    "is_krillion": bool(is_krillion),
+                    "source_url": "https://playdaily.org/krillion",
+                }, ensure_ascii=False) + "\n")
         log_change(f"learned {added} new answer(s) from expanded answer banks")
     return {"ok": True, "added": added}
 
