@@ -252,7 +252,14 @@ def add_bank(rows):
     existing = {(r.get("question"), r.get("answer")) for r in read_jsonl(LEARNED)}
     added = 0
     new_records = []
+    skipped_others = 0
     for row in rows:
+        # Never record other players' answers: their scores come from the
+        # site's AI and are inconsistent. Only our own rows and the game's
+        # own graded banks are trustworthy.
+        if str(row.get("source", "")) not in ("own", "api", "bank"):
+            skipped_others += 1
+            continue
         question = str(row.get("question", "")).strip()
         answer = str(row.get("answer", "")).strip()
         tier = str(row.get("tier", "")).strip()
@@ -328,7 +335,10 @@ def add_bank(rows):
                 f"BANK DEMOTED {r['answer']!r} for {r['question']!r} "
                 f"(bank tier {tier or observed})"
             )
-    return {"ok": True, "added": added, "bank_demoted": demoted}
+    if skipped_others:
+        log_change(f"ignored {skipped_others} answer(s) from other players")
+    return {"ok": True, "added": added, "bank_demoted": demoted,
+            "ignored_other_players": skipped_others}
 
 
 def fetch_worker():

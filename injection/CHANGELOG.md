@@ -159,3 +159,6 @@ gameplay result. Newest entries are appended at the bottom.
 - 2026-11-21T16:24:32Z learned 3 new answer(s) from expanded answer banks
 - 2026-11-21T16:36:23Z learned 52 new answer(s) from expanded answer banks
 - 2026-11-21T16:48:03Z learned 50 new answer(s) from expanded answer banks
+- 2026-11-21T16:56:00Z QUARANTINED 2536 answer(s) previously recorded from other players; future bank capture keeps only our own answers (source=own/api).
+- 2026-11-21T16:56:56Z learned 1 new answer(s) from expanded answer banks
+- 2026-11-21T16:56:56Z ignored 1 answer(s) from other players

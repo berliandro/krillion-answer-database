@@ -687,11 +687,14 @@
     const learned = [];
     rows.forEach((row) => {
       const question = (row.querySelector(SEL.rowPrompt)?.textContent || '').trim().replace(/\s+/g, ' ');
+      // IMPORTANT: only OUR answers are reliable. Other players' answers are
+      // graded by the site's AI and can be 100 once and 60 the next time.
       row.querySelectorAll(SEL.line).forEach((line) => {
+        if (!line.hasAttribute('data-me')) return;
         const a = (line.querySelector(SEL.lineAnswer)?.textContent || '').trim();
         const t = (line.querySelector(SEL.lineTier)?.textContent || '').trim();
         const p = Number((line.querySelector(SEL.linePoints)?.textContent || '0').trim()) || 0;
-        if (question && a) learned.push({ question, answer: a, tier: t, points: p, source: 'dom' });
+        if (question && a) learned.push({ question, answer: a, tier: t, points: p, source: 'own' });
       });
     });
 
