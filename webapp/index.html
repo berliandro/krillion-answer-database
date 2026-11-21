@@ -2,107 +2,906 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Krillion Answer Search</title>
+<script>document.documentElement.classList.add('js');</script>
 <style>
-  :root { color-scheme: dark; }
+  :root {
+    color-scheme: dark;
+    /* Deep-water canvas, blue signal, one warm accent for the rare tier. */
+    --canvas: #15181c;
+    --surface: #1d2228;
+    --surface-2: #262d34;
+    --surface-2-hover: #313a43;
+    --text-strong: #f7f8f5;
+    --text: #eceee9;
+    --text-2: #b4bcc0;
+    --action: #d6a45f;
+    --action-soft: #d6a45f3d;
+    --focus: #e2bd80;
+    --rare: #e0ae6a;
+    --success: #9fc6a8;
+    --success-line: #4a7a5c;
+    --line: #343c44;
+    --line-strong: #4d5a63;
+    --hover-wash: #ffffff0a;
+    /* Type roles: one family, unmistakable scale and weight steps. */
+    --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --type-display: 1.9rem;
+    --type-input: 1.06rem;
+    --type-answer: 1rem;
+    --type-label: .8rem;
+    --type-meta: .8rem;
+    --weight-display: 650;
+    --weight-label: 650;
+    --weight-answer: 600;
+  }
+  @supports (color: oklch(0.5 0 0)) {
+  :root {
+    color-scheme: dark;
+    /* Deep-water canvas, blue signal, one warm accent for the rare tier. */
+    --canvas: oklch(0.24 0.012 250);
+    --surface: oklch(0.29 0.014 250);
+    --surface-2: oklch(0.35 0.016 250);
+    --surface-2-hover: oklch(0.41 0.018 250);
+    --text-strong: oklch(0.98 0.008 90);
+    --text: oklch(0.94 0.01 90);
+    --text-2: oklch(0.78 0.018 250);
+    --action: oklch(0.78 0.10 75);
+    --action-soft: oklch(0.78 0.10 75 / 0.24);
+    --focus: oklch(0.84 0.11 75);
+    --rare: oklch(0.82 0.10 75);
+    --success: oklch(0.84 0.07 155);
+    --success-line: oklch(0.55 0.06 155);
+    --line: oklch(0.38 0.014 250);
+    --line-strong: oklch(0.49 0.016 250);
+    --hover-wash: oklch(1 0 0 / 0.04);
+    /* Type roles: one family, unmistakable scale and weight steps. */
+    --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --type-display: 1.9rem;
+    --type-input: 1.06rem;
+    --type-answer: 1rem;
+    --type-label: .8rem;
+    --type-meta: .8rem;
+    --weight-display: 650;
+    --weight-label: 650;
+    --weight-answer: 600;
+  }
+  }
   * { box-sizing: border-box; }
+  ::selection { background: var(--action-soft); color: var(--text); }
+  html { scrollbar-color: var(--line) var(--canvas); scrollbar-width: thin; }
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--canvas); }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; border: 2px solid var(--canvas); }
   body {
-    margin: 0; min-height: 100vh; background: #0b0f1a; color: #e8ecf5;
-    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0; min-height: 100vh; background: var(--canvas); color: var(--text);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    font-family: var(--font-ui); font-size: 16px; line-height: 1.5;
   }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 12vh 20px 60px; }
-  h1 { font-size: 1.6rem; margin: 0 0 4px; letter-spacing: -.02em; }
-  .sub { color: #8b95ab; margin: 0 0 28px; font-size: .9rem; }
-  .search { position: relative; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 10vh 20px 60px; }
+  h1 {
+    font-size: var(--type-display); font-weight: var(--weight-display);
+    line-height: 1.15; letter-spacing: -.025em; text-wrap: balance;
+    margin: 0 0 6px;
+  }
+  @media (max-width: 560px) {
+    .wrap { padding: 28px 16px 48px; }
+    h1 { font-size: 1.65rem; }
+    .card { flex-basis: 100%; }
+  }
+  .rare-word { color: var(--rare); }
+  .sub { color: var(--text-2); margin: 0 0 24px; font-size: .9rem; line-height: 1.5; text-wrap: pretty; }
+  .sub a { color: var(--rare); text-underline-offset: 3px; }
+  .switch {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 13px; margin: 0 0 18px;
+    font-family: inherit; font-size: var(--type-meta); font-weight: 600;
+    color: var(--rare); background: var(--surface); border: 1px solid var(--line-strong);
+    border-radius: 99px; cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
+  }
+  .switch:hover { background: var(--surface-2-hover); border-color: var(--rare); }
+  .switch:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .switch[hidden] { display: none; }
+  .switch svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   input {
-    width: 100%; padding: 16px 18px; font-size: 1.1rem; color: #e8ecf5;
-    background: #151b2b; border: 1px solid #2a3350; border-radius: 12px;
-    outline: none; transition: border-color .15s, box-shadow .15s;
+    width: 100%; padding: 16px 18px; font-family: inherit;
+    font-size: var(--type-input); font-weight: 450; color: var(--text);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    outline: none; caret-color: var(--focus);
+    transition: border-color .15s ease, box-shadow .15s ease;
   }
-  input:focus { border-color: #5b7cfa; box-shadow: 0 0 0 3px #5b7cfa22; }
-  .meta { color: #8b95ab; font-size: .82rem; margin: 12px 2px 8px; min-height: 1.2em; }
-  .results { display: grid; gap: 10px; }
+  input::placeholder { color: var(--text-2); opacity: 1; }
+  input:focus-visible { border-color: var(--action); box-shadow: 0 0 0 3px var(--action-soft); }
+  .meta { color: var(--text-2); font-size: var(--type-meta); font-variant-numeric: tabular-nums; margin: 14px 2px 10px; }
+  /* Results wrap into a compact, content-sized layout as the viewport allows. */
+  .results { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
   .card {
-    background: #151b2b; border: 1px solid #2a3350; border-radius: 12px;
-    padding: 14px 16px; display: flex; gap: 14px; align-items: flex-start;
+    flex: 1 1 260px; min-width: 0;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start;
+    box-shadow: 0 4px 16px oklch(0 0 0 / 0.16);
   }
-  .card .q { color: #9fb0d8; font-size: .82rem; margin-bottom: 4px; }
-  .card .a { font-size: 1.05rem; font-weight: 600; }
-  .copy {
-    margin-left: auto; flex: none; background: #222b45; color: #cdd7f0;
-    border: 1px solid #36426a; border-radius: 8px; padding: 6px 11px;
-    cursor: pointer; font-size: .8rem;
+  .card > div { min-width: 0; }
+  .card .q {
+    color: var(--text-2); font-size: var(--type-label); font-weight: var(--weight-label);
+    letter-spacing: .01em; line-height: 1.35; margin-bottom: 5px;
   }
-  .copy:hover { background: #2d3859; }
-  .empty { color: #8b95ab; text-align: center; padding: 40px 0; }
+  .card .a {
+    font-size: var(--type-answer); font-weight: var(--weight-answer);
+    line-height: 1.35; overflow-wrap: anywhere;
+  }
+  .empty { color: var(--text-2); text-align: center; padding: 40px 0; }
+
+  h1, .sub, .q, .group-q, .a { unicode-bidi: plaintext; }
+  .card .a { cursor: pointer; border-radius: 6px; transition: color .12s ease, background .12s ease; }
+  .card .a:hover { color: var(--text-strong); background: var(--hover-wash); }
+  .card .a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .copied .a { color: var(--success); }
+  .copy-icon {
+    margin-inline-start: auto; flex: none; display: grid; place-items: center;
+    width: 32px; height: 32px; padding: 0;
+    background: var(--surface-2); color: var(--text); border: 1px solid var(--line-strong);
+    border-radius: 8px; cursor: pointer;
+    transition: background .12s ease, border-color .12s ease, color .12s ease, opacity .12s ease;
+  }
+  .copy-icon:hover { background: var(--surface-2-hover); border-color: var(--action); }
+  .copy-icon:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .copy-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .copied .copy-icon { color: var(--success); border-color: var(--success-line); }
+  .hint { color: var(--text-2); font-size: var(--type-meta); margin: 8px 2px 18px; }
+  /* Touch input gets real targets instead of mouse-sized marks. */
+  @media (pointer: coarse) {
+    .copy-icon, .answer-row .copy-icon, .card .copy-icon { width: 44px; height: 44px; }
+    .example, .examples-dismiss, .more, .switch { min-height: 44px; }
+    .answer-row, .card .a { min-height: 44px; }
+    input {
+      min-height: 52px; position: sticky; top: env(safe-area-inset-top);
+      z-index: 6; box-shadow: 0 4px 14px oklch(0 0 0 / .2);
+    }
+    .card:active, .answer-row:active, .example:active, .switch:active,
+    .copy-icon:active, .more:active { background: var(--surface-2-hover); }
+    .answers { gap: 10px; }
+    .results { gap: 14px; }
+    .wrap { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+    /* The view switch lives in thumb reach on a phone. */
+    .switch {
+      position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom));
+      transform: translateX(-50%); margin: 0; z-index: 20;
+      background: var(--surface-2); box-shadow: 0 6px 20px oklch(0 0 0 / .28);
+      white-space: nowrap;
+    }
+  }
+  .copied-note { flex: none; color: var(--success); font-size: var(--type-meta); font-weight: 600; }
+  .match-note { color: var(--action); font-weight: 600; }
+
+  /* Motion: the copy gesture is the one authored moment; list growth is continuity. */
+  .copied .copy-icon { animation: copy-signal 260ms cubic-bezier(.16, 1, .3, 1); }
+  .copied .a { animation: answer-signal 380ms cubic-bezier(.16, 1, .3, 1); }
+  @keyframes copy-signal {
+    from { transform: scale(.78); opacity: .6; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  @keyframes answer-signal {
+    from { color: var(--text); }
+    to { color: var(--success); }
+  }
+  .group.append-in { animation: group-append 260ms cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes group-append {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .copied .copy-icon, .copied .a, .group.append-in { animation: none; }
+  }
+
+
+  .examples { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 2px 16px; }
+  .examples[hidden] { display: none; }
+  .examples-label { color: var(--text-2); font-size: var(--type-meta); }
+  .example {
+    font-family: inherit; font-size: var(--type-meta); color: var(--text);
+    background: var(--surface-2); border: 1px solid var(--line-strong);
+    border-radius: 99px; padding: 5px 11px; cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
+  }
+  .example:hover { background: var(--surface-2-hover); border-color: var(--action); }
+  .example:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .examples-dismiss {
+    margin-inline-start: auto; background: none; border: 0; padding: 4px 6px;
+    color: var(--text-2); font-family: inherit; font-size: var(--type-meta); cursor: pointer;
+  }
+  .examples-dismiss:hover { color: var(--text); }
+  .examples-dismiss:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+
+  /* --- Loading: one authored moment --- */
+  #loader {
+    display: none; position: fixed; inset: 0; z-index: 50;
+    align-items: center; justify-content: center;
+    background: var(--canvas);
+    opacity: 1;
+    transition: opacity .18s cubic-bezier(.16, 1, .3, 1);
+  }
+  .js #loader { display: flex; }
+  #loader.done { opacity: 0; pointer-events: none; }
+
+  .load-inner {
+    display: flex; flex-direction: column; align-items: center; gap: 15px;
+    width: min(360px, 82vw);
+    transition: transform .18s cubic-bezier(.16, 1, .3, 1);
+  }
+  #loader.done .load-inner { transform: scale(.97); }
+
+  .spinner {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 3px solid var(--line); border-top-color: var(--focus);
+    animation: spin .9s linear infinite;
+    transition: opacity .2s ease, transform .18s cubic-bezier(.16, 1, .3, 1);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ready-mark {
+    position: absolute; top: 0; left: 0; width: 44px; height: 44px;
+    display: grid; place-items: center;
+    opacity: 0; transform: scale(.7);
+    transition: opacity .22s ease .06s, transform .18s cubic-bezier(.16, 1, .3, 1) .06s;
+  }
+  .spinner-wrap { position: relative; width: 44px; height: 44px; }
+  #loader.ready .spinner { opacity: 0; transform: scale(.7); animation: none; }
+  #loader.ready .ready-mark { opacity: 1; transform: scale(1); }
+  .ready-mark svg { width: 30px; height: 30px; }
+  .ready-mark path {
+    stroke: var(--success); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+    fill: none; stroke-dasharray: 1; stroke-dashoffset: 1;
+  }
+  #loader.ready .ready-mark path { animation: draw .20s cubic-bezier(.16, 1, .3, 1) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .load-title { font-size: 1rem; font-weight: 600; text-align: center; }
+  .bar {
+    width: 100%; height: 5px; background: var(--line);
+    border-radius: 99px; overflow: hidden;
+  }
+  .fill {
+    height: 100%; width: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--action), var(--rare));
+    transform: scaleX(0); transform-origin: left center;
+    transition: transform .26s cubic-bezier(.16, 1, .3, 1);
+    will-change: transform;
+  }
+  #loader.ready .fill { transition: transform .20s cubic-bezier(.16, 1, .3, 1); }
+  .load-status {
+    color: var(--text-2); font-size: .8rem; font-variant-numeric: tabular-nums;
+    text-align: center; min-height: 1.2em;
+    transition: color .2s ease;
+  }
+  .load-status.ready { color: var(--success); }
+  .retry {
+    background: var(--surface-2); color: var(--text); border: 1px solid var(--line-strong);
+    border-radius: 8px; padding: 8px 14px; cursor: pointer; display: none;
+  }
+  .retry:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 2.4s; }
+    #loader, .load-inner, .fill, .spinner, .ready-mark, #loader.ready .ready-mark path {
+      transition-duration: .01ms !important;
+      animation-duration: .01ms !important;
+    }
+    #loader.ready .ready-mark path { stroke-dashoffset: 0; }
+  }
+
+  /* Matte finish: a very fine, non-repeating paper grain. */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-size: 180px 180px; mix-blend-mode: soft-light; opacity: .055;
+  }
+  .wrap { position: relative; z-index: 2; }
+
 </style>
 </head>
-<body>
-<div class="wrap">
-  <h1>Krillion Answer Search</h1>
-  <p class="sub">Type a question and get the answer instantly.</p>
-  <div class="search">
-    <input id="q" type="search" autocomplete="off" autofocus
-           placeholder="Name any one famous park">
-  </div>
-  <div class="meta" id="meta"></div>
-  <div class="results" id="results"></div>
-</div>
-<script>
-  const input = document.getElementById('q');
-  const results = document.getElementById('results');
-  const meta = document.getElementById('meta');
-  let timer = null, seq = 0;
+<body data-mode="local" data-views='null'>
 
+
+<div class="wrap">
+  <button class="switch" id="switch" type="button"></button>
+  <h1>Krillion Answer Search</h1>
+  <p class="sub">Type a question from the game to find an answer.</p>
+  <input id="q" type="search" autocomplete="off" maxlength="200"
+         enterkeyhint="search" autocapitalize="off" autocorrect="off" spellcheck="false"
+         aria-label="Search questions" placeholder="Name any one famous park">
+  <p class="hint">Copy an answer by tapping its text or using the copy button.</p>
+  <div class="examples" id="examples"><span class="examples-label">Try:</span>
+    <button class="example" type="button" data-q="Name any one famous park">Name any one famous park</button>
+    <button class="example" type="button" data-q="fictional bear">fictional bear</button>
+    <button class="examples-dismiss" type="button" aria-label="Hide examples">Hide</button></div>
+  <div class="meta" id="meta" aria-live="polite"></div>
+  <div class="results" id="results"></div>
+  
+</div>
+
+<script>
+let DATA = [];
+const $ = id => document.getElementById(id);
+const VIEWS = JSON.parse(document.body.dataset.views || 'null');
+const CACHE = { lookup: null, vault: null };
+let currentMode = document.body.dataset.mode || 'lookup';
+const SITE_ROOT = new URL(
+  location.pathname.replace(/\/krillion\/(?:index\.html)?$/, '/').replace(/\/index\.html$/, '/'),
+  location.origin
+);
+const loader = $('loader'), fill = $('fill'), status = $('load-status'), title = $('load-title');
+const input = $('q');
+
+// The loader only owns the page while JS is actively fetching.
+if (document.documentElement.classList.contains('js')) input.disabled = true;
+if ($('retry')) $('retry').addEventListener('click', () => location.reload());
+
+function escape(s) {
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function fmt(n) { return (n / 1024).toFixed(0) + ' KB'; }
+
+function setProgress(fraction) {
+  fill.style.transform = 'scaleX(' + Math.max(0, Math.min(1, fraction)) + ')';
+}
+
+async function loadDatabase() {
+  const res = await fetch('search-data.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const total = Number(res.headers.get('content-length')) || 0;
+
+  if (res.body && res.body.getReader) {
+    const reader = res.body.getReader();
+    const chunks = [];
+    let received = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      received += value.length;
+      if (total) {
+        setProgress(received / total);
+        status.textContent = fmt(received) + ' / ' + fmt(total);
+      } else {
+        status.textContent = fmt(received) + ' loaded';
+      }
+    }
+    const bytes = new Uint8Array(received);
+    let pos = 0;
+    for (const c of chunks) { bytes.set(c, pos); pos += c.length; }
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
+  return await res.json();
+}
+
+/* ---- Paraphrase-tolerant matcher (mirrors scripts/paraphrase_match.py) ---- */
+const STOP = new Set(('a an the any one of name give list state please can you i we me tell us some anyone '
+  + 'do does did is are that which what example examples with in for to and or on at as by from this it its '
+  + 'has have had be been there they them your my our would could should will shall after about like').split(' '));
+
+const NEGATIONS = new Set(['without', 'not', 'never', 'no', 'non', 'neither']);
+
+const SYN_GROUPS = [
+  ['name','give','list','state','tell','mention','identify','cite'],
+  ['famous','wellknown','notable','celebrated','renowned','popular','famed'],
+  ['movie','film','motionpicture'], ['song','track','tune'],
+  ['show','series','program','programme','tvshow'], ['book','novel'],
+  ['character','person','hero','heroine','figure'], ['country','nation','state'],
+  ['food','dish','cuisine','meal'], ['sport','game'],
+  ['item','thing','object','article'], ['clothing','clothes','garment','apparel','wear'],
+  ['winter','cold','snow','coldseason'], ['oneword','singleword'],
+  ['threedimensional','3d'], ['follow','after','comesafter'],
+  ['park','parkland','gardens'], ['author','writer','novelist'],
+  ['actor','actress','performer'], ['city','town','metropolis'],
+  ['animal','creature','beast'], ['plant','flower','tree'],
+  ['band','group','musicalgroup'], ['album','record','lp'],
+  ['team','club','squad'], ['brand','company','maker','manufacturer'],
+  ['large','big','huge'], ['small','tiny','little'],
+  ['old','ancient','historic'], ['new','modern','recent'],
+];
+const SYN = {};
+for (const g of SYN_GROUPS) for (const w of g) SYN[w] = g[0];
+
+const PHRASES = [
+  ['one word','oneword'], ['single word','singleword'],
+  ['well known','wellknown'], ['three dimensional','threedimensional'],
+  ['motion picture','motionpicture'], ['dc comics','dccomics'],
+];
+const CONTRACTIONS = [
+  ["you'd",'you would'], ["you're",'you are'], ["you've",'you have'],
+  ["you'll",'you will'], ["it's",'it is'], ["they're",'they are'],
+  ["we'd",'we would'], ["we're",'we are'], ["don't",'do not'],
+  ["doesn't",'does not'], ["can't",'can not'], ["won't",'will not'],
+  ["isn't",'is not'], ["wasn't",'was not'], ["i'd",'i would'],
+  ["that's",'that is'], ["there's",'there is'], ["what's",'what is'],
+];
+
+function normalise(s) {
+  let t = String(s).trim().toLowerCase()
+    .replace(/[’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-');
+  for (const [k, v] of CONTRACTIONS) t = t.replace(new RegExp('\\b' + k + '\\b', 'g'), v);
+  return t.replace(/\s+/g, ' ').replace(/[?!.,:;]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function stem(w) {
+  if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + 'y';
+  if (w.length > 5 && w.endsWith('ing')) return w.slice(0, -3);
+  if (w.length > 4 && w.endsWith('ed')) return w.slice(0, -2);
+  if (w.length > 3 && w.endsWith('s') && !/(ss|us|is)$/.test(w)) return w.slice(0, -1);
+  return w;
+}
+function canonicalToken(w) {
+  w = w.replace(/[^a-z0-9]+/g, '');
+  return w ? (SYN[w] || stem(w)) : '';
+}
+function tokenize(s) {
+  let t = normalise(s);
+  for (const [p, j] of PHRASES) t = t.replace(new RegExp('\\b' + p + '\\b', 'g'), j);
+  const quoted = [...t.matchAll(/"([^"]*)"/g)].map(m => canonicalToken(m[1])).filter(Boolean);
+  const rest = t.replace(/"[^"]*"/g, ' ');
+  const out = new Set();
+  for (const w of rest.match(/[a-z0-9]+(?:-[a-z0-9]+)*/g) || []) {
+    const c = canonicalToken(w);
+    if (c && !STOP.has(c)) out.add(c);
+  }
+  for (const q of quoted) out.add('q:' + q);
+  return out;
+}
+function trigrams(s) {
+  const t = '  ' + normalise(s).replace(/[^a-z0-9]+/g, ' ') + '  ';
+  const g = new Set();
+  for (let i = 0; i + 2 < t.length; i++) g.add(t.slice(i, i + 3));
+  return g;
+}
+function dice(a, b) {
+  if (!a.size || !b.size) return 0;
+  let n = 0; for (const x of a) if (b.has(x)) n++;
+  return 2 * n / (a.size + b.size);
+}
+function buildIndex(data) {
+  const docs = data.map(d => ({ q: d.q, a: d.a, answers: d.answers || (d.a ? [d.a] : []), norm: normalise(d.q), tok: tokenize(d.q), tri: trigrams(d.q) }));
+  const N = docs.length, df = new Map(), postings = new Map();
+  docs.forEach((d, i) => {
+    for (const t of d.tok) {
+      df.set(t, (df.get(t) || 0) + 1);
+      if (!postings.has(t)) postings.set(t, []);
+      postings.get(t).push(i);
+    }
+  });
+  const idf = new Map([...df].map(([t, n]) => [t, Math.log((N + 1) / (n + 1)) + 1]));
+  return { docs, idf, def: Math.log(N + 1) + 1, postings };
+}
+let IDX = null;  // built in init() once search-data.json has loaded
+function idfOf(t) { return IDX.idf.has(t) ? IDX.idf.get(t) : IDX.def; }
+function sharedWeight(qt, ct) {
+  let total = 0;
+  for (const t of qt) {
+    if (ct.has(t)) total += idfOf(t);
+    else if (t.startsWith('q:') && ct.has(t.slice(2))) total += 1.2 * idfOf(t.slice(2));
+    else if (ct.has('q:' + t)) total += 1.2 * idfOf(t);
+  }
+  return total;
+}
+function search(query, limit = 10) {
+  const q = normalise(query).slice(0, 200);
+  if (!q) return [];
+  const qtok = tokenize(q), qtri = trigrams(q);
+  if (!qtok.size) {
+    // CJK, RTL or emoji-only input has no Latin tokens: fall back to a
+    // literal substring match so the search still degrades gracefully.
+    const out = [];
+    for (const d of IDX.docs) {
+      if (d.norm.includes(q) || String(d.q || d.a || '').toLowerCase().includes(q)) {
+        out.push({ it: d, s: 1 });
+      }
+    }
+    return out.slice(0, limit);
+  }
+  let qw = 0; for (const t of qtok) qw += idfOf(t);
+  const cand = new Set();
+  for (const t of qtok) {
+    for (const i of (IDX.postings.get(t) || [])) cand.add(i);
+    if (t.startsWith('q:')) for (const i of (IDX.postings.get(t.slice(2)) || [])) cand.add(i);
+    else for (const i of (IDX.postings.get('q:' + t) || [])) cand.add(i);
+  }
+  const indices = cand.size ? cand : IDX.docs.map((_, i) => i);
+  const qNeg = [...qtok].some(t => NEGATIONS.has(t));
+  const out = [];
+  for (const i of indices) {
+    const d = IDX.docs[i];
+    if (!d.tok.size) continue;
+    const sw = sharedWeight(qtok, d.tok);
+    let cw = 0; for (const t of d.tok) cw += idfOf(t);
+    const cov = sw / (qw || 1), pre = sw / (cw || 1);
+    const overlap = cov + pre ? 2 * cov * pre / (cov + pre) : 0;
+    let s = 0.88 * overlap + 0.12 * dice(qtri, d.tri);
+    const dNeg = [...d.tok].some(t => NEGATIONS.has(t));
+    if (qNeg !== dNeg) s *= 0.7;
+    if (q === d.norm) s = 1;
+    else if (d.norm.includes(q)) s = Math.max(s, 0.90);
+    if (s >= 0.34) out.push({ it: d, s });
+  }
+  out.sort((a, b) => b.s - a.s || a.it.q.localeCompare(b.it.q));
+  if (out.length) {
+    const best = out[0].s, cut = Math.max(0.34, best * 0.72);
+    while (out.length && out[out.length - 1].s < cut) out.pop();
+  }
+  return out.slice(0, limit);
+}
+function matchedByMeaning(query, hits) {
+  const q = normalise(query);
+  return !!hits.length && !!q && !hits.some(h =>
+    h.it.norm.includes(q) || q.includes(h.it.norm));
+}
+function render(query) {
+  const q = query.trim();
+  if (!q) { $('results').innerHTML = ''; $('meta').textContent = ''; return; }
+  const hits = search(q, 10);
+  $('meta').textContent = hits.length
+    ? hits.length + ' result' + (hits.length === 1 ? '' : 's') : '';
+  if (matchedByMeaning(q, hits)) {
+    $('meta').insertAdjacentHTML('beforeend', ' <span class="match-note">matched by meaning</span>');
+  }
+  if (!hits.length) {
+    $('meta').textContent = 'No results';
+    $('results').innerHTML = '<div class="empty" role="status">No answer found. Try a shorter phrase — even one distinctive word will do.</div>';
+    return;
+  }
+  $('results').innerHTML = hits.map(h => `
+    <div class="card" data-answer="${escape(h.it.a)}">
+      <div><div class="q">${escape(h.it.q)}</div><div class="a" role="button" tabindex="0" title="Tap to copy">${escape(h.it.a)}</div></div>
+      <button class="copy-icon" type="button" aria-label="Copy answer" title="Copy answer">${COPY_SVG}</button>
+    </div>`).join('');
+  bindCopy($('results'));
+}
+
+
+const COPY_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>';
+const DONE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4.5 4.5L19 7"/></svg>';
+
+async function copyAnswer(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+}
+
+function flashCopied(row, ok) {
+  row.classList.add('copied');
+  const icon = row.querySelector('.copy-icon');
+  if (icon) icon.innerHTML = ok ? DONE_SVG : COPY_SVG;
+  const oldNote = row.querySelector('.copied-note');
+  if (oldNote) oldNote.remove();
+  const note = document.createElement('span');
+  note.className = 'copied-note';
+  note.setAttribute('role', 'status');
+  note.textContent = ok ? 'Copied' : 'Copy unavailable';
+  if (icon) icon.insertAdjacentElement('beforebegin', note);
+  if (icon) {
+    icon.setAttribute('aria-label', ok ? 'Copied' : 'Copy unavailable');
+    icon.title = ok ? 'Copied' : 'Copy unavailable';
+  }
+  setTimeout(() => {
+    row.classList.remove('copied');
+    note.remove();
+    if (icon) {
+      icon.innerHTML = COPY_SVG;
+      icon.setAttribute('aria-label', 'Copy answer');
+      icon.title = 'Copy answer';
+    }
+  }, 1300);
+}
+
+function bindCopy(root) {
+  root.querySelectorAll('[data-answer]').forEach(row => {
+    const text = row.dataset.answer;
+    const target = row.querySelector('.a');
+    const icon = row.querySelector('.copy-icon');
+    const run = async () => flashCopied(row, await copyAnswer(text));
+    if (target) {
+      target.addEventListener('click', () => {
+        // Do not hijack a deliberate text selection.
+        if (window.getSelection() && window.getSelection().toString()) return;
+        run();
+      });
+      target.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); run(); }
+      });
+    }
+    if (icon) icon.addEventListener('click', e => { e.stopPropagation(); run(); });
+  });
+}
+
+
+let examplesController = null;
+function initExamples(input, storageKey) {
+  const box = document.getElementById('examples');
+  if (!box) return;
+  if (examplesController) examplesController.abort();
+  examplesController = new AbortController();
+  const signal = examplesController.signal;
+  let seen = false;
+  try { seen = localStorage.getItem(storageKey) === '1'; } catch (_) {}
+  if (seen) box.hidden = true;
+  function hide(remember) {
+    box.hidden = true;
+    if (remember) { try { localStorage.setItem(storageKey, '1'); } catch (_) {} }
+  }
+  box.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    if (btn.classList.contains('examples-dismiss')) { hide(true); return; }
+    const q = btn.dataset.q;
+    if (!q) return;
+    input.value = q;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    hide(true);
+    if (matchMedia('(pointer: fine)').matches) input.focus();
+  }, { signal });
+  input.addEventListener('input', () => { if (input.value.trim()) hide(true); }, { once: true, signal });
+}
+
+
+function fail(e) {
+  title.textContent = 'Answers couldn’t load';
+  status.textContent = 'Check your connection, then try again.';
+  $('spinner').style.display = 'none';
+  $('retry').style.display = 'inline-block';
+}
+
+function examplesMarkup(v) {
+  if (!v || !v.examples) return '';
+  const buttons = v.examples.map(q => `<button class="example" type="button" data-q="${q}">${q}</button>`).join('');
+  return '<span class="examples-label">Try:</span>' + buttons +
+    '<button class="examples-dismiss" type="button" aria-label="Hide examples">Hide</button>';
+}
+function applyView(v) {
+  document.title = v.title;
+  const h1 = document.querySelector('.wrap h1');
+  const sub = document.querySelector('.sub');
+  if (h1) h1.innerHTML = v.h1;
+  if (sub) sub.innerHTML = v.sub;
+  $('examples').innerHTML = examplesMarkup(v);
+  $('results').innerHTML = '';
+  $('meta').textContent = '';
+}
+function updateSwitch() {
+  const btn = $('switch');
+  if (!VIEWS || !btn) return;
+  btn.hidden = false;
+  btn.textContent = VIEWS[currentMode].switchLabel;
+}
+async function ensureLookup() {
+  if (CACHE.lookup) { DATA = CACHE.lookup.data; IDX = CACHE.lookup.idx; return CACHE.lookup; }
+  const res = await fetch(new URL('search-data.json', SITE_ROOT));
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  DATA = data; IDX = buildIndex(data);
+  for (const w of ['Name a famous park', 'Name a song', 'Name a country']) search(w);
+  CACHE.lookup = { data, idx: IDX, query: '' };
+  return CACHE.lookup;
+}
+function showLookup(push = true) {
+  currentMode = 'lookup';
+  document.body.dataset.mode = 'lookup';
+  if (VIEWS && VIEWS.lookup) applyView(VIEWS.lookup);
+  if ($('count') && CACHE.lookup) $('count').textContent = CACHE.lookup.data.length.toLocaleString();
+  input.value = CACHE.lookup ? CACHE.lookup.query : '';
+  render(input.value);
+  if (push && VIEWS) history.pushState({ view: 'lookup' }, '', new URL('./', SITE_ROOT));
+  updateSwitch();
+  const more = $('more');
+  if (more) more.hidden = true;
+}
+async function switchView(target, push = true) {
+  if (!VIEWS || target === currentMode) return;
+  const btn = $('switch');
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Switching…';
+  try {
+    if (target === 'vault') await ensureVault(); else await ensureLookup();
+    if (target === 'vault') showVault(push); else showLookup(push);
+    initExamples(input, VIEWS[target].storageKey);
+  } catch (e) {
+    $('meta').textContent = 'Could not switch. Check your connection and try again.';
+  } finally {
+    btn.disabled = false;
+    updateSwitch();
+  }
+}
+if ($('switch')) {
+  if (!VIEWS) $('switch').hidden = true;
+  else $('switch').addEventListener('click', () => switchView(currentMode === 'lookup' ? 'vault' : 'lookup'));
+}
+addEventListener('popstate', () => {
+  const target = /\/krillion\/?$/.test(location.pathname) ? 'vault' : 'lookup';
+  switchView(target, false);
+});
+input.addEventListener('input', e => {
+  if (currentMode === 'local') return;
+  const q = e.target.value;
+  if (CACHE[currentMode]) CACHE[currentMode].query = q;
+  if (currentMode === 'vault') renderVault(q); else render(q);
+});
+async function initLookup() {
+  try {
+    const cache = await ensureLookup();
+    setProgress(1);
+    loader.classList.add('ready');
+    status.textContent = '✓ ' + cache.data.length.toLocaleString() + ' questions ready';
+    status.classList.add('ready');
+    title.textContent = 'Ready';
+    input.disabled = false;
+    initExamples(input, VIEWS ? VIEWS.lookup.storageKey : 'krillion-all-examples:v1');
+    showLookup(false);
+    if ($('count')) $('count').textContent = cache.data.length.toLocaleString();
+    setTimeout(() => {
+      loader.classList.add('done');
+      fill.style.willChange = 'auto';
+      if (matchMedia('(pointer: fine)').matches) input.focus();
+    }, 120);
+  } catch (e) {
+    fail(e);
+  }
+}
+const results = $('results');
+function groupCard(g) {
+  const rows = g.answers.map(a => {
+    const longest = Math.max(0, ...a.split(/\s+/).map(w => w.length));
+    const ch = Math.max(14, Math.min(44, Math.max(Math.round(a.length * 0.5) + 8,
+      Math.round(longest * 1.1) + 10)));
+    return `
+    <div class="answer-row" data-answer="${escape(a)}" style="--basis:${ch}ch">
+      <span class="a" role="button" tabindex="0" title="Tap to copy">${escape(a)}</span>
+      <button class="copy-icon" type="button" aria-label="Copy answer" title="Copy answer">${COPY_SVG}</button>
+    </div>`;
+  }).join('');
+  return `<section class="group"><h2 class="group-q">${escape(g.q)}</h2><div class="answers">${rows}</div></section>`;
+}
+function showBrowse(reset) {
+  if (reset) { results.innerHTML = ''; browseShown = 0; }
+  const slice = DATA.slice(browseShown, browseShown + PAGE);
+  const html = slice.map(groupCard).join('');
+  if (reset) {
+    results.innerHTML = html;
+  } else {
+    const holder = document.createElement('div');
+    holder.innerHTML = html;
+    [...holder.children].forEach((el, i) => {
+      el.classList.add('append-in');
+      el.style.animationDelay = Math.min(i * 18, 108) + 'ms';
+    });
+    while (holder.firstChild) results.appendChild(holder.firstChild);
+  }
+  browseShown += slice.length;
+  bindCopy(results);
+  const answers = DATA.slice(0, browseShown).reduce((n, g) => n + g.answers.length, 0);
+  $('meta').textContent = browseShown.toLocaleString() + ' of ' + DATA.length.toLocaleString() +
+    ' questions · ' + answers.toLocaleString() + ' answers shown';
+  const more = $('more');
+  if (more) more.hidden = browseShown >= DATA.length;
+}
+function renderVault(query) {
+  const q = query.trim();
+  if (!q) { showBrowse(true); return; }
+  const hits = search(q, 40);
+  const more = $('more');
+  if (more) more.hidden = true;
+  if (!hits.length) {
+    $('meta').textContent = 'No results';
+    results.innerHTML = '<div class="empty" role="status">No 100-point answer found. Try a shorter phrase — even one distinctive word will do.</div>';
+    return;
+  }
+  $('meta').textContent = hits.length + ' question' + (hits.length === 1 ? '' : 's') + ' matched';
+  if (matchedByMeaning(q, hits)) {
+    $('meta').insertAdjacentHTML('beforeend', ' <span class="match-note">matched by meaning</span>');
+  }
+  results.innerHTML = hits.map(h => groupCard({ q: h.it.q, answers: h.it.answers })).join('');
+  bindCopy(results);
+}
+async function ensureVault() {
+  if (CACHE.vault) { DATA = CACHE.vault.data; IDX = CACHE.vault.idx; return CACHE.vault; }
+  const res = await fetch(new URL('krillion/krillion-data.json', SITE_ROOT), { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  DATA = data; IDX = buildIndex(data);
+  for (const w of ['Name a famous park', 'Name a song', 'Name a country']) search(w);
+  CACHE.vault = { data, idx: IDX, query: '' };
+  return CACHE.vault;
+}
+function showVault(push = true) {
+  currentMode = 'vault';
+  document.body.dataset.mode = 'vault';
+  if (VIEWS && VIEWS.vault) applyView(VIEWS.vault);
+  const cache = CACHE.vault;
+  if ($('count')) $('count').textContent = cache.data.reduce((n, g) => n + g.answers.length, 0).toLocaleString();
+  if ($('prompts')) $('prompts').textContent = cache.data.length.toLocaleString();
+  input.value = cache.query;
+  renderVault(input.value);
+  if (push && VIEWS) history.pushState({ view: 'vault' }, '', new URL('krillion/', SITE_ROOT));
+  updateSwitch();
+  if ($('more')) $('more').hidden = false;
+}
+async function initVault() {
+  try {
+    await ensureVault();
+    input.disabled = false;
+    initExamples(input, VIEWS ? VIEWS.vault.storageKey : 'krillion-rare-examples:v1');
+    showVault(false);
+    if (matchMedia('(pointer: fine)').matches) input.focus();
+  } catch (e) {
+    $('meta').textContent = 'Could not load answers';
+    results.innerHTML = '<div class="empty" role="alert">Answers couldn’t load. Check your connection, then try again.' +
+      '<br><button class="more" id="retry" type="button">Try again</button></div>';
+    $('retry').addEventListener('click', () => location.reload());
+  }
+}
+const PAGE = 40;
+let browseShown = 0;
+if ($('more')) $('more').addEventListener('click', () => showBrowse(false));
+
+async function init() {
+  const mode = document.body.dataset.mode || 'lookup';
+  if (mode === 'vault') return initVault();
+  if (mode === 'local') { input.disabled = false; return initLocal(); }
+  return initLookup();
+}
+
+let seq = 0, timer = null;
+function renderLocal(items, q) {
+  if (!items.length) {
+    $('meta').textContent = 'No results';
+    results.innerHTML = '<div class="empty" role="status">No answer found. Try a shorter phrase — even one distinctive word will do.</div>';
+    return;
+  }
+  $('meta').textContent = items.length + ' result' + (items.length === 1 ? '' : 's');
+  if (matchedByMeaning(q, items.map(i => ({ it: { norm: String(i.question).toLowerCase(), q: i.question } })))) {
+    $('meta').insertAdjacentHTML('beforeend', ' <span class="match-note">matched by meaning</span>');
+  }
+  results.innerHTML = items.map(it => `
+    <div class="card" data-answer="${escape(it.answer)}">
+      <div><div class="q">${escape(it.question)}</div><div class="a" role="button" tabindex="0" title="Tap to copy">${escape(it.answer)}</div></div>
+      <button class="copy-icon" type="button" aria-label="Copy answer" title="Copy answer">${COPY_SVG}</button>
+    </div>`).join('');
+  bindCopy(results);
+}
+async function run(q) {
+  const mine = ++seq;
+  $('meta').textContent = 'Searching…';
+  try {
+    const res = await fetch('/api/search?q=' + encodeURIComponent(q));
+    const data = await res.json();
+    if (mine !== seq) return;
+    renderLocal(data.results, q);
+  } catch (e) {
+    if (mine === seq) {
+      $('meta').textContent = 'Search unavailable';
+      results.innerHTML = '<div class="empty" role="alert">Search unavailable. Check your connection, then try again.' +
+        '<br><button class="copy" id="retry-search" type="button">Try again</button></div>';
+      $('retry-search').addEventListener('click', () => run(q));
+    }
+  }
+}
+async function initLocal() {
+  initExamples(input, 'krillion-local-examples:v1');
   input.addEventListener('input', () => {
     clearTimeout(timer);
     const q = input.value.trim();
-    if (!q) { results.innerHTML = ''; meta.textContent = ''; return; }
+    if (!q) { results.innerHTML = ''; $('meta').textContent = ''; return; }
     timer = setTimeout(() => run(q), 120);
   });
+}
 
-  async function run(q) {
-    const mine = ++seq;
-    meta.textContent = 'Searching…';
-    try {
-      const res = await fetch('/api/search?q=' + encodeURIComponent(q));
-      const data = await res.json();
-      if (mine !== seq) return;
-      render(data.results, q);
-    } catch (e) {
-      if (mine === seq) meta.textContent = 'Search unavailable.';
-    }
-  }
-
-  function escape(s) {
-    return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  }
-
-  function render(items, q) {
-    if (!items.length) {
-      meta.textContent = '';
-      results.innerHTML = '<div class="empty">No answers yet — the database is still being filled.</div>';
-      return;
-    }
-    meta.textContent = items.length + ' result' + (items.length === 1 ? '' : 's');
-    results.innerHTML = items.map((it, i) => `
-      <div class="card">
-        <div>
-          <div class="q">${escape(it.question)}</div>
-          <div class="a">${escape(it.answer)}</div>
-        </div>
-        <button class="copy" data-i="${i}">Copy</button>
-      </div>`).join('');
-    results.querySelectorAll('.copy').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const it = items[Number(btn.dataset.i)];
-        try { await navigator.clipboard.writeText(it.answer); btn.textContent = 'Copied'; }
-        catch (e) { btn.textContent = 'Select text'; }
-        setTimeout(() => btn.textContent = 'Copy', 1200);
-      });
-    });
-  }
+init();
 </script>
 </body>
 </html>

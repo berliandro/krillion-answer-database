@@ -20,3 +20,10 @@ Scrape every question + answer from the Krillion game at https://playdaily.org/k
 
 ## Setup status
 Repo is currently empty — no manifests, README, or code. **Build the setup first** (DB schema, import pipeline, webapp skeleton) before delegating any scraping.
+
+## Edge autofill injection (`injection/`)
+- PC-only Tampermonkey userscript + loopback helper (`injection/bridge.py`, port 8768). Read `injection/README.md` before working there.
+- **Never demote a 100-point answer from a play score.** The game AI-grades unknown answers inconsistently; only the game's own dive-end graded bank is authoritative (policy in `injection/DECISIONS.md`).
+- Near-duplicate prompts are shown as separate labelled banks, never merged. Aliases/rewordings are logged, never applied to matching.
+- **"Process the log"** is a standing workflow request from the user: follow `injection/PROCESS-LOG.md` end to end (review logs → apply bank demotions → run `python scripts/krillion_db.py import` → rebuild static site → commit → changelog summary).
+- Two sessions may be active: one optimizing the webapp UI, one refining the userscript. Keep edits inside your owned paths.

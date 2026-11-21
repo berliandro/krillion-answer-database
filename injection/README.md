@@ -97,5 +97,15 @@ Prompts that cannot be answered, or requests that fail, are logged to
 http://127.0.0.1:8768/api/failed?t=krillion-local-v1
 ```
 
-The userscript now retries each failed request up to 3 times with a 12-second
-timeout before showing an error.
+Every submitted answer is logged to `injection/data/evidence.jsonl` (view at
+`/api/evidence?t=krillion-local-v1`). **Play scores never demote an answer** —
+the game AI-grades unknown answers inconsistently. Only the dive-end graded bank
+can change the rare tier; the policy is in `DECISIONS.md`.
+
+When a prompt has no bank, the helper can fetch that prompt's real graded bank
+from `playdaily.org`, respecting the cooldown and de-duplicating. Disable with
+`KRILLION_NO_FETCH=1`. Queue: `/api/fetch-queue?t=krillion-local-v1`.
+
+The userscript retries each failed request up to 3 times with a 12-second
+timeout before showing an error. **"Process the log"** is a standing workflow —
+see `PROCESS-LOG.md`.

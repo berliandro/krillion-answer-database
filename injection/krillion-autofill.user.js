@@ -50,10 +50,14 @@
     bankSent: '',
     collapsed: false,
     autoEnter: false,
+    exact: false,
   };
   const AUTO_KEY = 'krillion.autoEnter.v1';
   const seenDeals = {};   // promptId -> exact question text
+  const seenTickets = {}; // promptId -> ticket from the same deal
   const seenBanks = [];   // full graded banks observed from the site's own API
+  const bankByPrompt = {}; // exact prompt text -> promptId
+  const ticketByPrompt = {}; // exact prompt text -> ticket
 
   // The site shows only ~10 answers per tier. Capture the real bank responses
   // it fetches at the end of a dive so the archive gets the complete tiers.
@@ -69,7 +73,16 @@
             try {
               const data = await res.clone().json();
               if (url.indexOf('/deal') !== -1 && data.prompts) {
-                data.prompts.forEach((p) => { if (p && p.id && p.text) seenDeals[p.id] = p.text; });
+                data.prompts.forEach((p) => {
+                  if (p && p.id && p.text) {
+                    seenDeals[p.id] = p.text;
+                    bankByPrompt[p.text] = p.id;
+                  }
+                });
+                Object.entries(data.tickets || {}).forEach(([id, ticket]) => {
+                  seenTickets[id] = ticket;
+                  if (seenDeals[id]) ticketByPrompt[seenDeals[id]] = ticket;
+                });
               } else if (url.indexOf('/answers') !== -1 && data.answers) {
                 const m = url.match(/prompt=([^&]+)/);
                 const id = m ? decodeURIComponent(m[1]) : '';
@@ -360,6 +373,10 @@
     state.answerQuestion[answer] = btn.dataset.q || state.question;
     listEl.querySelectorAll('.ka-chip').forEach((b) => { b.dataset.filled = 'false'; });
     btn.dataset.filled = 'true';
+    if (state.autoEnter && state.groups.length > 1) {
+      status('Several banks match — choose manually. Auto-enter paused for this prompt.', 'error');
+      return;
+    }
     if (state.autoEnter) {
       status(`Auto-diving with “${answer}”…`, 'ok');
       setTimeout(submitAnswer, 220);
@@ -379,11 +396,15 @@
     try {
       const data = await request('/api/answers?q=' + encodeURIComponent(question));
       state.groups = data.groups || [{ question, score: 1, answers: data.answers || [] }];
+      state.exact = !!data.exact;
       state.answers = state.groups.reduce((all, g) => all.concat(g.answers), []);
       render();
       const total = state.answers.length;
       if (!total) {
-        reportMiss(question, 'no-match');
+        reportMiss(question, 'no-match', {
+          promptId: bankByPrompt[question] || '',
+          ticket: ticketByPrompt[question] || '',
+        });
         status('No 100-point answers recorded for this prompt.', 'error');
       } else if (!data.exact && state.groups.length > 1) {
         status(`Closest prompt: ${state.groups[0].question} — ${total} answers in ${state.groups.length} separate banks.`);
@@ -425,21 +446,29 @@
     const key = question + '\u0000' + answer + '\u0000' + points;
     if (state.scored.has(key)) return;
     state.scored.add(key);
-    status(`Scored ${points} for “${answer}” — recording…`);
+    status(`Scored ${points} for “${answer}” — logging…`);
     try {
-      const r = await request('/api/correction', {
+      await request('/api/evidence', {
         method: 'POST',
-        body: { question, answer, points, tier, mode: mode() },
+        body: {
+          screen_prompt: state.question,
+          chosen_bank: question,
+          answer,
+          points,
+          outcome: points >= 100 ? 'ok' : 'below-100',
+          tier,
+          mode: mode(),
+          exact: !!state.exact,
+          group_count: state.groups.length,
+          group_scores: state.groups.map((g) => Number(g.score || 0)),
+          auto: state.autoEnter,
+        },
       });
-      if (r.action === 'removed') {
-        status(`${answer} scored ${points} — removed from the 100-point list.`, 'ok');
-      } else if (r.action === 'verified') {
-        status(`${answer} confirmed at 100 points.`, 'ok');
-      } else {
-        status('Score recorded.', 'ok');
-      }
+      status(points >= 100
+        ? `${answer} scored 100 — logged.`
+        : `${answer} scored ${points} — logged for review (no demotion from play).`, 'ok');
     } catch (e) {
-      status('Could not record score — bridge offline.', 'error');
+      status('Could not log score — bridge offline.', 'error');
     }
   }
 
@@ -473,10 +502,11 @@
 
   // ---- resilient posting -------------------------------------------------
   const QUEUE_KEY = 'krillion.pending.v1';
-  function reportMiss(prompt, reason) {
+  function reportMiss(prompt, reason, extra) {
+    const body = Object.assign({ prompt, reason }, extra || {});
     request('/api/miss', {
-      method: 'POST', body: { prompt, reason }, retries: 1,
-    }).catch(() => queuePost('/api/miss', { prompt, reason }));
+      method: 'POST', body, retries: 1,
+    }).catch(() => queuePost('/api/miss', body));
   }
 
   function queuePost(path, body) {

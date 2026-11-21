@@ -12,6 +12,10 @@ import re
 import sqlite3
 import sys
 import threading
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -26,6 +30,8 @@ BASE_DB = DATA_DIR / "krillion_only.db"
 # can ingest them into the authoritative full DB and rebuild the derived DBs.
 IMPORT_JSONL = DATA_DIR / "answers_injection.jsonl"
 MISSES = INJ / "data" / "failed_prompts.jsonl"
+EVIDENCE = INJ / "data" / "evidence.jsonl"
+FETCH_QUEUE = INJ / "data" / "fetch_queue.jsonl"
 CORRECTIONS = DATA / "corrections.jsonl"
 LEARNED = DATA / "learned.jsonl"
 CHANGELOG = INJ / "CHANGELOG.md"
@@ -52,7 +58,7 @@ except Exception as _e:
     normalise = lambda s: " ".join(str(s).strip().lower().split())
 
 DATA.mkdir(parents=True, exist_ok=True)
-for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES):
+for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES, EVIDENCE, FETCH_QUEUE):
     f.touch(exist_ok=True)
 if not CHANGELOG.exists():
     CHANGELOG.write_text(
@@ -137,40 +143,31 @@ def resolve_question(query):
     return False, groups
 
 
-def add_correction(body):
-    question = str(body.get("question", "")).strip()
+def add_evidence(body):
+    """Record a play event. NEVER demotes an answer.
+
+    The user's policy: play scores are unreliable (the game grades unknown
+    answers with an AI, so the same answer can be 100 once and 30 later).
+    Only the game's own dive-end graded bank may change the rare tier.
+    """
+    prompt = str(body.get("screen_prompt") or body.get("question") or "").strip()
     answer = str(body.get("answer", "")).strip()
-    points = body.get("points")
-    tier = str(body.get("tier", "")).strip()
-    mode = str(body.get("mode", "classic")).strip()
-    try:
-        points = int(points)
-    except (TypeError, ValueError):
-        return {"ok": False, "error": "points must be an integer"}
-    if not question or not answer:
-        return {"ok": False, "error": "question and answer are required"}
-
-    existing = read_jsonl(CORRECTIONS)
-    key = (question, answer)
-    if any((r.get("question"), r.get("answer")) == key for r in existing):
-        return {"ok": True, "duplicate": True}
-
-    if points >= 100:
-        log_change(f"verified {answer!r} for {question!r} at 100 points ({mode})")
-        return {"ok": True, "action": "verified"}
-
-    rec = {
-        "at": now(), "question": question, "answer": answer,
-        "points": points, "tier": tier, "mode": mode,
-        "action": "remove",
-    }
-    with CORRECTIONS.open("a", encoding="utf-8") as f:
+    if not prompt and not answer:
+        return {"ok": False, "error": "prompt or answer is required"}
+    rec = {"at": now()}
+    for key in ("screen_prompt", "chosen_bank", "answer", "points", "outcome",
+                "tier", "mode", "exact", "group_count", "group_scores", "auto"):
+        if key in body:
+            rec[key] = body[key]
+    if "question" in body and "chosen_bank" not in rec:
+        rec["chosen_bank"] = body["question"]
+    with EVIDENCE.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    log_change(
-        f"REMOVED {answer!r} from 100-point answers for {question!r} "
-        f"(scored {points}, tier {tier or 'unknown'}, {mode})"
-    )
-    return {"ok": True, "action": "removed"}
+    return {"ok": True, "action": "logged"}
+
+
+# Backwards compatibility for any older userscript copy still posting here.
+add_correction = add_evidence
 
 
 def add_miss(body):
@@ -182,6 +179,20 @@ def add_miss(body):
         f.write(json.dumps({
             "at": now(), "prompt": prompt, "reason": reason,
         }, ensure_ascii=False) + "\n")
+    # If the script supplied the game's prompt id + ticket, queue a fetch of
+    # that prompt's real graded bank. Dedupe by prompt id.
+    pid = str(body.get("promptId", "")).strip()
+    ticket = str(body.get("ticket", "")).strip()
+    if pid and ticket:
+        known = {str(r.get("promptId", "")) for r in read_jsonl(FETCH_QUEUE)}
+        known |= {str(r.get("promptId", "")) for r in read_jsonl(MISSES)}
+        if pid not in known:
+            with FETCH_QUEUE.open("a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "at": now(), "prompt": prompt, "promptId": pid, "ticket": ticket,
+                    "status": "queued",
+                }, ensure_ascii=False) + "\n")
+            log_change(f"queued bank fetch for unresolved prompt {prompt!r}")
     return {"ok": True}
 
 
@@ -228,7 +239,115 @@ def add_bank(rows):
                     "source_url": "https://playdaily.org/krillion",
                 }, ensure_ascii=False) + "\n")
         log_change(f"learned {added} new answer(s) from expanded answer banks")
-    return {"ok": True, "added": added}
+
+    # Authoritative demotion: the game's own graded bank at dive end.
+    demoted = 0
+    existing_corrections = {
+        (r.get("question"), r.get("answer")) for r in read_jsonl(CORRECTIONS)
+        if r.get("action") == "remove"
+    }
+    with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as c:
+        for r in new_records:
+            try:
+                observed = int(r.get("points", 0))
+            except (TypeError, ValueError):
+                observed = 0
+            tier = r.get("tier", "")
+            is_low = observed < 100 or (
+                r.get("tierIndex") is not None and r.get("tierIndex") != 5
+            ) or (tier and "krillion" not in tier.lower() and observed == 0)
+            if not is_low:
+                continue
+            key = (r["question"], r["answer"])
+            if key in existing_corrections:
+                continue
+            row = c.execute(
+                "SELECT 1 FROM answers WHERE question=? AND answer=?", key
+            ).fetchone()
+            if not row:
+                continue
+            with CORRECTIONS.open("a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "at": now(), "question": r["question"], "answer": r["answer"],
+                    "points": observed, "tier": tier, "mode": "bank",
+                    "action": "remove",
+                }, ensure_ascii=False) + "\n")
+            existing_corrections.add(key)
+            demoted += 1
+            log_change(
+                f"BANK DEMOTED {r['answer']!r} for {r['question']!r} "
+                f"(bank tier {tier or observed})"
+            )
+    return {"ok": True, "added": added, "bank_demoted": demoted}
+
+
+def fetch_worker():
+    """Fetch graded banks for unresolved prompts. Respects the ~65s cooldown.
+
+    Enabled by default; set KRILLION_NO_FETCH=1 to disable. Only ever writes
+    new answer rows to data/answers_injection.jsonl for the normal importer.
+    """
+    while True:
+        try:
+            queue = read_jsonl(FETCH_QUEUE)
+            item = next((r for r in queue if r.get("status") == "queued"), None)
+            if item is None:
+                time.sleep(5)
+                continue
+            pid = str(item.get("promptId", ""))
+            ticket = str(item.get("ticket", ""))
+            url = ("https://playdaily.org/api/krillion/answers?prompt="
+                   + urllib.parse.quote(pid) + "&ticket=" + urllib.parse.quote(ticket))
+            data = None
+            for _ in range(4):
+                try:
+                    req = urllib.request.Request(url, headers={
+                        "User-Agent": "Mozilla/5.0", "Referer": "https://playdaily.org/krillion",
+                    })
+                    with urllib.request.urlopen(req, timeout=15) as r:
+                        data = json.loads(r.read().decode("utf-8"))
+                    break
+                except urllib.error.HTTPError as e:
+                    if e.code == 425:
+                        try:
+                            wait = int((json.loads(e.read().decode()).get("wait", 65000)) or 65000)
+                        except Exception:
+                            wait = 65000
+                        time.sleep(min(180000, wait) / 1000 + 2)
+                        continue
+                    break
+                except Exception:
+                    time.sleep(5)
+            rows = (data or {}).get("answers") if isinstance(data, dict) else None
+            if isinstance(rows, list):
+                existing = {(r.get("question"), r.get("answer")) for r in read_jsonl(IMPORT_JSONL)}
+                added = 0
+                with IMPORT_JSONL.open("a", encoding="utf-8") as f:
+                    for row in rows:
+                        tier = int(row[0]) if isinstance(row, (list, tuple)) and len(row) > 1 else 0
+                        answer = str(row[1]).strip() if isinstance(row, (list, tuple)) and len(row) > 1 else ""
+                        key = (item.get("prompt", ""), answer)
+                        if not answer or key in existing:
+                            continue
+                        existing.add(key)
+                        f.write(json.dumps({
+                            "question": item.get("prompt", ""), "answer": answer,
+                            "is_krillion": tier == 5,
+                            "source_url": "https://playdaily.org/krillion",
+                        }, ensure_ascii=False) + "\n")
+                        added += 1
+                log_change(f"fetched {added} answer(s) for unresolved prompt {item.get('prompt')!r}")
+                item["status"] = "done"
+            else:
+                item["status"] = "failed"
+            with FETCH_QUEUE.open("w", encoding="utf-8") as f:
+                for r in queue:
+                    if r is item:
+                        r = item
+                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        except Exception as e:
+            log_change(f"bank fetch error: {e}")
+            time.sleep(10)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -264,6 +383,12 @@ class Handler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/failed":
             self._send(200, {"ok": True, "misses": read_jsonl(MISSES)[-50:]})
+            return
+        if parsed.path == "/api/evidence":
+            self._send(200, {"ok": True, "events": read_jsonl(EVIDENCE)[-100:]})
+            return
+        if parsed.path == "/api/fetch-queue":
+            self._send(200, {"ok": True, "queue": read_jsonl(FETCH_QUEUE)[-50:]})
             return
         if parsed.path == "/api/userscript.js":
             src = (INJ / "krillion-autofill.user.js").read_text(encoding="utf-8")
@@ -302,8 +427,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(400, {"ok": False, "error": "invalid JSON"})
             return
         with LOCK:
-            if parsed.path == "/api/correction":
-                self._send(200, add_correction(body))
+            if parsed.path in ("/api/correction", "/api/evidence"):
+                self._send(200, add_evidence(body))
             elif parsed.path == "/api/bank":
                 self._send(200, add_bank(body.get("rows", [])))
             elif parsed.path == "/api/miss":
@@ -323,5 +448,8 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    if __import__("os").environ.get("KRILLION_NO_FETCH") != "1":
+        threading.Thread(target=fetch_worker, daemon=True).start()
+        print("Unresolved-prompt bank fetching: ON (KRILLION_NO_FETCH=1 to disable)")
     print(f"Krillion bridge at http://127.0.0.1:{PORT}")
     ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()

@@ -1,5 +1,4 @@
 # Krillion injection changelog
-
 Every entry is written by `injection/bridge.py` when the userscript reports a
 gameplay result. Newest entries are appended at the bottom.
 - 2026-11-21T13:52:53Z verified 'Frogmouth' for 'Name an animal known for camouflage' at 100 points (classic)
@@ -104,3 +103,51 @@ gameplay result. Newest entries are appended at the bottom.
 - 2026-11-21T14:50:44Z learned 173 new answer(s) from expanded answer banks
 - 2026-11-21T14:53:04Z verified 'Dango Jiru' for 'Name a soup' at 100 points (classic)
 - 2026-11-21T14:53:53Z verified 'Automatic doors' for 'Name an ancient invention' at 100 points (classic)
+- 2026-11-21T14:54:51Z learned 156 new answer(s) from expanded answer banks
+- 2026-11-21T14:57:22Z verified 'Fautasi Racing' for 'Name a sport where people sit when they compete' at 100 points (classic)
+- 2026-11-21T14:57:54Z verified 'Kappa' for 'Name a fairy tale animal' at 100 points (classic)
+- 2026-11-21T14:58:31Z verified 'Dairy Engineering' for 'Name a branch of engineering' at 100 points (classic)
+- 2026-11-21T14:58:57Z learned 157 new answer(s) from expanded answer banks
+- 2026-11-21T14:59:25Z verified 'Kutia' for 'Name a food eaten at a holiday or festival' at 100 points (classic)
+- 2026-11-21T15:00:02Z verified 'Tamarind Cordial' for 'Name a drink people pour over ice' at 100 points (classic)
+- 2026-11-21T15:00:30Z verified 'Bagoong' for 'Name something salty' at 100 points (classic)
+- 2026-11-21T15:01:09Z verified 'Game & Watch' for 'Name an electronic device' at 100 points (classic)
+- 2026-11-21T15:01:44Z verified 'Lake Retba' for 'Name a body of water' at 100 points (classic)
+- 2026-11-21T15:02:10Z verified 'ABC Coffee' for 'Name a coffee brand' at 100 points (classic)
+- 2026-11-21T15:02:44Z verified 'FALSE' for 'Name a programming language' at 100 points (classic)
+- 2026-11-21T15:03:03Z learned 185 new answer(s) from expanded answer banks
+- 2026-11-21T15:03:35Z verified 'Bratke' for 'Name a car marque from Germany' at 100 points (classic)
+- 2026-11-21T15:03:49Z verified 'Pnin' for 'Name a book with a name in its title' at 100 points (classic)
+- 2026-11-21T15:04:01Z verified 'Lightship' for 'Name a type of ship or boat' at 100 points (classic)
+- 2026-11-21T15:04:16Z verified 'Xenophanes' for 'Name an ancient Greek philosopher' at 100 points (multiplayer)
+- 2026-11-21T15:04:31Z verified 'Animal Electricity' for "Name a famous scientist's discovery" at 100 points (multiplayer)
+- 2026-11-21T15:04:42Z verified 'Barberry' for "Name a fruit that isn't sweet" at 100 points (multiplayer)
+- 2026-11-21T15:05:47Z verified 'Button Badge' for 'Name a thing with a button' at 100 points (multiplayer)
+- 2026-11-21T15:06:01Z verified 'African Palm Civet' for 'Name a mammal that lives in trees' at 100 points (multiplayer)
+- 2026-11-21T15:06:11Z verified 'Aquarium Top-Off Reservoir' for 'Name something people refill' at 100 points (classic)
+- 2026-11-21T15:06:54Z verified 'Christiania Bike' for 'Name a type of bicycle' at 100 points (multiplayer)
+- 2026-11-21T15:07:05Z verified 'Imperial 400' for 'Name a hotel brand' at 100 points (classic)
+- 2026-11-21T15:07:20Z verified 'Branza de Burduf' for 'Name a fermented dairy food' at 100 points (multiplayer)
+- 2026-11-21T15:07:31Z verified 'Bicycle Polo' for 'Name a sport played on wheels' at 100 points (multiplayer)
+- 2026-11-21T15:07:44Z verified 'Knives Out' for 'Name a famous music video' at 100 points (multiplayer)
+- 2026-11-21T15:07:58Z verified 'Alonso Edward' for 'Name a sprinter' at 100 points (multiplayer)
+- 2026-11-21T15:08:09Z verified 'Cum on Everybody' for 'Name an Eminem song' at 100 points (classic)
+- 2026-11-21T15:08:25Z verified 'Bread Warming Stone' for 'Name something people use to keep food warm' at 100 points (multiplayer)
+- 2026-11-21T15:08:50Z verified 'The Yellow Eyes Of Crocodiles' for 'Name a movie with a color in the title' at 100 points (multiplayer)
+- 2026-11-21T15:09:30Z verified 'Shichi-Go-San' for 'Name a ceremony or celebration that marks a stage of life' at 100 points (multiplayer)
+- 2026-11-21T15:09:54Z verified 'Deinococcus Radiodurans' for "Name a living thing that isn't a plant or an animal" at 100 points (multiplayer)
+- 2026-11-21T15:09:58Z learned 43 new answer(s) from expanded answer banks
+- 2026-11-21T15:10:24Z verified 'RingCentral' for 'Name a video call app' at 100 points (multiplayer)
+- 2026-11-21T15:11:29Z verified "Drum Major's Staff" for 'Name something you see in a parade' at 100 points (multiplayer)
+- 2026-11-21T15:11:52Z verified 'Tigra' for 'Name a superhero named after an animal' at 100 points (classic)
+- 2026-11-21T15:12:21Z verified 'Ceiling Grid Cross Tee' for 'Name something people carry up a ladder' at 100 points (multiplayer)
+- 2026-11-21T15:12:33Z verified 'Instrument of Surrender' for 'Name something you can sign' at 100 points (multiplayer)
+- 2026-11-21T15:12:58Z verified 'Napoleon at St Helena' for 'Name a card game played with a standard deck' at 100 points (multiplayer)
+- 2026-11-21T15:13:26Z verified 'Floorball' for 'Name a sport you do in a gym' at 100 points (multiplayer)
+- 2026-11-21T15:13:37Z verified 'Anatomy' for 'Name a horror game' at 100 points (multiplayer)
+- 2026-11-21T15:17:42Z verified 'Usagi Yojimbo' for 'Name a famous fictional rabbit' at 100 points (classic)
+- 2026-11-21T15:17:49Z learned 1 new answer(s) from expanded answer banks
+- 2026-11-21T15:18:13Z verified 'Barnacle cement' for 'Name something that is sticky' at 100 points (classic)
+- 2026-11-21T15:18:47Z verified 'Linyi' for 'Name a city starting with L' at 100 points (classic)
+- 2026-11-21T15:21:04Z learned 28 new answer(s) from expanded answer banks
+- 2026-11-21T15:36:13Z learned 1 new answer(s) from expanded answer banks

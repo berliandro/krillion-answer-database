@@ -87,12 +87,24 @@ never modified.
 4. Dive end → bank import additionally compares every graded tier against the
    rare list; tier < 100 for a rare answer is an authoritative demotion (F).
 
-## Open decisions for the user
+## Decisions made (2026-11-21)
 
-1. Demotion threshold for corroboration: 2 independent low scores, or 3?
-2. Should the bridge be allowed to call `playdaily.org` itself to fetch banks
-   for unresolved prompts? (Powerful, but makes network calls and respects the
-   ~65s cooldown; could be opt-in.)
-3. Should a 100-point result on a fuzzy bank immediately pin that bank for the
-   exact on-screen wording (fast, small mis-pinning risk), or wait for the
-   2-answer confirmation (safer)?
+1. **Never demote from play.** Only the game's own dive-end graded bank may
+   change the rare tier. The game grades unknown answers with AI, so the same
+   answer can be 100 once and 30 or 85 the next time. A low play score is
+   evidence only.
+2. **Never pin aliases.** Record the on-screen wording and which bank scored
+   100, but do not add it to the matcher. Aliases stay as log data only.
+3. **Fetch missing prompts: yes.** When a prompt has no bank, the PC helper may
+   download that prompt's real graded bank from `playdaily.org`, respecting the
+   ~65s cooldown and de-duplicating before writing. The user can disable it
+   with `KRILLION_NO_FETCH=1`.
+4. **Auto-enter is paused when several banks match.** A wrong-bank auto pick
+   would produce misleading evidence.
+
+### "Process the log"
+
+When the user says **"process the log" in any session on this project**, it
+means: follow `injection/PROCESS-LOG.md` end to end — review evidence/aliases/
+unresolved prompts, apply authoritative bank demotions, import new answers,
+rebuild derived databases, and write the changelog.

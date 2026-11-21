@@ -7,6 +7,7 @@ Search is backed by data/krillion_search.db (FTS5), never the full DB.
 """
 import json
 import sqlite3
+import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -15,44 +16,23 @@ ROOT = Path(__file__).resolve().parent.parent
 SEARCH_DB = ROOT / "data" / "krillion_search.db"
 HTML = (Path(__file__).parent / "index.html").read_text(encoding="utf-8")
 
+sys.path.insert(0, str(ROOT / "scripts"))
+from paraphrase_match import Matcher  # noqa: E402  (same algorithm as the static site)
+
+with sqlite3.connect(SEARCH_DB) as _c:
+    _rows = _c.execute("SELECT question, answer FROM search_answers").fetchall()
+MATCHER = Matcher([q for q, _ in _rows])
+ANSWERS = dict(_rows)
+
 
 def do_search(query):
-    """Exact phrase -> token prefix OR -> LIKE fallback, all on the small DB."""
-    query = query.strip()
-    if not query:
+    """Paraphrase-tolerant search on the small DB (one answer per question)."""
+    if not query.strip():
         return []
-    limit = 20
-    with sqlite3.connect(SEARCH_DB) as c:
-        def fts(match):
-            return c.execute(
-                "SELECT question, answer, bm25(search_fts) AS score "
-                "FROM search_fts WHERE search_fts MATCH ? "
-                "ORDER BY score LIMIT ?",
-                (match, limit),
-            ).fetchall()
-
-        rows = []
-        phrase = '"' + query.replace('"', '""') + '"'
-        try:
-            rows = fts(phrase)
-        except sqlite3.OperationalError:
-            pass
-        if not rows:
-            tokens = [t for t in query.split() if t]
-            if tokens:
-                match = " OR ".join('"' + t.replace('"', '""') + '"*' for t in tokens)
-                try:
-                    rows = fts(match)
-                except sqlite3.OperationalError:
-                    pass
-        if not rows:
-            like = f"%{query}%"
-            rows = c.execute(
-                "SELECT question, answer, 0 FROM search_answers "
-                "WHERE question LIKE ? OR answer LIKE ? LIMIT ?",
-                (like, like, limit),
-            ).fetchall()
-    return [{"question": q, "answer": a} for q, a, _ in rows]
+    return [
+        {"question": hit["question"], "answer": ANSWERS[hit["question"]]}
+        for hit in MATCHER.search(query, limit=20)
+    ]
 
 
 class Handler(BaseHTTPRequestHandler):
