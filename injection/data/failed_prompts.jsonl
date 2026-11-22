@@ -8,3 +8,26 @@
 {"at": "2026-11-21T17:22:32Z", "prompt": "Name any kind of brush", "reason": "no-match"}
 {"at": "2026-11-21T17:29:55Z", "prompt": "Name any dish made with pork", "reason": "unreachable: bridge offline"}
 {"at": "2026-11-21T17:29:55Z", "prompt": "What's an example of a vegetable?", "reason": "unreachable: bridge offline"}
+{"at": "2026-11-21T17:54:10Z", "prompt": "What's one thing you can play?", "reason": "no-match"}
+{"at": "2026-11-21T18:23:59Z", "prompt": "Name any one kind of pasta", "reason": "no-match"}
+{"at": "2026-11-21T18:30:31Z", "prompt": "Name any kind of doctor", "reason": "no-match"}
+{"at": "2026-11-21T18:56:39Z", "prompt": "Name any one word that has a Q in it", "reason": "no-match"}
+{"at": "2026-11-21T19:06:27Z", "prompt": "Name any one kind of bag", "reason": "no-match"}
+{"at": "2026-11-21T19:06:55Z", "prompt": "Name any phone carrier", "reason": "no-match"}
+{"at": "2026-11-21T19:07:25Z", "prompt": "What's an example of an animal that has claws?", "reason": "no-match"}
+{"at": "2026-11-21T19:14:45Z", "prompt": "Name any kind of tree", "reason": "no-match"}
+{"at": "2026-11-21T19:41:16Z", "prompt": "What's something with eyes that cannot see?", "reason": "no-match"}
+{"at": "2026-11-21T19:57:37Z", "prompt": "Name one area in a school", "reason": "no-match"}
+{"at": "2026-11-21T20:38:33Z", "prompt": "Name any kind of aircraft", "reason": "no-match"}
+{"at": "2026-11-21T21:00:34Z", "prompt": "Name one kind of powder", "reason": "no-match"}
+{"at": "2026-11-21T22:04:32Z", "prompt": "What's an example of a calisthenics exercise?", "reason": "no-match"}
+{"at": "2026-11-21T22:11:05Z", "prompt": "Name any television doctor", "reason": "no-match"}
+{"at": "2026-11-21T22:34:05Z", "prompt": "Name any one kind of guitar", "reason": "no-match"}
+{"at": "2026-11-21T22:40:57Z", "prompt": "Name any one kind of party", "reason": "no-match"}
+{"at": "2026-11-21T23:16:34Z", "prompt": "Name one television villain", "reason": "no-match"}
+{"at": "2026-11-21T23:34:32Z", "prompt": "What's an example of a US state?", "reason": "no-match"}
+{"at": "2026-11-21T23:48:31Z", "prompt": "Name any one type of berry", "reason": "no-match"}
+{"at": "2026-11-22T00:06:35Z", "prompt": "Name any one type of shoe", "reason": "no-match"}
+{"at": "2026-11-22T01:34:32Z", "prompt": "Name any type of hat", "reason": "no-match"}
+{"at": "2026-11-22T01:52:15Z", "prompt": "What's an example of a television genre?", "reason": "no-match"}
+{"at": "2026-11-22T01:52:41Z", "prompt": "Name any kind of bicycle", "reason": "no-match"}

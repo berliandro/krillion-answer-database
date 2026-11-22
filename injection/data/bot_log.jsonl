@@ -3,3 +3,12 @@
 {"at": "2026-11-21T17:29:55Z", "event": "bot-start", "mode": "marathon5", "note": "marathon5 / random"}
 {"at": "2026-11-21T17:29:58Z", "event": "room-select", "mode": "marathon5", "room": "The Marathon · 5 sec", "detail": "50 prompts, 5s each", "count": 1, "rooms": ["Open Water 2 | 7 prompts, 25s each | 35", "Open Water | 7 prompts, 25s each | 24", "The Long Haul | 15 prompts, 25s each | 9", "The Long Haul · 26 sec | 15 prompts, 26s each | 8", "The Marathon · 33 sec | 50 prompts, 33s each | 3", "The Marathon · 10 sec | 50 prompts, 10s each | 3", "The Marathon · 35 sec | 50 prompts, 35s each | 2", "The Marathon · 6 sec | 50 prompts, 6s each | 1", "The Marathon · 5 sec | 50 prompts, 5s each | 1"]}
 {"at": "2026-11-21T17:30:10Z", "event": "bot-start", "mode": "marathon5", "note": "marathon5 / random"}
+{"at": "2026-11-21T17:34:04Z", "event": "bot-start", "mode": "marathon5", "note": "marathon5 / random"}
+{"at": "2026-11-21T17:34:11Z", "event": "mode-change", "mode": "duel", "note": "duel"}
+{"at": "2026-11-21T17:34:23Z", "event": "bot-start", "mode": "duel", "note": "duel / random"}
+{"at": "2026-11-21T17:34:23Z", "event": "room-select", "mode": "duel", "room": "", "detail": "", "count": 0, "rooms": ["Open Water 2 | 7 prompts, 25s each | 0", "Open Water | 7 prompts, 25s each | 18", "The Long Haul · 26 sec | 15 prompts, 26s each | 9", "The Long Haul | 15 prompts, 25s each | 8", "The Marathon · 10 sec | 50 prompts, 10s each | 5", "The Marathon · 33 sec | 50 prompts, 33s each | 3", "The Marathon · 35 sec | 50 prompts, 35s each | 2", "The Marathon · 26 sec | 50 prompts, 26s each | 2", "The Marathon · 60 sec | 50 prompts, 60s each | 1", "The Marathon · 6 sec | 50 prompts, 6s each | 1", "The Marathon · 5 sec | 50 prompts, 5s each | 1"]}
+{"at": "2026-11-21T17:34:23Z", "event": "duel-start", "mode": "duel", "note": "▶ FIND A MATCH"}
+{"at": "2026-11-21T17:34:24Z", "event": "duel-start", "mode": "duel", "note": "Leave before it starts"}
+{"at": "2026-11-21T17:34:24Z", "event": "duel-start", "mode": "duel", "note": "▶ FIND A MATCH"}
+{"at": "2026-11-21T17:34:35Z", "event": "duel-start", "mode": "duel", "note": "Leave before it starts"}
+{"at": "2026-11-21T17:34:35Z", "event": "duel-start", "mode": "duel", "note": "▶ FIND A MATCH"}
