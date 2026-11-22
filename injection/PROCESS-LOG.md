@@ -9,7 +9,7 @@ meant unless a step is genuinely blocked.
 | File | Contents |
 | --- | --- |
 | `injection/data/evidence.jsonl` | Every submitted answer: on-screen prompt, bank chosen, answer, points, mode, whether the match was exact, how many banks were shown, auto on/off |
-| `injection/data/prompt_review.jsonl` | The **actual prompt shown by the game** when matching was ambiguous (`ambiguous`), nothing was found (`no-match`), or the score was below 100 (`low-score`), with the candidate banks and their scores |
+| `injection/data/prompt_review.jsonl` | The **actual prompt shown by the game** when matching was ambiguous (`ambiguous`), nothing was found (`no-match`), a score was below 100 (`low-score`), or an answer was **rejected** (`refused`), with the candidate banks, scores, and the refusal text |
 | `injection/data/bot_log.jsonl` | Bot mode starts and lobby room choices, including the full room list seen at that moment — use it to verify 5-second room selection |
 | `injection/data/aliases.jsonl` | Potential rewordings of a prompt (log only — never applied to matching) |
 | `injection/data/failed_prompts.jsonl` | Prompts that had no bank, and unreachable-bridge events |

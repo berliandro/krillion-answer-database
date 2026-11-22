@@ -115,7 +115,7 @@ Both sites share one design: a matte graphite palette with fine paper grain, sem
 
 ## Edge autofill (PC only)
 
-On PC, a Tampermonkey userscript plus a small loopback helper (`injection/bridge.py`, port 8768) shows every known 100-point answer for the current prompt. It has an auto-fill toggle and a bot with Pick and Mode dropdowns. It records what it sees as evidence but never demotes an answer from gameplay scores — only the game's own graded bank is authoritative — and logs uncertain prompts for later review. Setup and details are in `injection/README.md`.
+On PC, a Tampermonkey userscript plus a small loopback helper (`injection/bridge.py`, port 8768) shows every known 100-point answer for the current prompt. It has an auto-fill toggle and a bot with Pick and Mode dropdowns. It records what it sees as evidence but never demotes an answer from gameplay scores — only the game's own graded bank is authoritative — and logs uncertain or rejected answers (with the game's refusal text) for later review. Setup and details are in `injection/README.md`.
 
 ## How we collected the data
 

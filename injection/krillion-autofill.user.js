@@ -54,6 +54,8 @@
     exact: false,
     premap: null,
     netCache: new Map(),
+    refusedAnswers: new Set(),
+    refusalKey: '',
   };
   const AUTO_KEY = 'krillion.autoEnter.v1';
   const seenDeals = {};   // promptId -> exact question text
@@ -594,6 +596,41 @@
     }
   }
 
+  function checkRefusal() {
+    if (!state.question || !state.lastFilled) return false;
+    const el = document.querySelector('.kr-refusal');
+    const line = el ? (el.textContent || '').trim() : '';
+    if (!line) return false;
+    const answer = state.lastFilled;
+    const bank = state.answerQuestion[answer] || state.question;
+    const key = state.question + '\u0000' + answer + '\u0000' + line;
+    if (state.refusalKey !== key) {
+      state.refusalKey = key;
+      state.refusedAnswers.add(state.question + '\u0000' + answer);
+      reportPrompt('refused', state.question, {
+        candidates: candidateInfo(), chosen_bank: bank, answer,
+        refusal: line.slice(0, 200), mode: mode(),
+        exact: state.exact, auto: state.autoEnter,
+      });
+      request('/api/evidence', {
+        method: 'POST',
+        body: {
+          screen_prompt: state.question, chosen_bank: bank, answer,
+          outcome: 'refused', refusal: line.slice(0, 200),
+          mode: mode(), exact: state.exact,
+          group_count: state.groups.length, auto: state.autoEnter,
+        },
+      }).catch(() => queuePost('/api/evidence', {
+        screen_prompt: state.question, chosen_bank: bank, answer,
+        outcome: 'refused', refusal: line.slice(0, 200), mode: mode(),
+      }));
+      status(`“${answer}” was refused — logged for review.`, 'error');
+    }
+    state.lastFilled = '';
+    bot.answeredPrompt = '';
+    return true;
+  }
+
   function checkVerdict() {
     if (!state.question || !state.lastFilled) return;
     const answer = state.lastFilled;
@@ -789,7 +826,9 @@
     if (!prompt || !input || bot.answeredPrompt === prompt) return false;
     if (state.loadedPrompt !== prompt) { botStatus('loading answers'); return false; }
     const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
-    const list = groups[0].answers || [];
+    const list = (groups[0].answers || []).filter(
+      (a) => !state.refusedAnswers.has(prompt + '\u0000' + a)
+    );
     const answer = pickAnswer(list);
     if (!answer) return false;
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
@@ -952,6 +991,7 @@
         lastPrompt = q;
         loadAnswers(q);
       }
+      if (checkRefusal()) return;
       checkVerdict();
       if (document.querySelector(SEL.haul) || document.querySelector(SEL.row)) captureBanks();
     }, 150);
