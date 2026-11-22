@@ -3,8 +3,6 @@
 {"at": "2026-11-21T15:36:18Z", "prompt": "Name any one kind of paper", "reason": "no-match"}
 {"at": "2026-11-21T16:13:56Z", "prompt": "Name any animal with two syllables", "reason": "unreachable: bridge offline"}
 {"at": "2026-11-21T16:56:29Z", "prompt": "Name any one doll or action figure", "reason": "unreachable: bridge offline"}
-{"at": "2026-11-21T17:16:31Z", "prompt": "__PROMPT__", "reason": "no-match"}
-{"at": "2026-11-21T17:16:39Z", "prompt": "__PROMPT__", "reason": "no-match"}
 {"at": "2026-11-21T17:22:32Z", "prompt": "Name any kind of brush", "reason": "no-match"}
 {"at": "2026-11-21T17:29:55Z", "prompt": "Name any dish made with pork", "reason": "unreachable: bridge offline"}
 {"at": "2026-11-21T17:29:55Z", "prompt": "What's an example of a vegetable?", "reason": "unreachable: bridge offline"}
@@ -31,3 +29,29 @@
 {"at": "2026-11-22T01:34:32Z", "prompt": "Name any type of hat", "reason": "no-match"}
 {"at": "2026-11-22T01:52:15Z", "prompt": "What's an example of a television genre?", "reason": "no-match"}
 {"at": "2026-11-22T01:52:41Z", "prompt": "Name any kind of bicycle", "reason": "no-match"}
+{"at": "2026-11-22T03:34:16Z", "prompt": "What's an example of a horror television show?", "reason": "no-match"}
+{"at": "2026-11-22T03:43:36Z", "prompt": "What's one thing you can play?", "reason": "no-match"}
+{"at": "2026-11-22T03:57:43Z", "prompt": "Name any one kind of test", "reason": "no-match"}
+{"at": "2026-11-22T04:10:32Z", "prompt": "What's something people plug into a USB port?", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-22T04:11:29Z", "prompt": "Name any turtle or tortoise", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-22T04:20:40Z", "prompt": "Name one kind of doctor", "reason": "no-match"}
+{"at": "2026-11-22T04:22:58Z", "prompt": "Name one kind of milk", "reason": "no-match"}
+{"at": "2026-11-22T05:01:31Z", "prompt": "Name any one kind of engineer", "reason": "no-match"}
+{"at": "2026-11-22T05:32:45Z", "prompt": "Name a thing with eyes that cannot see", "reason": "no-match"}
+{"at": "2026-11-22T05:36:51Z", "prompt": "Name one kind of rock", "reason": "no-match"}
+{"at": "2026-11-22T05:48:49Z", "prompt": "Name any area in a school", "reason": "no-match"}
+{"at": "2026-11-22T06:24:32Z", "prompt": "Name any kind of aircraft", "reason": "no-match"}
+{"at": "2026-11-22T06:51:35Z", "prompt": "Name an example of a country with green in its flag", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-22T07:20:22Z", "prompt": "Name any type of cheese", "reason": "no-match"}
+{"at": "2026-11-22T07:23:51Z", "prompt": "Name any kind of underwear", "reason": "no-match"}
+{"at": "2026-11-22T07:45:05Z", "prompt": "Name any one television character", "reason": "no-match"}
+{"at": "2026-11-22T07:54:14Z", "prompt": "Name one kind of surgery", "reason": "no-match"}
+{"at": "2026-11-22T07:58:16Z", "prompt": "What's an example of a calisthenics exercise?", "reason": "no-match"}
+{"at": "2026-11-22T08:04:59Z", "prompt": "What's an example of a television doctor?", "reason": "no-match"}
+{"at": "2026-11-22T08:22:08Z", "prompt": "Name any kind of guitar", "reason": "no-match"}
+{"at": "2026-11-22T08:35:16Z", "prompt": "What's an example of a television theme song?", "reason": "no-match"}
+{"at": "2026-11-22T08:55:42Z", "prompt": "Name one kind of wood", "reason": "no-match"}
+{"at": "2026-11-22T09:22:41Z", "prompt": "Name any US state", "reason": "no-match"}
+{"at": "2026-11-22T09:35:42Z", "prompt": "Name one type of berry", "reason": "no-match"}
+{"at": "2026-11-22T09:38:28Z", "prompt": "Name any kind of paper", "reason": "no-match"}
+{"at": "2026-11-22T09:55:26Z", "prompt": "Name an example of a musical instrument used in jazz", "reason": "unreachable: bridge timeout"}

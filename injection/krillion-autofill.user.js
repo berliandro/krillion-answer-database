@@ -426,8 +426,20 @@
 
   // ---- prompt + scoring --------------------------------------------------
   function normLocal(text) {
-    return String(text || '').trim().toLowerCase().replace(/\s+/g, ' ')
-      .replace(/\bbeginning\s+with\b/g, 'starting with');
+    let q = String(text || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    const rewrites = [
+      [/^what is an example of an /, 'name an '],
+      [/^what is an example of a /, 'name a '],
+      [/^what is one /, 'name a '],
+      [/^name any one /, 'name a '],
+      [/^name any /, 'name a '],
+      [/^name one /, 'name a '],
+    ];
+    for (const [re, to] of rewrites) {
+      const changed = q.replace(re, to);
+      if (changed !== q) { q = changed; break; }
+    }
+    return q.replace(/\bbeginning\s+with\b/g, 'starting with');
   }
 
   function applyResult(data, question) {
@@ -452,7 +464,8 @@
     } else {
       status(`${total} known 100-point answer${total === 1 ? '' : 's'}.`, 'ok');
     }
-    if (!data.exact || state.groups.length > 1) {
+    const best = state.groups.length ? Number(state.groups[0].score || 0) : 0;
+    if (state.groups.length > 1 || (!data.exact && best < 0.90)) {
       reportPrompt('ambiguous', question, {
         candidates: candidateInfo(), mode: mode(), auto: state.autoEnter,
       });
@@ -888,6 +901,7 @@
         const btn = [...document.querySelectorAll('button')].find((b) =>
           b.offsetParent !== null
           && !/kr-online|kr-begin|kr-wallet-card/.test(b.className)
+          && !/leave|cancel|quit|back/i.test(b.innerText || '')
           && /find|match|start|search|enter|queue|duel|play/i.test(b.innerText || '')
         );
         if (btn && btn !== bot.lastAction) {

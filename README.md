@@ -160,20 +160,14 @@ jobs.md, AGENTS.md             job tracker and project rules
 
 ## Final tally
 
-![Final archive: 123,241 graded answers, 17,876 One in a Krillion answers, and 2,512 prompts](assets/krillion-final-stats.png)
+| Metric | Count after the harvest | Count after the 24-hour play session |
+| --- | ---: | ---: |
+| Graded answers | 123,241 | **127,118** |
+| One in a Krillion answers | 17,876 | **21,384** |
+| Distinct prompts | 2,512 | **6,142** |
+| Duplicate answer pairs | 0 | **0** |
 
-| Metric | Final count |
-| --- | ---: |
-| Graded answers | 123,241 |
-| One in a Krillion answers | 17,876 |
-| Prompts | 2,512 |
-| Duplicate answer pairs | 0 |
-
-The early estimate was around 3,000 prompts; the game's bank held 2,512, and all were captured. The final 60+ harvest batches dealt only prompts already in the archive.
-
-## The end
-
-The harvest stopped on 21 Nov 2026, when the game ran out of new prompts. The databases were rebuilt from the JSONL source and the static search site was published. Both the [public search](https://berliandro.github.io/krillion-answer-database/) and the local webapp remain live.
+The harvest ended on 21 Nov 2026 when the game stopped dealing new prompts. A later 24-hour automated play session captured 3,877 more answers through the injection bridge, including prompts the harvest had not reached. Some of those banks are partial (a few answers per prompt), but every row is an answer the game itself accepted. The databases and all three static sites were rebuilt after the session. Both the [public search](https://berliandro.github.io/krillion-answer-database/) and the local webapp remain live.
 
 The dive is over. The answers remain.
 

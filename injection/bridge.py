@@ -131,6 +131,28 @@ def log_change(message):
         f.write(f"- {now()} {message}\n")
 
 
+# Rewrites observed repeatedly in prompt_review.jsonl. Applied only after a
+# literal exact match fails, so a genuine stored wording is never changed.
+REWRITES = [
+    (r"^what is an example of an ", "name an "),
+    (r"^what is an example of a ", "name a "),
+    (r"^what is one ", "name a "),
+    (r"^name any one ", "name a "),
+    (r"^name any ", "name a "),
+    (r"^name one ", "name a "),
+]
+
+
+def rewrite_query(text):
+    q = normalise(text)
+    for pattern, replacement in REWRITES:
+        changed = re.sub(pattern, replacement, q)
+        if changed != q:
+            q = changed
+            break
+    return re.sub(r"\bbeginning\s+with\b", "starting with", q, flags=re.I)
+
+
 def answers_for(question, removed=None):
     if removed is None:
         removed = removed_pairs()
@@ -160,10 +182,27 @@ def resolve_question(query):
             "answers": answers_for(exact, removed),
         }]
 
-    # "beginning with" is a common paraphrase of the bank's "starting with".
-    # Without this rewrite a real bank scores only ~0.57 and misses the cutoff.
-    q = re.sub(r"\bbeginning\s+with\b", "starting with", query, flags=re.I)
+    # A rewritten wording can become an exact stored prompt (e.g. "Name one
+    # verb" -> "Name a verb"), so check that before fuzzy matching.
+    q = rewrite_query(query)
+    rewritten_exact = next((x for x in all_questions if normalise(x) == q), None)
+    if rewritten_exact:
+        return True, [{
+            "question": rewritten_exact, "score": 1.0,
+            "answers": answers_for(rewritten_exact, removed),
+        }]
+
     hits = MATCHER.search(q, limit=5, threshold=0.62) if MATCHER else []
+    # "kind/type" are separate stored wordings; try both if the first pass
+    # finds nothing (e.g. "type of hat" vs "kind of hat").
+    if not hits:
+        for variant in (q.replace("type of", "kind of"), q.replace("kind of", "type of")):
+            if variant == q:
+                continue
+            candidate = MATCHER.search(variant, limit=5, threshold=0.62) if MATCHER else []
+            if candidate:
+                hits = candidate
+                break
     # Stricter relative cut-off than the general matcher: only near-equal
     # candidates survive, so a "song" bank never tags along on a "film" query.
     if hits:
