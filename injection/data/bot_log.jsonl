@@ -24,3 +24,8 @@
 {"at": "2026-11-22T09:54:26Z", "event": "duel-start", "mode": "duel", "note": "Leave before it starts"}
 {"at": "2026-11-22T09:54:27Z", "event": "duel-start", "mode": "duel", "note": "▶ FIND A MATCH"}
 {"at": "2026-11-22T09:58:17Z", "event": "bot-start", "mode": "duel", "note": "duel / random"}
+{"at": "2026-11-22T10:00:56Z", "event": "duel-start", "mode": "duel", "note": "FIND ANOTHER MATCH"}
+{"at": "2026-11-22T10:01:01Z", "event": "duel-start", "mode": "duel", "note": "Leave before it starts"}
+{"at": "2026-11-22T10:01:02Z", "event": "duel-start", "mode": "duel", "note": "▶ FIND A MATCH"}
+{"at": "2026-11-22T10:01:30Z", "event": "bot-start", "mode": "duel", "note": "duel / random"}
+{"at": "2026-11-22T10:01:41Z", "event": "bot-start", "mode": "duel", "note": "duel / random"}
