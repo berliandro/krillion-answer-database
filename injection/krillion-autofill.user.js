@@ -53,6 +53,9 @@
     collapsed: false,
     autoEnter: false,
     exact: false,
+    deepcut: [],
+    deepcutExact: false,
+    deepcutPrompt: '',
     premap: null,
     netCache: new Map(),
     refusedAnswers: new Set(),
@@ -305,6 +308,7 @@
         '<select id="ka-pick">' +
           '<option value="random">Random 100-point answer</option>' +
           '<option value="top">Top of list</option>' +
+          '<option value="god">God player · mostly 85, 1-in-7 at 100</option>' +
         '</select></div>' +
       '<div class="ka-botrow"><label for="ka-mode">Mode</label>' +
         '<select id="ka-mode">' +
@@ -787,7 +791,7 @@
   const bot = {
     on: false, pick: 'random', mode: 'classic',
     timer: null, busy: false, answered: new Set(), lastAction: '', state: 'idle',
-    submittedForPrompt: new Set(), lastSubmitAt: 0,
+    submittedForPrompt: new Set(), lastSubmitAt: 0, answerCount: 0,
   };
 
   function botStatus(text) {
@@ -833,12 +837,32 @@
     if (isRace && Date.now() - bot.lastSubmitAt < 700) return false;
     if (state.loadedPrompt !== prompt) { botStatus('loading answers'); return false; }
     const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
-    const list = (groups[0].answers || []).filter(
+    const rareList = groups[0].answers || [];
+    if (bot.pick === 'god' && state.deepcutPrompt !== prompt) {
+      state.deepcutPrompt = prompt;
+      state.deepcut = [];
+      const bank = (state.answerQuestion[rareList[0]] || groups[0].question || prompt);
+      request('/api/answers-tier?q=' + encodeURIComponent(bank)
+        + '&alt=' + encodeURIComponent(prompt))
+        .then((d) => {
+          state.deepcut = d.deepcut || [];
+          state.deepcutExact = !!d.deepcut_exact;
+        })
+        .catch(() => { /* krillion answers remain usable */ });
+    }
+    if (bot.pick === 'god' && !state.deepcut.length) {
+      botStatus('loading 85-point answers');
+      return false;
+    }
+    const useRare = bot.pick !== 'god' || (bot.answerCount + 1) % 7 === 0;
+    const pool = useRare ? rareList : state.deepcut;
+    const list = pool.filter(
       (a) => !state.refusedAnswers.has(prompt + '\u0000' + a)
         && !(isRace && bot.submittedForPrompt.has(prompt + '\u0000' + a))
     );
     const answer = pickAnswer(list);
     if (!answer) return false;
+    if (bot.pick === 'god') bot.answerCount++;
     if (isRace) {
       bot.submittedForPrompt.add(prompt + '\u0000' + answer);
       bot.lastSubmitAt = Date.now();

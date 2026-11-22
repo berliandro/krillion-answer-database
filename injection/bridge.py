@@ -26,6 +26,7 @@ INJ = Path(__file__).resolve().parent
 DATA = INJ / "data"
 DATA_DIR = ROOT / "data"
 BASE_DB = DATA_DIR / "krillion_only.db"
+FULL_DB = DATA_DIR / "krillion_full.db"
 # New answers are also mirrored here so the optimizer's krillion_db.py import
 # can ingest them into the authoritative full DB and rebuild the derived DBs.
 IMPORT_JSONL = DATA_DIR / "answers_injection.jsonl"
@@ -213,6 +214,30 @@ def resolve_question(query):
         "answers": answers_for(h["question"], removed),
     } for h in hits]
     return False, groups
+
+
+def tier_answers(question):
+    """Return (krillion_answers, deepcut_answers, deepcut_is_exact).
+
+    Deep Cut (85-point) answers are only known where a full graded bank was
+    captured with tierIndex 4. For other prompts we fall back to non-krillion
+    answers from the full DB (correctly below 100, exact tier unknown).
+    """
+    rare = answers_for(question)
+    learned = read_jsonl(LEARNED)
+    exact = [r.get("answer", "") for r in learned
+             if r.get("question") == question
+             and (r.get("tierIndex") == 4 or r.get("tier") == "DEEP CUT"
+                  or r.get("points") == 85)]
+    exact = [a for a in exact if a]
+    if exact:
+        return rare, exact, True
+    with sqlite3.connect(f"file:{FULL_DB}?mode=ro", uri=True) as c:
+        rows = c.execute(
+            "SELECT answer FROM answers WHERE question=? AND is_krillion=0 "
+            "ORDER BY answer COLLATE NOCASE LIMIT 20", (question,)
+        ).fetchall()
+    return rare, [a for (a,) in rows], False
 
 
 def add_evidence(body):
@@ -504,6 +529,25 @@ class Handler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/bot-log":
             self._send(200, {"ok": True, "events": read_jsonl(BOT_LOG)[-100:]})
+            return
+        if parsed.path == "/api/answers-tier":
+            q = (parse_qs(parsed.query).get("q") or [""])[0]
+            q = unquote(q).strip()
+            if not q:
+                self._send(400, {"ok": False, "error": "q is required"})
+                return
+            rare, deep, exact = tier_answers(q)
+            alt = (parse_qs(parsed.query).get("alt") or [""])[0]
+            alt = unquote(alt).strip()
+            if alt and alt != q and not deep:
+                _, alt_deep, alt_exact = tier_answers(alt)
+                if alt_deep:
+                    deep, exact = alt_deep, alt_exact
+            self._send(200, {
+                "ok": True, "question": q,
+                "krillion": rare, "deepcut": deep,
+                "deepcut_exact": exact,
+            })
             return
         if parsed.path == "/api/all":
             self._send(200, {"ok": True, "data": all_answers_payload()})

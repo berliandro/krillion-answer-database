@@ -58,7 +58,7 @@ The **Bot** toggle starts/stops full automatic play. While On, the script
 navigates and plays by itself and auto-restarts after each dive. Settings are
 remembered between page loads.
 
-- **Pick** dropdown: `Random 100-point answer` or `Top of list`.
+- **Pick** dropdown: `Random 100-point answer`, `Top of list`, or `God player` — mostly 85-point answers, with a 100-point answer every 7th submission. Exact 85 answers are used where the archive captured a graded bank; otherwise it falls back to non-100 answers from the full DB (correctly below 100, exact tier unknown).
 - **Mode** dropdown:
   - `Classic` — begin a Classic dive.
   - `Multiplayer · 5s / 50 prompts` — joins the open `THE MARATHON · 5 SEC` room (50 prompts, 5s each) for fast coin farming.
