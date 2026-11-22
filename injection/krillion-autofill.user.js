@@ -4,6 +4,7 @@
 // @version      1.0.0
 // @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running.
 // @match        https://playdaily.org/krillion*
+// @match        https://playdaily.org/krillocity*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_addStyle
 // @grant        GM_setValue
@@ -308,6 +309,7 @@
       '<div class="ka-botrow"><label for="ka-mode">Mode</label>' +
         '<select id="ka-mode">' +
           '<option value="classic">Classic</option>' +
+          '<option value="krillocity">Krillocity · daily race</option>' +
           '<option value="marathon5">Multiplayer · 5s / 50 prompts</option>' +
           '<option value="showoff">Multiplayer · most players</option>' +
           '<option value="duel">1 vs 1</option>' +
@@ -549,6 +551,7 @@
   }
 
   function mode() {
+    if (/^\/krillocity\/?$/.test(location.pathname)) return 'krillocity';
     // The intro keeps "Play multiplayer" buttons in the DOM while hidden, so
     // only count a visible multiplayer board / 1v1 surface.
     if (isVisible('.kr-board-rows') || isVisible('.kr-over-multi')) return 'multiplayer';
@@ -784,6 +787,7 @@
   const bot = {
     on: false, pick: 'random', mode: 'classic',
     timer: null, busy: false, answered: new Set(), lastAction: '', state: 'idle',
+    submittedForPrompt: new Set(), lastSubmitAt: 0,
   };
 
   function botStatus(text) {
@@ -823,22 +827,30 @@
   function answerCurrentPrompt() {
     const prompt = promptText();
     const input = document.querySelector(SEL.input);
-    if (!prompt || !input || bot.answeredPrompt === prompt) return false;
+    const isRace = mode() === 'krillocity';
+    if (!prompt || !input) return false;
+    if (!isRace && bot.answeredPrompt === prompt) return false;
+    if (isRace && Date.now() - bot.lastSubmitAt < 700) return false;
     if (state.loadedPrompt !== prompt) { botStatus('loading answers'); return false; }
     const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
     const list = (groups[0].answers || []).filter(
       (a) => !state.refusedAnswers.has(prompt + '\u0000' + a)
+        && !(isRace && bot.submittedForPrompt.has(prompt + '\u0000' + a))
     );
     const answer = pickAnswer(list);
     if (!answer) return false;
+    if (isRace) {
+      bot.submittedForPrompt.add(prompt + '\u0000' + answer);
+      bot.lastSubmitAt = Date.now();
+    }
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
     setter.call(input, answer);
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
     state.lastFilled = answer;
     state.answerQuestion[answer] = groups[0].question || prompt;
-    bot.answeredPrompt = prompt;
-    botStatus('answered');
+    if (!isRace) bot.answeredPrompt = prompt;
+    botStatus(isRace ? 'race answer sent' : 'answered');
     setTimeout(submitAnswer, 120);
     return true;
   }
@@ -896,6 +908,25 @@
   function startMode() {
     const begin = document.querySelector('button.kr-begin');
     const online = [...document.querySelectorAll('button.kr-online')];
+    if (bot.mode === 'krillocity') {
+      if (!/^\/krillocity\/?$/.test(location.pathname)) {
+        const link = document.querySelector('a.kr-peek');
+        if (link && link.offsetParent !== null) {
+          reportBot('krillocity-open', { note: 'Play Krillocity' });
+          link.click();
+          botStatus('opening Krillocity');
+          return true;
+        }
+        return false;
+      }
+      if (begin && begin.offsetParent !== null) {
+        reportBot('krillocity-start', { note: 'START DAILY' });
+        begin.click();
+        botStatus('starting daily race');
+        return true;
+      }
+      return false;
+    }
     if (bot.mode === 'classic') {
       const classic = [...document.querySelectorAll('button.kr-mode')]
         .find((b) => /classic/i.test(b.innerText));
@@ -946,7 +977,11 @@
     bot.busy = true;
     try {
       const p = promptText();
-      if (p && p !== bot.lastPrompt) { bot.lastPrompt = p; bot.answeredPrompt = ''; }
+      if (p && p !== bot.lastPrompt) {
+        bot.lastPrompt = p;
+        bot.answeredPrompt = '';
+        bot.submittedForPrompt.clear();
+      }
       if (p && visible(SEL.prompt) && visible(SEL.input)) {
         answerCurrentPrompt();
       } else if (visible('.kr-lobby-tab') || visible('.kr-room-row')) {
