@@ -63,7 +63,7 @@ remembered between page loads.
   - `Classic` — begin a Classic dive.
   - `Multiplayer · 5s / 50 prompts` — joins the open `THE MARATHON · 5 SEC` room (50 prompts, 5s each) for fast coin farming.
   - `Multiplayer · most players` — joins the room with the highest player count in the lobby.
-  - `1 vs 1` — starts a duel.
+  - `1 vs 1` — starts a duel. The bot follows the real Colosseum screens: accepts the tab rule if shown, queues, waits silently on the match-found countdown, and queues another match after a result. It never clicks "Leave before it starts" or "Back to the arena".
 - The bot fills and submits answers itself (it overrides the manual Auto
   setting while playing). Scores are logged as evidence only — never demotions.
 - If the requested room is not open, the bot waits rather than joining a

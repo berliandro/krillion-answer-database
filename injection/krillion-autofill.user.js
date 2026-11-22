@@ -921,6 +921,26 @@
     return false;
   }
 
+  function duelClick(selector, event, note) {
+    const btn = document.querySelector(selector);
+    if (!btn || btn.disabled || btn === bot.lastDuelAction) return;
+    bot.lastDuelAction = btn;
+    reportBot(event, { note: note || (btn.innerText || '').trim().slice(0, 80) });
+    btn.click();
+    botStatus(note || event);
+  }
+
+  function duelTick() {
+    // State-aware handling of the real Colosseum screens. Never click the
+    // "Leave before it starts" or "Back to the arena" buttons.
+    if (visible('.kd-versus')) { botStatus('match found — waiting for first prompt'); return; }
+    if (visible('.kd-tab-rule')) { duelClick('.kd-tab-rule-key', 'duel-rule', 'accepted tab rule'); return; }
+    if (visible('.kd-elsewhere')) { duelClick('.kd-elsewhere-key', 'duel-claim', 'claimed queue here'); return; }
+    if (visible('.kd-result-keys')) { duelClick('.kd-again', 'duel-requeue', 'queued another match'); return; }
+    if (visible('.kd-play')) { duelClick('.kd-play', 'duel-queue', 'finding a match'); return; }
+    botStatus('waiting for duel lobby');
+  }
+
   function botTick() {
     if (!bot.on || bot.busy) return;
     bot.busy = true;
@@ -936,21 +956,7 @@
       } else if (visible('.kr-intro') || visible('button.kr-begin')) {
         startMode();
       } else if (bot.mode === 'duel') {
-        // The 1v1 arena has its own lobby with a start/find-match button.
-        const btn = [...document.querySelectorAll('button')].find((b) =>
-          b.offsetParent !== null
-          && !/kr-online|kr-begin|kr-wallet-card/.test(b.className)
-          && !/leave|cancel|quit|back/i.test(b.innerText || '')
-          && /find|match|start|search|enter|queue|duel|play/i.test(b.innerText || '')
-        );
-        if (btn && btn !== bot.lastAction) {
-          bot.lastAction = btn;
-          reportBot('duel-start', { note: (btn.innerText || '').trim().slice(0, 80) });
-          btn.click();
-          botStatus('starting duel');
-        } else {
-          botStatus('waiting for opponent');
-        }
+        duelTick();
       } else {
         botStatus('waiting');
       }

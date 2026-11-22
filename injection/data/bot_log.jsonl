@@ -35,3 +35,4 @@
 {"at": "2026-11-22T10:09:53Z", "event": "duel-start", "mode": "duel", "note": "FIND ANOTHER MATCH"}
 {"at": "2026-11-22T10:09:55Z", "event": "duel-start", "mode": "duel", "note": "Leave before it starts"}
 {"at": "2026-11-22T10:09:55Z", "event": "duel-start", "mode": "duel", "note": "▶ FIND A MATCH"}
+{"at": "2026-11-22T10:26:40Z", "event": "bot-start", "mode": "duel", "note": "duel / random"}
