@@ -28,6 +28,9 @@ DATA = INJ / "data"
 DATA_DIR = ROOT / "data"
 BASE_DB = DATA_DIR / "krillion_only.db"
 FULL_DB = DATA_DIR / "krillion_full.db"
+# Optional manifest written by the build worker. Absent or unparseable is fine:
+# clients then fall back to the legacy, version-less behaviour.
+MANIFEST = DATA_DIR / "manifest.json"
 # New answers are also mirrored here so the optimizer's krillion_db.py import
 # can ingest them into the authoritative full DB and rebuild the derived DBs.
 IMPORT_JSONL = DATA_DIR / "answers_injection.jsonl"
@@ -42,6 +45,52 @@ CHANGELOG = INJ / "CHANGELOG.md"
 PORT = 8768
 TOKEN = 'krillion-local-v1'
 LOCK = threading.Lock()
+
+
+# -- Per-thread read-only SQLite connections ---------------------------------
+# ThreadingHTTPServer uses one worker thread per request. resolve_question()
+# fans out to answers_for() once per labelled bank, so opening a connection in
+# every call meant several connects per request. Keep one connection per
+# (thread, database) instead. The store is dropped when its thread ends, and
+# _ThreadDB.__del__ closes every handle at that point.
+class _ThreadDB:
+    __slots__ = ("conns",)
+
+    def __init__(self):
+        self.conns = {}
+
+    def get(self, path):
+        conn = self.conns.get(path)
+        if conn is None:
+            conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+            self.conns[path] = conn
+        return conn
+
+    def close_all(self):
+        for conn in self.conns.values():
+            try:
+                conn.close()
+            except Exception:
+                pass
+        self.conns.clear()
+
+    def __del__(self):
+        try:
+            self.close_all()
+        except Exception:
+            pass
+
+
+_THREAD_DB = threading.local()
+
+
+def db_conn(path):
+    """Return this thread's read-only connection for `path`, creating it once."""
+    store = getattr(_THREAD_DB, "store", None)
+    if store is None:
+        store = _THREAD_DB.store = _ThreadDB()
+    return store.get(path)
+
 
 # Paraphrase tolerance lives in the repo's dependency-free matcher. It is
 # imported read-only; if that file ever changes, we fall back to exact match.
@@ -102,6 +151,54 @@ PERF = {
     "learned_hits": 0, "learned_misses": 0,
     "all_hits": 0, "all_misses": 0,
 }
+
+
+_MANIFEST_CACHE = None  # (cache_key, parsed_dict_or_None)
+
+
+def load_manifest():
+    """Read data/manifest.json defensively, cached by mtime_ns + size.
+
+    The build worker creates that file in parallel. Missing, unreadable or
+    malformed content is NOT an error: return None so callers omit version/etag
+    and keep serving exactly the legacy response.
+    """
+    global _MANIFEST_CACHE
+    try:
+        st = MANIFEST.stat()
+        key = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        key = None
+    with CACHE_LOCK:
+        if _MANIFEST_CACHE is not None and _MANIFEST_CACHE[0] == key:
+            return _MANIFEST_CACHE[1]
+        parsed = None
+        if key is not None:
+            try:
+                candidate = json.loads(MANIFEST.read_text(encoding="utf-8"))
+                if isinstance(candidate, dict):
+                    parsed = candidate
+            except (OSError, ValueError, TypeError):
+                parsed = None
+        _MANIFEST_CACHE = (key, parsed)
+        return parsed
+
+
+def manifest_meta():
+    """Return (version, etag, counts) from the manifest; each may be None."""
+    m = load_manifest()
+    if not m:
+        return None, None, None
+    version = m.get("data_version")
+    if not isinstance(version, int) or isinstance(version, bool):
+        version = None
+    etag = m.get("etag")
+    if not isinstance(etag, str):
+        etag = None
+    counts = m.get("counts")
+    if not isinstance(counts, dict):
+        counts = None
+    return version, etag, counts
 
 
 def cached_learned():
@@ -179,6 +276,10 @@ def all_answers_payload():
         for item in data:
             q = item.get("q", "")
             item["answers"] = [a for a in item.get("answers", []) if (q, a) not in removed]
+            # Same strict pipeline the matcher uses: normalise, then rewrite.
+            # Clients key their netCache on nq; older userscript copies still
+            # fall back to their own local normaliser when nq is absent.
+            item["nq"] = rewrite_query(normalise(q))
         _ALL_CACHE = data
     return _ALL_CACHE
 
@@ -221,11 +322,11 @@ def rewrite_query(text):
 def answers_for(question, removed=None):
     if removed is None:
         removed = removed_pairs()
-    with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as c:
-        rows = c.execute(
-            "SELECT answer FROM answers WHERE question = ? ORDER BY answer COLLATE NOCASE",
-            (question,),
-        ).fetchall()
+    c = db_conn(BASE_DB)
+    rows = c.execute(
+        "SELECT answer FROM answers WHERE question = ? ORDER BY answer COLLATE NOCASE",
+        (question,),
+    ).fetchall()
     return [a for (a,) in rows if (question, a) not in removed]
 
 
@@ -317,15 +418,15 @@ def tier_answers(question):
     exact = [a for a in exact if a]
     if exact:
         return rare, exact, True
-    with sqlite3.connect(f"file:{FULL_DB}?mode=ro", uri=True) as c:
-        # Force the question index. The planner otherwise picks
-        # idx_answers_krillion and builds a temp B-tree, turning an O(log n)
-        # probe into a cold multi-second scan.
-        rows = c.execute(
-            "SELECT answer FROM answers INDEXED BY idx_answers_question "
-            "WHERE question=? AND is_krillion=0 "
-            "ORDER BY answer COLLATE NOCASE LIMIT 20", (question,)
-        ).fetchall()
+    c = db_conn(FULL_DB)
+    # Force the question index. The planner otherwise picks
+    # idx_answers_krillion and builds a temp B-tree, turning an O(log n)
+    # probe into a cold multi-second scan.
+    rows = c.execute(
+        "SELECT answer FROM answers INDEXED BY idx_answers_question "
+        "WHERE question=? AND is_krillion=0 "
+        "ORDER BY answer COLLATE NOCASE LIMIT 20", (question,)
+    ).fetchall()
     return rare, [a for (a,) in rows], False
 
 
@@ -604,7 +705,8 @@ class Handler(BaseHTTPRequestHandler):
                 resolve_size = len(RESOLVE_CACHE)
                 learned_rows = len(LEARNED_CACHE) if LEARNED_CACHE is not None else 0
                 all_items = len(_ALL_CACHE) if _ALL_CACHE is not None else 0
-            self._send(200, {
+            version, etag, counts = manifest_meta()
+            perf_resp = {
                 "ok": True,
                 "resolve_cache": {
                     "size": resolve_size, "max": RESOLVE_MAX,
@@ -620,7 +722,15 @@ class Handler(BaseHTTPRequestHandler):
                 },
                 "normalised_prompts": len(NORM_TO_QUESTION),
                 "matcher_questions": len(MATCHER.questions) if MATCHER else 0,
-            })
+            }
+            # Additive fields only: every pre-existing /api/perf field is kept.
+            if version is not None:
+                perf_resp["version"] = version
+            if etag is not None:
+                perf_resp["etag"] = etag
+            if counts is not None:
+                perf_resp["counts"] = counts
+            self._send(200, perf_resp)
             return
         if parsed.path in ("/api/status", "/api/health"):
             self._send(200, {
@@ -665,7 +775,15 @@ class Handler(BaseHTTPRequestHandler):
             })
             return
         if parsed.path == "/api/all":
-            self._send(200, {"ok": True, "data": all_answers_payload()})
+            resp = {"ok": True, "data": all_answers_payload()}
+            version, etag, _counts = manifest_meta()
+            # Omitted entirely when the build worker has not produced a
+            # manifest yet, so old clients see exactly the legacy payload.
+            if version is not None:
+                resp["version"] = version
+            if etag is not None:
+                resp["etag"] = etag
+            self._send(200, resp)
             return
         if parsed.path == "/api/prompt-review":
             self._send(200, {"ok": True, "prompts": read_jsonl(PROMPT_REVIEW)[-200:]})

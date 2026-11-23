@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Shared configuration for the reproducible Krillion build.
+
+Importable with NO side effects: it does not create directories, touch files,
+open sockets, or start services. ``injection/bridge.py`` deliberately does NOT
+import this module; it reads data/manifest.json defensively instead.
+
+Paths can be redirected with the KRILLION_ROOT environment variable (used to
+exercise the whole pipeline against a disposable copy of the data).
+"""
+from __future__ import annotations
+
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+
+# --------------------------------------------------------------------------- paths
+SOURCE_ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(os.environ.get("KRILLION_ROOT") or SOURCE_ROOT).resolve()
+DATA = ROOT / "data"
+SHARED = ROOT / "shared"
+INJECTION = ROOT / "injection"
+INJ_DATA = INJECTION / "data"
+# Source of truth for the matcher/bridge ALWAYS comes from the real repo, even
+# when KRILLION_ROOT redirects data to a disposable copy for pipeline tests.
+SCRIPTS = SOURCE_ROOT / "scripts"
+
+FULL_DB = DATA / "krillion_full.db"
+SEARCH_DB = DATA / "krillion_search.db"
+ONLY_DB = DATA / "krillion_only.db"
+
+MANIFEST = DATA / "manifest.json"
+NORM_JS = SHARED / "norm.generated.js"
+PARAPHRASE_TESTS = DATA / "paraphrase_tests.json"
+CORRECTIONS = INJ_DATA / "corrections.jsonl"
+ALIASES = INJ_DATA / "aliases.jsonl"
+LEARNED = INJ_DATA / "learned.jsonl"
+EVIDENCE = INJ_DATA / "evidence.jsonl"
+PARAPHRASE_SOURCE = SCRIPTS / "paraphrase_match.py"
+BRIDGE_SOURCE = SOURCE_ROOT / "injection" / "bridge.py"
+
+# Staging/publishing lives OUTSIDE the repo but on the same volume as ROOT, so
+# os.replace() is atomic (it cannot cross a drive boundary on Windows) and the
+# working tree stays clean. Override with KRILLION_BUILD_DIR if needed.
+BUILD_DIR = Path(
+    os.environ.get("KRILLION_BUILD_DIR") or (ROOT.parent / ".krillion-build")
+).resolve()
+STAGING = BUILD_DIR / "staging"
+LOCK = BUILD_DIR / "publish.lock"
+
+# --------------------------------------------------------------------- artefacts
+LEGACY_SEARCH_JSON = "search-data.json"
+LEGACY_KRILLION_JSON = "krillion/krillion-data.json"
+V2_SEARCH_JSON = "search-data.v2.json"
+V2_KRILLION_JSON = "krillion-data.v2.json"
+
+# --------------------------------------------------------------- versions / net
+SCHEMA_VERSION = 2
+INITIAL_DATA_VERSION = 1
+PORT = 8768
+TOKEN = "krillion-local-v1"
+
+# ------------------------------------------------------------------- matching
+MATCH_THRESHOLD = 0.34          # scripts/paraphrase_match.py Matcher.search default
+BRIDGE_THRESHOLD = 0.62         # injection/bridge.py _resolve_candidates default
+SEARCH_LIMIT = 10
+
+# Bridge query rewrites (mirrored verbatim from injection/bridge.py REWRITES;
+# emit.py re-extracts them from that file and fails loudly if they drift).
+REWRITES = [
+    (r"^what is an example of an ", "name an "),
+    (r"^what is an example of a ", "name a "),
+    (r"^what is one ", "name a "),
+    (r"^name any one ", "name a "),
+    (r"^name any ", "name a "),
+    (r"^name one ", "name a "),
+]
+
+# Only these modes/actions are authoritative demotions. Play scores, evidence
+# rows, and other players' answers are NEVER a source of demotion.
+BANK_AUTHORITATIVE_MODES = frozenset({"bank", "dive-end", "dive_end", "graded-bank", "graded_bank"})
+REMOVAL_ACTIONS = frozenset({"remove", "demote"})
+PLAY_MODES = frozenset({"play", "score", "gameplay", "evidence", "user", "auto", "manual"})
+
+# Key kinds stored in the prompt_key table. All are multi-valued: a key may map
+# to many banks; the build never picks a winner when real banks collide.
+KEY_RAW = "raw"
+KEY_STRICT = "strict"       # paraphrase_match.normalise
+KEY_REWRITE = "rewrite"     # bridge.rewrite_query(normalise(q))
+KEY_KINDS = (KEY_RAW, KEY_STRICT, KEY_REWRITE)
+
+
+def answer_files() -> list[Path]:
+    """All append-only source answer JSONLs, in a deterministic order."""
+    return sorted(DATA.glob("answers*.jsonl"))
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")

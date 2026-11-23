@@ -1,0 +1,458 @@
+#!/usr/bin/env python3
+"""Emit build artefacts: manifest, generated JS normaliser, and v2 array JSON.
+
+Legacy site JSON (search-data.json, krillion/krillion-data.json) is NEVER
+written here. The v2 array format goes only to NEW filenames, so the running
+site is untouched until a later phase switches its reader.
+
+The generated normaliser is derived from the two sources of truth:
+  * scripts/paraphrase_match.py -> normalise() (contraction/punctuation rules)
+  * injection/bridge.py         -> REWRITES + the "beginning with" rule
+Unknown rules cause a hard failure instead of a silently divergent JS copy.
+"""
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+import sqlite3
+from pathlib import Path
+
+import config as cfg
+import derive
+from site_builder import LOADER_HTML, MORE_HTML, render_page
+
+# Python regex literals in normalise() whose JS equivalent is known.
+PY_JS_SUBS = {
+    r"\s+": r"t = t.replace(/\s+/g, ' ');",
+    r"[?!.,:;]+": r"t = t.replace(/[?!.,:;]+/g, ' ');",
+}
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    return sha256_bytes(path.read_bytes())
+
+
+def file_digest(path: Path) -> str:
+    return sha256_file(path) if path.exists() else ""
+
+
+def etag() -> str:
+    """sha256 of the concatenation of source answer JSONLs + corrections."""
+    h = hashlib.sha256()
+    for path in cfg.answer_files() + [cfg.CORRECTIONS]:
+        if path.exists():
+            h.update(path.read_bytes())
+    return h.hexdigest()
+
+
+def next_data_version() -> int:
+    if not cfg.MANIFEST.exists():
+        return cfg.INITIAL_DATA_VERSION
+    try:
+        old = json.loads(cfg.MANIFEST.read_text(encoding="utf-8"))
+        return int(old.get("data_version", 0)) + 1
+    except (ValueError, TypeError, OSError):
+        return cfg.INITIAL_DATA_VERSION
+
+
+def _normalise_parts() -> dict:
+    """Extract the literal rules from paraphrase_match.normalise()."""
+    tree = ast.parse(cfg.PARAPHRASE_SOURCE.read_text(encoding="utf-8"))
+    fn = next(
+        n for n in ast.walk(tree)
+        if isinstance(n, ast.FunctionDef) and n.name == "normalise"
+    )
+    contractions = {}
+    replaces = []
+    subs = []
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Assign) and any(
+            isinstance(t, ast.Name) and t.id == "contractions" for t in node.targets
+        ):
+            contractions = ast.literal_eval(node.value)
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
+            continue
+        if node.func.attr == "replace" and len(node.args) >= 2:
+            a, b = node.args[0], node.args[1]
+            if isinstance(a, ast.Constant) and isinstance(b, ast.Constant):
+                replaces.append((a.value, b.value))
+        elif node.func.attr == "sub" and len(node.args) >= 3:
+            pat, repl = node.args[0], node.args[1]
+            if isinstance(pat, ast.Constant) and isinstance(repl, ast.Constant):
+                subs.append((pat.value, repl.value))
+    for pattern, _ in subs:
+        if pattern not in PY_JS_SUBS:
+            raise ValueError(
+                f"paraphrase_match.normalise uses an unknown regex {pattern!r}; "
+                "port it to emit.py PY_JS_SUBS before emitting JS"
+            )
+    return {"contractions": contractions, "replaces": replaces, "subs": subs}
+
+
+def _rewrite_parts() -> list[tuple[str, str]]:
+    """Extract bridge.py REWRITES rules (read-only)."""
+    tree = ast.parse(cfg.BRIDGE_SOURCE.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(t, ast.Name) and t.id == "REWRITES" for t in node.targets
+        ):
+            rules = ast.literal_eval(node.value)
+            return [(str(p), str(r)) for p, r in rules]
+    raise ValueError("injection/bridge.py has no REWRITES assignment")
+
+
+def _js_str(value: str) -> str:
+    """JSON string syntax is valid JS string syntax (with ensure_ascii)."""
+    return json.dumps(value, ensure_ascii=True)
+
+
+def generated_norm_js() -> str:
+    parts = _normalise_parts()
+    rules = _rewrite_parts()
+    bridge_src = cfg.BRIDGE_SOURCE.read_text(encoding="utf-8")
+    if r"\bbeginning\s+with\b" not in bridge_src or "starting with" not in bridge_src:
+        raise ValueError("bridge.py 'beginning with' rewrite rule not found")
+
+    contractions_js = ",\n    ".join(
+        f"[{_js_str(k)}, {_js_str(v)}]" for k, v in parts["contractions"].items()
+    )
+    replaces_js = "\n    ".join(
+        f"t = t.replace({_js_str(a)}, {_js_str(b)});" for a, b in parts["replaces"]
+    )
+    # Both re.sub calls in normalise() are the same \s+ collapse; emit each
+    # distinct rule at its position in the ported pipeline.
+    subs_js = "\n    ".join(PY_JS_SUBS[p] for p, _ in parts["subs"])
+    rewrites_js = ",\n    ".join(
+        f"[/{p}/, {_js_str(r)}]" for p, r in rules
+    )
+
+    return f"""/* Generated by scripts/emit.py — DO NOT EDIT.
+ * normalise rules: scripts/paraphrase_match.py (sha256 {sha256_file(cfg.PARAPHRASE_SOURCE)})
+ * rewrite rules:   injection/bridge.py         (sha256 {sha256_file(cfg.BRIDGE_SOURCE)})
+ * Contract: window.KrillionNorm = {{ norm, rewrite }}.
+ */
+(function (root) {{
+  "use strict";
+  var CONTRACTIONS = [
+    {contractions_js}
+  ];
+  var REWRITES = [
+    {rewrites_js}
+  ];
+
+  function escapeRegExp(s) {{
+    return s.replace(/[.*+?^${{}}()|[\\]\\\\]/g, "\\\\$&");
+  }}
+
+  function norm(text) {{
+    var t = String(text == null ? "" : text).trim().toLowerCase();
+    {replaces_js}
+    for (var i = 0; i < CONTRACTIONS.length; i++) {{
+      var pair = CONTRACTIONS[i];
+      t = t.replace(new RegExp("\\\\b" + escapeRegExp(pair[0]) + "\\\\b", "g"), pair[1]);
+    }}
+    {subs_js}
+    return t.replace(/\\s+/g, " ").trim();
+  }}
+
+  function rewrite(text) {{
+    var q = norm(text);
+    for (var j = 0; j < REWRITES.length; j++) {{
+      if (REWRITES[j][0].test(q)) {{
+        q = q.replace(REWRITES[j][0], REWRITES[j][1]);
+        break;
+      }}
+    }}
+    return q.replace(/\\bbeginning\\s+with\\b/gi, "starting with");
+  }}
+
+  var api = {{ norm: norm, rewrite: rewrite }};
+  if (typeof window !== "undefined") window.KrillionNorm = api;
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+  if (root) root.KrillionNorm = api;
+}})(typeof globalThis !== "undefined" ? globalThis : this);
+"""
+
+
+def _write_json(path: Path, data) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "\n",
+        encoding="utf-8", newline="\n",
+    )
+
+
+def _table_exists(c: sqlite3.Connection, name: str) -> bool:
+    return bool(
+        c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone()
+    )
+
+
+def _v2_payloads() -> dict[str, list]:
+    """Array-JSON payloads from the materialisations (legacy fallback OK)."""
+    nq = lambda q: derive.rewrite_query(derive.pm.normalise(q))
+    with sqlite3.connect(
+        f"file:{cfg.SEARCH_DB.as_posix()}?mode=ro", uri=True
+    ) as c:
+        table = "search_answer" if _table_exists(c, "search_answer") else "search_answers"
+        search = [
+            {"q": q, "nq": nq(q), "a": a}
+            for q, a in c.execute(
+                f"SELECT question, answer FROM {table} ORDER BY question"
+            )
+        ]
+        if _table_exists(c, "krillion_answer"):
+            rare = c.execute(
+                "SELECT question, answer FROM krillion_answer ORDER BY question, answer"
+            ).fetchall()
+        else:
+            with sqlite3.connect(
+                f"file:{cfg.ONLY_DB.as_posix()}?mode=ro", uri=True
+            ) as only:
+                rare = only.execute(
+                    "SELECT question, answer FROM answers ORDER BY question, answer"
+                ).fetchall()
+    grouped: dict[str, list[str]] = {}
+    for q, a in rare:
+        grouped.setdefault(q, []).append(a)
+    krillion = [{"q": q, "nq": nq(q), "answers": grouped[q]} for q in sorted(grouped)]
+    return {cfg.V2_SEARCH_JSON: search, cfg.V2_KRILLION_JSON: krillion}
+
+
+def emit(out_dir: Path | None = None) -> dict:
+    """Write manifest, generated JS and v2 arrays into out_dir (staging)."""
+    out_dir = Path(out_dir) if out_dir is not None else cfg.STAGING
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    payloads = _v2_payloads()
+    for name, data in payloads.items():
+        _write_json(out_dir / name, data)
+
+    js = out_dir / cfg.NORM_JS.relative_to(cfg.ROOT)
+    js.parent.mkdir(parents=True, exist_ok=True)
+    js.write_text(generated_norm_js(), encoding="utf-8", newline="\n")
+
+    counts = derive.counts()
+    artifacts = {
+        cfg.LEGACY_SEARCH_JSON: file_digest(cfg.ROOT / cfg.LEGACY_SEARCH_JSON),
+        cfg.LEGACY_KRILLION_JSON: file_digest(cfg.ROOT / cfg.LEGACY_KRILLION_JSON),
+        cfg.V2_SEARCH_JSON: sha256_file(out_dir / cfg.V2_SEARCH_JSON),
+        cfg.V2_KRILLION_JSON: sha256_file(out_dir / cfg.V2_KRILLION_JSON),
+        cfg.NORM_JS.relative_to(cfg.ROOT).as_posix(): sha256_file(js),
+    }
+    manifest = {
+        "schema_version": cfg.SCHEMA_VERSION,
+        "data_version": next_data_version(),
+        "etag": etag(),
+        "built_at": cfg.utc_now(),
+        "counts": {k: counts[k] for k in ("full", "search", "krillion", "prompts")},
+        "artifacts": artifacts,
+    }
+    _write_json(out_dir / cfg.MANIFEST.relative_to(cfg.ROOT), manifest)
+    print(
+        f"emitted manifest data_version={manifest['data_version']} "
+        f"etag={manifest['etag'][:12]} counts={manifest['counts']} -> {out_dir}"
+    )
+    return manifest
+
+
+# ---------------------------------------------------------------------------
+# Legacy site builders. Kept here (rather than in the thin wrappers) so the
+# wrappers stay one-line delegates; output is byte-identical to the old code.
+# ---------------------------------------------------------------------------
+def build_static_site() -> None:
+    with sqlite3.connect(cfg.SEARCH_DB) as c:
+        rows = c.execute(
+            "SELECT question, answer FROM search_answers ORDER BY question"
+        ).fetchall()
+    data = [{"q": q, "a": a} for q, a in rows]
+    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    out_data = cfg.ROOT / cfg.LEGACY_SEARCH_JSON
+    out_data.write_text(payload, encoding="utf-8", newline="\n")
+    html = render_page(
+        title="Krillion Answer Search",
+        mode="lookup",
+        h1='<h1><span class="rare-word">Krillion</span> Answer Search</h1>',
+        sub=("Type a question from the game to find an answer. "
+             '<span id="count">—</span> questions ready.'),
+        examples=["Name any one famous park", "fictional bear"],
+        loader=LOADER_HTML,
+        views=True,
+    )
+    out_html = cfg.ROOT / "index.html"
+    out_html.write_text(html, encoding="utf-8", newline="\n")
+    print(
+        f"wrote {out_html.name} + {out_data.name}: "
+        f"{len(data)} questions, {out_data.stat().st_size} bytes of data"
+    )
+
+
+VAULT_CSS = r"""
+  .results { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .group {
+    min-width: 0;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 18px 18px;
+    box-shadow: 0 5px 18px oklch(0 0 0 / 0.16);
+    content-visibility: auto; contain-intrinsic-size: auto 320px;
+  }
+  .group-q {
+    color: var(--rare); font-size: var(--type-answer); font-weight: var(--weight-label);
+    letter-spacing: .01em; line-height: 1.3; text-wrap: balance;
+    margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  .answers { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+  .answer-row {
+    flex: 1 1 clamp(140px, var(--basis, 18ch), 100%);
+    min-width: 0; max-width: 100%;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 9px 8px 11px; border-radius: 9px;
+    background: var(--surface); border: 1px solid var(--line);
+    transition: background .12s ease, border-color .12s ease;
+  }
+  .answer-row:hover, .answer-row:focus-within { background: var(--surface-2); border-color: var(--line-strong); }
+  .answer-row .a {
+    flex: 1; min-width: 0; font-size: var(--type-answer); font-weight: var(--weight-answer);
+    line-height: 1.35; overflow-wrap: anywhere; cursor: pointer; border-radius: 4px;
+    transition: color .12s ease;
+  }
+  .answer-row .a:hover { color: var(--text-strong); }
+  .answer-row .a:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+  .answer-row .copy-icon { width: 26px; height: 26px; opacity: .75; }
+  .answer-row:hover .copy-icon, .answer-row .copy-icon:focus-visible,
+  .answer-row.copied .copy-icon { opacity: 1; }
+  .more {
+    display: block; margin: 28px auto 0; padding: 11px 20px;
+    background: var(--surface-2); color: var(--text); border: 1px solid var(--line-strong);
+    border-radius: 10px; cursor: pointer; font-family: inherit;
+    font-size: .85rem; font-weight: 600;
+  }
+  .more:hover { background: var(--surface-2-hover); }
+  .more:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .skip {
+    position: absolute; left: -9999px; top: 0; z-index: 10;
+    padding: 8px 12px; background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--line-strong); border-radius: 8px;
+  }
+  .skip:focus { left: 20px; top: 12px; }
+  @media (max-width: 560px) {
+    .group { padding: 14px 14px 16px; }
+    .answers { gap: 7px; }
+    .answer-row { padding: 7px 8px 7px 10px; }
+    .answer-row .a { font-size: var(--type-answer); }
+  }
+  @media (min-width: 768px) {
+    .results { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1024px) {
+    .wrap { max-width: 1080px; }
+  }
+"""
+
+VAULT_JS = ""
+
+
+def build_krillion_site() -> None:
+    from collections import defaultdict
+
+    with sqlite3.connect(cfg.ONLY_DB) as c:
+        rows = c.execute(
+            "SELECT question, answer FROM answers ORDER BY question, answer"
+        ).fetchall()
+    grouped = defaultdict(list)
+    for question, answer in rows:
+        grouped[question].append(answer)
+    data = [{"q": q, "answers": answers} for q, answers in sorted(grouped.items())]
+    out_dir = cfg.ROOT / "krillion"
+    out_dir.mkdir(exist_ok=True)
+    out_data = out_dir / "krillion-data.json"
+    out_data.write_text(
+        json.dumps(data, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8", newline="\n",
+    )
+    html = render_page(
+        title="Krillion — All 100-Point Answers",
+        mode="vault",
+        h1='<h1>One in a <span class="rare-word">Krillion</span> Answers</h1>',
+        sub=('All <span id="count">—</span> 100-point answers to '
+             '<span id="prompts">—</span> questions.'),
+        examples=["Name a famous park", "Name a Mario character"],
+        more=MORE_HTML,
+        extra_css=VAULT_CSS,
+        views=True,
+    )
+    out_html = out_dir / "index.html"
+    out_html.write_text(html, encoding="utf-8", newline="\n")
+    print(
+        f"wrote {out_html.relative_to(cfg.ROOT)} + {out_data.relative_to(cfg.ROOT)}: "
+        f"{len(data)} prompts, {len(rows)} krillion answers, "
+        f"{out_data.stat().st_size} bytes of data"
+    )
+
+
+LOCAL_JS = r"""
+let seq = 0, timer = null;
+function renderLocal(items, q) {
+  if (!items.length) {
+    $('meta').textContent = 'No results';
+    results.innerHTML = '<div class="empty" role="status">No answer found. Try a shorter phrase — even one distinctive word will do.</div>';
+    return;
+  }
+  $('meta').textContent = items.length + ' result' + (items.length === 1 ? '' : 's');
+  if (matchedByMeaning(q, items.map(i => ({ it: { norm: String(i.question).toLowerCase(), q: i.question } })))) {
+    $('meta').insertAdjacentHTML('beforeend', ' <span class="match-note">matched by meaning</span>');
+  }
+  results.innerHTML = items.map(it => `
+    <div class="card" data-answer="${escape(it.answer)}">
+      <div><div class="q">${escape(it.question)}</div><div class="a" role="button" tabindex="0" title="Tap to copy">${escape(it.answer)}</div></div>
+      <button class="copy-icon" type="button" aria-label="Copy answer" title="Copy answer">${COPY_SVG}</button>
+    </div>`).join('');
+  bindCopy(results);
+}
+async function run(q) {
+  const mine = ++seq;
+  $('meta').textContent = 'Searching…';
+  try {
+    const res = await fetch('/api/search?q=' + encodeURIComponent(q));
+    const data = await res.json();
+    if (mine !== seq) return;
+    renderLocal(data.results, q);
+  } catch (e) {
+    if (mine === seq) {
+      $('meta').textContent = 'Search unavailable';
+      results.innerHTML = '<div class="empty" role="alert">Search unavailable. Check your connection, then try again.' +
+        '<br><button class="copy" id="retry-search" type="button">Try again</button></div>';
+      $('retry-search').addEventListener('click', () => run(q));
+    }
+  }
+}
+async function initLocal() {
+  initExamples(input, 'krillion-local-examples:v1');
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (!q) { results.innerHTML = ''; $('meta').textContent = ''; return; }
+    timer = setTimeout(() => run(q), 120);
+  });
+}
+"""
+
+
+def build_webapp() -> None:
+    html = render_page(
+        title="Krillion Answer Search",
+        mode="local",
+        h1="<h1>Krillion Answer Search</h1>",
+        sub="<p class=\"sub\">Type a question from the game to find an answer.</p>",
+        examples=["Name any one famous park", "fictional bear"],
+        extra_js=LOCAL_JS,
+    )
+    out = cfg.ROOT / "webapp" / "index.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(html, encoding="utf-8", newline="\n")
+    print(f"wrote {out.relative_to(cfg.ROOT)} from site-template.html")

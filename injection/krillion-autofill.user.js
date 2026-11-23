@@ -61,9 +61,19 @@
     refusedAnswers: new Set(),
     refusalKey: '',
     refusalActive: false,
+    prefetchQueue: [],   // prompts captured from /deal, waiting to warm netCache
+    prefetchActive: 0,   // in-flight prefetches (never exceeds PREFETCH_CONCURRENCY)
+    prefetchCount: 0,    // total issued prefetches (never exceeds PREFETCH_MAX)
+    prefetchSeen: new Set(), // dedupe queue entries by cache key
   };
   let botActive = false; // mirrors bot.on, declared later; used by the header control
   const AUTO_KEY = 'krillion.autoEnter.v1';
+  const SNAPSHOT_META_KEY = 'krillion.snapshot.v2';       // {version, etag}
+  const SNAPSHOT_DATA_KEY = 'krillion.snapshot.data.v2';  // cached parsed /api/all data
+  const SNAPSHOT_MAX_CHARS = 1500000; // only cache a "reasonably sized" snapshot
+  const PREFETCH_MAX = 60;            // never spam more than this many prefetches
+  const PREFETCH_CONCURRENCY = 3;
+  const MO_DEBOUNCE_MS = 50;          // coalesce React remounts; safer than rAF
   const seenDeals = {};   // promptId -> exact question text
   const seenTickets = {}; // promptId -> ticket from the same deal
   const seenBanks = [];   // full graded banks observed from the site's own API
@@ -88,6 +98,9 @@
                   if (p && p.id && p.text) {
                     seenDeals[p.id] = p.text;
                     bankByPrompt[p.text] = p.id;
+                    // Warm netCache ahead of the user: a source /deal response
+                    // is the earliest reliable signal for the next prompts.
+                    enqueuePrefetch(p.text);
                   }
                 });
                 Object.entries(data.tickets || {}).forEach(([id, ticket]) => {
@@ -206,6 +219,53 @@
       { lookup_path: info.path, attempts: info.attempts });
   }
   function clearLookupFailure() { lastFailLogAt = -Infinity; }
+
+  // ---- prefetch -----------------------------------------------------------
+  // A /deal response names the next prompts before they are shown. Warming
+  // netCache here turns the user's normal lookup into a synchronous hit.
+  // Prefetch failures are silent on purpose: miss logging belongs to the
+  // normal lookup path in loadAnswers(), not to this speculative warm-up.
+  function enqueuePrefetch(prompt) {
+    if (!prompt) return;
+    if (state.prefetchCount >= PREFETCH_MAX) {
+      state.prefetchQueue.length = 0; // a large /deal batch must not build a backlog
+      return;
+    }
+    const key = keyFor(prompt);
+    if (!key || state.prefetchSeen.has(key)) return;
+    if (state.netCache.has(key)) return; // already warm
+    state.prefetchSeen.add(key);
+    state.prefetchQueue.push({ prompt, key });
+    drainPrefetch();
+  }
+
+  function drainPrefetch() {
+    // Enforce the cap here too: a single /deal response can enqueue far more
+    // prompts than the cap before any of the in-flight slots free up.
+    while (state.prefetchActive < PREFETCH_CONCURRENCY
+           && state.prefetchCount < PREFETCH_MAX
+           && state.prefetchQueue.length) {
+      const job = state.prefetchQueue.shift();
+      if (!job) continue;
+      if (state.netCache.has(job.key)) continue; // warmed while queued
+      state.prefetchActive++;
+      state.prefetchCount++;
+      request('/api/answers?q=' + encodeURIComponent(job.prompt), {
+        timeout: LOOKUP_TIMEOUT,
+        retries: 1, // one retry max — never hammer the bridge for a guess
+      }).then((data) => {
+        // Only successful lookups are cached. If the user's own lookup won the
+        // race, do not overwrite its (fresher) result.
+        if (!state.netCache.has(job.key)) state.netCache.set(job.key, data);
+      }).catch(() => {
+        // Silent by design: no reportMiss / logLookupFailure here.
+      }).then(() => {
+        state.prefetchActive--;
+        drainPrefetch();
+      });
+    }
+    if (state.prefetchCount >= PREFETCH_MAX) state.prefetchQueue.length = 0;
+  }
 
   // ---- panel -------------------------------------------------------------
   GM_addStyle(`
@@ -585,6 +645,27 @@
     return q.replace(/\bbeginning\s+with\b/g, 'starting with');
   }
 
+  // ONE key source for premap, netCache, prefetch and lookup. The bridge's
+  // precomputed `nq` (rewrite_query(normalise(q))) is authoritative when
+  // present; normLocal is only the legacy fallback for old bridges. Calling
+  // normLocal no longer happens for every row of /api/all — the hot path just
+  // reads item.nq.
+  function keyFor(itemOrText) {
+    if (itemOrText && typeof itemOrText === 'object') {
+      if (itemOrText.nq) return itemOrText.nq;
+      return normLocal(itemOrText.q);
+    }
+    return normLocal(itemOrText);
+  }
+
+  function buildPremap(data) {
+    const map = new Map();
+    (data || []).forEach((item) => {
+      if (item && item.q) map.set(keyFor(item), { q: item.q, answers: item.answers || [] });
+    });
+    return map;
+  }
+
   function applyResult(data, question) {
     state.groups = data.groups || [{ question, score: 1, answers: data.answers || [] }];
     state.exact = !!data.exact;
@@ -642,7 +723,9 @@
     if (isStale()) return;
 
     // Fast path: the whole rare-answer archive was loaded once at page start.
-    const key = normLocal(question);
+    // Same key source as premap/prefetch/netCache (nq when the bridge supplies
+    // one, normLocal otherwise) so the first prompt stays a cache hit.
+    const key = keyFor(question);
     if (state.premap && state.premap.has(key)) {
       const item = state.premap.get(key);
       applyResult({
@@ -678,25 +761,73 @@
     }
   }
 
+  function storageGet(key, fallback) {
+    try { return GM_getValue(key, fallback); } catch (e) { return fallback; }
+  }
+  function storageSet(key, value) {
+    try { GM_setValue(key, value); } catch (e) { /* no storage available */ }
+  }
+
   async function preloadAnswers() {
+    const cachedMeta = storageGet(SNAPSHOT_META_KEY, null);
+    const cachedData = storageGet(SNAPSHOT_DATA_KEY, null);
+    const hasCache = !!(cachedMeta && Array.isArray(cachedData));
+    const hasMetaVersion = hasCache &&
+      (cachedMeta.version !== undefined || cachedMeta.etag !== undefined);
+
+    // A version-aware bridge may answer a conditional /api/all with no
+    // payload. Unknown query params are ignored by the current bridge, so this
+    // is harmless today and enables "no re-download" when the bridge supports
+    // it. The first-prompt fast path never depends on the conditional reply.
+    let path = '/api/all';
+    if (hasMetaVersion) {
+      path += '?v=' + encodeURIComponent(String(cachedMeta.version))
+           + '&etag=' + encodeURIComponent(String(cachedMeta.etag || ''));
+    }
+
     try {
-      const data = await request('/api/all', {
+      const data = await request(path, {
         timeout: LOOKUP_TIMEOUT,
         forever: true,
         onFinalFail: (info) => logLookupFailure(state.question || '(preload)', info),
       });
       clearLookupFailure();
-      const map = new Map();
-      (data.data || []).forEach((item) => {
-        if (item && item.q) map.set(normLocal(item.q), { q: item.q, answers: item.answers || [] });
-      });
+
+      const hasVersion = data && (data.version !== undefined || data.etag !== undefined);
+      let source = data && data.data;
+
+      if (hasVersion) {
+        const meta = { version: data.version, etag: data.etag };
+        const same = hasCache && cachedMeta.version === meta.version
+                     && cachedMeta.etag === meta.etag;
+        if (!Array.isArray(source) && same) {
+          // "Unchanged" conditional reply with no payload: reuse the cached
+          // parsed snapshot rather than downloading/re-parsing it again.
+          source = cachedData;
+        } else if (Array.isArray(source)) {
+          // Cache the parsed snapshot only when it is reasonably sized.
+          let chars = 0;
+          try { chars = JSON.stringify(source).length; } catch (e) { chars = Infinity; }
+          if (chars <= SNAPSHOT_MAX_CHARS) {
+            storageSet(SNAPSHOT_META_KEY, meta);
+            storageSet(SNAPSHOT_DATA_KEY, source);
+          }
+        }
+      }
+      // No version/etag (old bridge): behave exactly as today — use data.data
+      // and never touch snapshot storage.
+
+      const map = buildPremap(source || []);
       state.premap = map;
-      if (state.question && map.has(normLocal(state.question))) {
-        const item = map.get(normLocal(state.question));
-        applyResult({
-          exact: true,
-          groups: [{ question: item.q, score: 1, answers: item.answers }],
-        }, state.question);
+      if (state.question) {
+        const key = keyFor(state.question);
+        if (map.has(key)) {
+          const item = map.get(key);
+          applyResult({
+            exact: true,
+            groups: [{ question: item.q, score: 1, answers: item.answers }],
+          }, state.question);
+        }
       }
     } catch (e) {
       state.premap = new Map();
@@ -1271,8 +1402,11 @@
   let lastPrompt = '';
   let timer = null;
   const observer = new MutationObserver(() => {
+    // clearTimeout is the coalescing guard: a burst of React remounts within
+    // MO_DEBOUNCE_MS collapses into one pass instead of one pass per mutation.
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => {
+      timer = null;
       // Re-query on every tick: React remounts nodes and element refs go stale.
       const q = promptText();
       if (q && q !== lastPrompt) {
@@ -1282,7 +1416,7 @@
       if (checkRefusal()) return;
       checkVerdict();
       if (document.querySelector(SEL.haul) || document.querySelector(SEL.row)) captureBanks();
-    }, 150);
+    }, MO_DEBOUNCE_MS);
   });
   observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
