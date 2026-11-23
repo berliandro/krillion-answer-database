@@ -62,6 +62,7 @@
     refusalKey: '',
     refusalActive: false,
   };
+  let botActive = false; // mirrors bot.on, declared later; used by the header control
   const AUTO_KEY = 'krillion.autoEnter.v1';
   const seenDeals = {};   // promptId -> exact question text
   const seenTickets = {}; // promptId -> ticket from the same deal
@@ -196,9 +197,11 @@
       padding:5px 10px; font:inherit; font-size:12px; line-height:1.2; cursor:pointer;
       transition:background-color .12s ease,border-color .12s ease;
     }
-    /* Bot is the primary control on its bar: give it a touch more presence. */
+    /* Play for me is the primary control; Dive on click is a manual assist. */
     #ka-bot{background:var(--ka-surface);font-weight:600}
-    #ka-toggle:hover,#ka-auto:hover,#ka-bot:hover{background:var(--ka-raised);border-color:var(--ka-accent)}
+    #ka-auto:disabled{opacity:.55;cursor:not-allowed}
+    #ka-auto:disabled:hover{background:var(--ka-surface-2);border-color:var(--ka-line-strong)}
+    #ka-toggle:hover,#ka-auto:hover:not(:disabled),#ka-bot:hover{background:var(--ka-raised);border-color:var(--ka-accent)}
     #ka-toggle:active,#ka-auto:active,#ka-bot:active{background:var(--ka-surface)}
     #ka-toggle:focus-visible,#ka-auto:focus-visible,#ka-bot:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
     #ka-auto[aria-pressed="true"],#ka-bot[aria-pressed="true"]{
@@ -265,6 +268,10 @@
       display:grid; gap:8px; background:var(--ka-surface-2);
     }
     #ka-botbar[hidden]{display:none}
+    .ka-botnote{
+      margin:0; color:var(--ka-muted); font-size:11px; line-height:1.4;
+      text-wrap:pretty;
+    }
     .ka-botrow{display:flex;align-items:center;gap:8px}
     .ka-botrow label{color:var(--ka-muted);font-size:11px;flex:none}
     .ka-botrow select{
@@ -321,7 +328,7 @@
     '<div id="ka-head">' +
       '<h2 id="ka-title">Krillion rare answers</h2>' +
       '<span id="ka-count" hidden></span>' +
-      '<button id="ka-auto" type="button" aria-pressed="false" title="When on, the script submits the answer after filling it">Auto: Off</button>' +
+      '<button id="ka-auto" type="button" aria-pressed="false" title="When on, clicking an answer also submits it — no Enter needed.">Dive on click: Off</button>' +
       '<button id="ka-toggle" type="button" aria-controls="ka-body" aria-expanded="true">Hide</button>' +
     '</div>' +
     '<div id="ka-body">' +
@@ -330,9 +337,10 @@
     '</div>' +
     '<div id="ka-botbar">' +
       '<div class="ka-botrow">' +
-        '<button id="ka-bot" type="button" aria-pressed="false" title="Start or stop automatic play">Bot: Off</button>' +
-        '<span id="ka-botstate">idle</span>' +
+        '<button id="ka-bot" type="button" aria-pressed="false" aria-describedby="ka-botnote" title="Plays whole dives for you: picks an answer, fills it and submits it. Use Pick and Mode to choose how.">Play for me: Off</button>' +
+        '<span id="ka-botstate">Off — you are playing</span>' +
       '</div>' +
+      '<p class="ka-botnote" id="ka-botnote">While Play for me is on, it drives the dive and pauses Dive on click.</p>' +
       '<div class="ka-botrow"><label for="ka-pick">Pick</label>' +
         '<select id="ka-pick">' +
           '<option value="random">Random 100-point answer</option>' +
@@ -348,7 +356,7 @@
           '<option value="duel">1 vs 1</option>' +
         '</select></div>' +
     '</div>' +
-    '<div id="ka-foot">Click an answer to fill the box. You press Enter to dive.</div>';
+    '<div id="ka-foot">Click an answer to fill the box, then press Enter to dive.</div>';
   document.body.appendChild(root);
 
   const $ = (id) => root.querySelector('#' + id);
@@ -363,18 +371,32 @@
     $('ka-toggle').setAttribute('aria-expanded', String(!state.collapsed));
   });
 
+  function footText() {
+    if (botActive) return 'Play for me is driving. Turn it off to play yourself.';
+    return state.autoEnter
+      ? 'Dive on click is ON — clicking an answer fills and submits it.'
+      : 'Click an answer to fill the box, then press Enter to dive.';
+  }
+  function renderAuto() {
+    const btn = $('ka-auto');
+    btn.setAttribute('aria-pressed', String(state.autoEnter));
+    btn.textContent = state.autoEnter ? 'Dive on click: On' : 'Dive on click: Off';
+    btn.disabled = botActive;
+    btn.setAttribute('aria-disabled', String(botActive));
+    btn.title = botActive
+      ? 'Unavailable while Play for me is on — it already submits answers for you.'
+      : 'When on, clicking an answer also submits it — no Enter needed.';
+    $('ka-foot').textContent = footText();
+  }
   function setAuto(on) {
     state.autoEnter = !!on;
     try { GM_setValue(AUTO_KEY, state.autoEnter); } catch (e) { /* no storage */ }
-    const btn = $('ka-auto');
-    btn.setAttribute('aria-pressed', String(state.autoEnter));
-    btn.textContent = state.autoEnter ? 'Auto: On' : 'Auto: Off';
-    $('ka-foot').textContent = state.autoEnter
-      ? 'Auto-enter is ON — clicking an answer dives immediately.'
-      : 'Click an answer to fill the box. You press Enter to dive.';
-    status(state.autoEnter
-      ? 'Auto-enter on — clicking an answer will dive.'
-      : 'Auto-enter off — you press Enter.', state.autoEnter ? 'ok' : '');
+    renderAuto();
+    if (!botActive) {
+      status(state.autoEnter
+        ? 'Dive on click on — clicking an answer will submit it.'
+        : 'Dive on click off — you press Enter.', state.autoEnter ? 'ok' : '');
+    }
   }
 
   try { state.autoEnter = !!GM_getValue(AUTO_KEY, false); } catch (e) { /* no storage */ }
@@ -450,7 +472,7 @@
     listEl.querySelectorAll('.ka-chip').forEach((b) => { b.dataset.filled = 'false'; });
     btn.dataset.filled = 'true';
     if (state.autoEnter && state.groups.length > 1) {
-      status('Several banks match — choose manually. Auto-enter paused for this prompt.', 'error');
+      status('Several banks match — choose manually. Dive on click is paused for this prompt.', 'error');
       return;
     }
     if (state.autoEnter) {
@@ -879,10 +901,15 @@
 
   function setBot(on) {
     bot.on = !!on;
+    botActive = bot.on;
     try { GM_setValue(BOT_KEY, bot.on); } catch (e) { /* no storage */ }
     const btn = document.getElementById('ka-bot');
     btn.setAttribute('aria-pressed', String(bot.on));
-    btn.textContent = bot.on ? 'Bot: On' : 'Bot: Off';
+    btn.textContent = bot.on ? 'Play for me: On' : 'Play for me: Off';
+    btn.title = bot.on
+      ? 'Playing dives for you. Click again to stop and take control.'
+      : 'Plays whole dives for you: picks an answer, fills it and submits it.';
+    renderAuto();
     if (bot.on) {
       botStatus('starting…');
       reportBot('bot-start', { note: bot.mode + ' / ' + bot.pick });
@@ -891,7 +918,7 @@
     } else {
       if (bot.timer) clearInterval(bot.timer);
       bot.timer = null;
-      botStatus('idle');
+      botStatus('Off — you are playing');
     }
   }
 
