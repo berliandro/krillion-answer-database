@@ -60,6 +60,7 @@
     netCache: new Map(),
     refusedAnswers: new Set(),
     refusalKey: '',
+    refusalActive: false,
   };
   const AUTO_KEY = 'krillion.autoEnter.v1';
   const seenDeals = {};   // promptId -> exact question text
@@ -486,6 +487,7 @@
     state.answers = [];
     state.groups = [];
     state.lastFilled = '';
+    state.refusalActive = false;
     render();
 
     // The first prompt can appear before preloading finishes — wait for it.
@@ -556,11 +558,53 @@
 
   function mode() {
     if (/^\/krillocity\/?$/.test(location.pathname)) return 'krillocity';
-    // The intro keeps "Play multiplayer" buttons in the DOM while hidden, so
-    // only count a visible multiplayer board / 1v1 surface.
-    if (isVisible('.kr-board-rows') || isVisible('.kr-over-multi')) return 'multiplayer';
+    // Live-verified: the multiplayer board (.kr-board-rows) exists only between
+    // rounds, so it cannot identify the mode while a prompt is being answered.
+    // The arena stage / main container is present for the whole room. The intro
+    // keeps "Play multiplayer" buttons hidden in the DOM, so never trust those.
+    if (isVisible('.kr-stage-multi') || isVisible('.kr-arena-main')
+        || isVisible('.kr-board-rows') || isVisible('.kr-over-multi')) return 'multiplayer';
     if (isVisible('.kr-duel-board') || /duel/i.test(location.hash)) return '1v1';
     return 'classic';
+  }
+
+  // Every observable game state, mapped from live play on 2026-11-23 (including
+  // the custom 6-second/50-prompt Marathon room). Order matters: the most
+  // specific / active states are checked first. See injection/STATES.md for the
+  // log / no-log decision attached to each state.
+  function gameState() {
+    if (visible('.kr-duel-board, .kd-play, .kd-versus, .kd-tab-rule, .kd-result-keys')) return 'duel';
+    if (isVisible('.kr-over') || isVisible('.kr-over-multi') || isVisible(SEL.row)) return 'results';
+    if (visible('.kr-guess-range, .kr-make-go')) return 'create-room';
+    if (visible('.kr-lobby-tab, .kr-room-row')) return 'lobby';
+    if (state.refusalActive) return 'refusal';
+    if (isVisible(SEL.prompt)) {
+      // In fast rooms the prompt appears ~3s BEFORE the input is mounted.
+      return visible(SEL.input) ? 'answering' : 'prompt-reveal';
+    }
+    if (visible('.kr-stage-multi, .kr-wait, .kr-board-head')) return 'arena-wait';
+    if (isVisible(SEL.intro) || visible('button.kr-begin')) return 'intro';
+    return 'loading-shell'; // cold load: article shell painted, game not mounted
+  }
+
+  // Snapshot of the answer input at the moment of a log event. This is the
+  // "state of the inputs" the archive needs to interpret an outcome.
+  function inputState() {
+    const el = document.querySelector(SEL.input);
+    if (!el) return { present: false, visible: false, disabled: null, readOnly: null, placeholder: '' };
+    return {
+      present: true,
+      visible: el.offsetParent !== null || el.getClientRects().length > 0,
+      disabled: !!el.disabled,
+      readOnly: !!el.readOnly,
+      placeholder: el.placeholder || '',
+    };
+  }
+
+  // Attach the observed game state + input state to every archive event so a
+  // reviewer can judge each outcome against the situation it happened in.
+  function ctx() {
+    return { game_state: gameState(), input_state: inputState(), mode: mode() };
   }
 
   async function reportScore(question, answer, points, tier) {
@@ -571,7 +615,7 @@
     try {
       await request('/api/evidence', {
         method: 'POST',
-        body: {
+        body: Object.assign(ctx(), {
           screen_prompt: state.question,
           chosen_bank: question,
           answer,
@@ -583,7 +627,7 @@
           group_count: state.groups.length,
           group_scores: state.groups.map((g) => Number(g.score || 0)),
           auto: state.autoEnter,
-        },
+        }),
       });
       status(points >= 100
         ? `${answer} scored 100 — logged.`
@@ -613,6 +657,7 @@
     const key = state.question + '\u0000' + answer + '\u0000' + line;
     if (state.refusalKey !== key) {
       state.refusalKey = key;
+      state.refusalActive = true;
       state.refusedAnswers.add(state.question + '\u0000' + answer);
       reportPrompt('refused', state.question, {
         candidates: candidateInfo(), chosen_bank: bank, answer,
@@ -621,16 +666,16 @@
       });
       request('/api/evidence', {
         method: 'POST',
-        body: {
+        body: Object.assign(ctx(), {
           screen_prompt: state.question, chosen_bank: bank, answer,
           outcome: 'refused', refusal: line.slice(0, 200),
-          mode: mode(), exact: state.exact,
+          exact: state.exact,
           group_count: state.groups.length, auto: state.autoEnter,
-        },
-      }).catch(() => queuePost('/api/evidence', {
+        }),
+      }).catch(() => queuePost('/api/evidence', Object.assign(ctx(), {
         screen_prompt: state.question, chosen_bank: bank, answer,
-        outcome: 'refused', refusal: line.slice(0, 200), mode: mode(),
-      }));
+        outcome: 'refused', refusal: line.slice(0, 200),
+      })));
       status(`“${answer}” was refused — logged for review.`, 'error');
     }
     state.lastFilled = '';
@@ -646,7 +691,11 @@
     const q = state.answerQuestion[answer] || state.question;
 
     const solo = document.querySelector(SEL.revealPoints);
-    const board = document.querySelector(SEL.board);
+    // The shared multiplayer board head shows OTHER players' scores (live-
+    // verified in the 5s/6s Marathon rooms). Parsing it as our verdict would
+    // attribute a stranger's points to our answer — forbidden by policy. Only
+    // the solo/classic reveal is authoritative for a per-answer score.
+    const board = mode() === 'classic' ? document.querySelector(SEL.board) : null;
     if (!solo && !board) return;
 
     let points = null;
@@ -682,13 +731,13 @@
   // ---- resilient posting -------------------------------------------------
   const QUEUE_KEY = 'krillion.pending.v1';
   function reportBot(event, extra) {
-    const body = Object.assign({ event, mode: bot.mode }, extra || {});
+    const body = Object.assign(ctx(), { event, mode: bot.mode }, extra || {});
     request('/api/bot-log', { method: 'POST', body, retries: 1 })
       .catch(() => queuePost('/api/bot-log', body));
   }
 
   function reportPrompt(kind, prompt, extra) {
-    const body = Object.assign({ kind, screen_prompt: prompt }, extra || {});
+    const body = Object.assign(ctx(), { kind, screen_prompt: prompt }, extra || {});
     request('/api/prompt-review', {
       method: 'POST', body, retries: 1,
     }).catch(() => queuePost('/api/prompt-review', body));
@@ -703,7 +752,7 @@
   }
 
   function reportMiss(prompt, reason, extra) {
-    const body = Object.assign({ prompt, reason }, extra || {});
+    const body = Object.assign(ctx(), { prompt, reason }, extra || {});
     request('/api/miss', {
       method: 'POST', body, retries: 1,
     }).catch(() => queuePost('/api/miss', body));

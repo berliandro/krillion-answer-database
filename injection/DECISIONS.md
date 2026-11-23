@@ -107,6 +107,22 @@ never modified.
    graded banks (`source: api`). Past `dom` rows were quarantined to
    `data/other_users_quarantine.jsonl`.
 
+6. **Log by state, not by frame.** Every game screen was mapped live on
+   2026-11-23 (including the slow-loading shell and a real 6-second / 50-prompt
+   Marathon room). Only decision-grade states are logged: answers (`answering`,
+   `verdict`, `refusal`), uncertain prompts (`prompt-reveal`), dive-end banks
+   (`results`), and bot choices (`lobby`, `duel`). Idle/transient frames
+   (`loading-shell`, `intro`, `create-room`, `arena-wait`) are NOT logged. The
+   full inventory and per-state rationale is in `STATES.md`; every event now
+   carries `game_state` + `input_state`.
+7. **Never read the shared board head as our score.** Live play showed the
+   multiplayer board head shows OTHER players' points ("X went deepest:
+   SCHOOLER (+30)"). `checkVerdict()` now parses `.kr-board-head` only in
+   classic mode; in multiplayer/1v1 only our own refusal/submit outcomes are
+   logged, never a scraped opponent score. `mode()` detects the persistent
+   arena container (`.kr-stage-multi`), because `.kr-board-rows` exists only
+   between rounds and mis-reported the mode while answering.
+
 ### "Process the log"
 
 When the user says **"process the log" in any session on this project**, it

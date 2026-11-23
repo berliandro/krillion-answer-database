@@ -253,7 +253,8 @@ def add_evidence(body):
         return {"ok": False, "error": "prompt or answer is required"}
     rec = {"at": now()}
     for key in ("screen_prompt", "chosen_bank", "answer", "points", "outcome",
-                "tier", "mode", "exact", "group_count", "group_scores", "auto", "refusal"):
+                "tier", "mode", "exact", "group_count", "group_scores", "auto", "refusal",
+                "game_state", "input_state"):
         if key in body:
             rec[key] = body[key]
     if "question" in body and "chosen_bank" not in rec:
@@ -273,7 +274,7 @@ def add_prompt_review(body):
         return {"ok": False, "error": "screen_prompt is required"}
     rec = {"at": now(), "kind": kind, "screen_prompt": prompt}
     for key in ("candidates", "chosen_bank", "answer", "points", "tier",
-                "mode", "exact", "auto", "refusal"):
+                "mode", "exact", "auto", "refusal", "game_state", "input_state"):
         if key in body:
             rec[key] = body[key]
     with PROMPT_REVIEW.open("a", encoding="utf-8") as f:
@@ -283,7 +284,8 @@ def add_prompt_review(body):
 
 def add_bot_log(body):
     rec = {"at": now()}
-    for key in ("event", "mode", "room", "detail", "count", "rooms", "note"):
+    for key in ("event", "mode", "room", "detail", "count", "rooms", "note",
+                "game_state", "input_state"):
         if key in body:
             rec[key] = body[key]
     with BOT_LOG.open("a", encoding="utf-8") as f:

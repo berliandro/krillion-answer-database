@@ -130,6 +130,12 @@ looks wrong. **Play scores never demote an answer** —
 the game AI-grades unknown answers inconsistently. Only the dive-end graded bank
 can change the rare tier; the policy is in `DECISIONS.md`.
 
+Every log event carries `game_state` (which of the game's screens was on screen)
+and `input_state` (was the answer box present, visible, enabled). The full
+live-mapped inventory — including the slow-loading shell and the 6-second /
+50-prompt Marathon room — and the log / no-log decision for each state is in
+**`STATES.md`**.
+
 When a prompt has no bank, the helper can fetch that prompt's real graded bank
 from `playdaily.org`, respecting the cooldown and de-duplicating. Disable with
 `KRILLION_NO_FETCH=1`. Queue: `/api/fetch-queue?t=krillion-local-v1`.
