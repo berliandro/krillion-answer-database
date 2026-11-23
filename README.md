@@ -44,7 +44,7 @@ git commit -m "Refresh static search index"
 git push
 ```
 
-GitHub Pages rebuilds from `main` within about a minute. The snapshot is about 130 KB raw (~35 KB gzipped) at 2,509 questions.
+GitHub Pages rebuilds from `main` within about a minute. The snapshot is about 358 KB raw (~93 KB gzipped) at 6,142 questions.
 
 ---
 
@@ -54,7 +54,7 @@ GitHub Pages rebuilds from `main` within about a minute. The snapshot is about 1
 | --- | --- | --- |
 | Full DB | Every answer to every prompt, with tier and source | Source of truth |
 | Search DB | One answer per question | What the all-answers site reads |
-| Krillion-only DB | Only the 17,876 One-in-a-Krillion answers | Source for the second site |
+| Krillion-only DB | Only the 21,384 One-in-a-Krillion answers | Source for the second site |
 
 The Search DB keeps the "One in a Krillion" answer when one exists; otherwise it keeps the shortest answer. It is rebuilt from the Full DB after every import.
 
@@ -97,7 +97,7 @@ On `data/paraphrase_tests.json` (36 paraphrases and hard negatives), the old lit
 | Site | Source | Contents |
 | --- | --- | --- |
 | `/` ([public search](https://berliandro.github.io/krillion-answer-database/)) | Search DB (one answer per question) | fast answer lookup while playing |
-| `/krillion/` (built by `build_krillion_site.py`) | Krillion-only DB | all 17,876 One-in-a-Krillion answers, grouped by prompt (2,507 groups), browsable and searchable |
+| `/krillion/` (built by `build_krillion_site.py`) | Krillion-only DB | all 21,384 One-in-a-Krillion answers, grouped by prompt (5,801 groups), browsable and searchable |
 
 Answers wrap to their content: short answers stay dense, long ones get room, and the column count follows the viewport. On the krillion site, every answer to a prompt stays in one group.
 
@@ -115,7 +115,7 @@ Both sites share one design: a matte graphite palette with fine paper grain, sem
 
 ## Edge autofill (PC only)
 
-On PC, a Tampermonkey userscript plus a small loopback helper (`injection/bridge.py`, port 8768) shows every known 100-point answer for the current prompt. It has an auto-fill toggle and a bot with Pick and Mode dropdowns. It records what it sees as evidence but never demotes an answer from gameplay scores — only the game's own graded bank is authoritative — and logs uncertain or rejected answers (with the game's refusal text) for later review. Setup and details are in `injection/README.md`.
+On PC, a Tampermonkey userscript plus a small loopback helper (`injection/bridge.py`, port 8768) shows every known 100-point answer for the current prompt. It has an auto-fill toggle and a bot with Pick and Mode dropdowns. It records what it sees as evidence but never demotes an answer from gameplay scores — only the game's own graded bank is authoritative — and logs uncertain or rejected answers (with the game's refusal text) for later review. Every log event is tagged with the game and input state it happened in; the full state inventory and per-state log/no-log decisions are in `injection/STATES.md`. Play scores from multiplayer/1v1 never enter the archive — the shared board shows other players' points. Setup and details are in `injection/README.md`.
 
 ## How we collected the data
 
@@ -150,6 +150,7 @@ data/       raw JSONL, Full DB, Search DB, Krillion-only DB, notes
 assets/     animated banner, static frame, final stats chart
 scripts/    harvesters, krillion_db.py, site_builder.py, build_static.py, build_krillion_site.py, build_webapp.py
 webapp/     local search server and UI
+injection/  PC-only autofill userscript + loopback bridge; README.md, DECISIONS.md, STATES.md, PROCESS-LOG.md, data/ logs
 site-template.html   the one HTML file to edit (palette, layout, shared code)
 index.html, search-data.json   static all-answers Pages site
 krillion/   second static site: every 100-point answer, krillion-only database snapshot

@@ -8,16 +8,17 @@ local archive.
 
 A userscript cannot read or write a local SQLite database. So:
 
-1. `krillion-autofill.user.js` runs in Chrome on `playdaily.org/krillion`.
+1. `krillion-autofill.user.js` runs in Chrome or Edge on `playdaily.org/krillion`.
 2. `bridge.py` runs on your PC at `127.0.0.1:8768`, reads `data/krillion_only.db`
-   (17,876 rare answers, read-only) and writes only inside `injection/`.
+   (21,384 rare answers, read-only) and writes its diagnostic logs under
+   `injection/data/`, plus `data/answers_injection.jsonl` for the importer.
 
 The userscript talks to the bridge with `GM_xmlhttpRequest` (`@connect 127.0.0.1`);
 it never embeds the data, so the script stays small.
 
 ## Install
 
-1. Install Tampermonkey in Chrome.
+1. Install Tampermonkey in Chrome or Edge.
 2. Start the bridge:
 
    ```powershell
@@ -42,10 +43,12 @@ it never embeds the data, so the script stays small.
   `requestSubmit()`, so the dive advances without a keypress. The setting is
   remembered between page loads. Use the **Auto** button in the panel header to
   switch it; the button turns green while active.
-- After submission it reads the score from `.kr-reveal-points` (solo) or
-  `.kr-board-head` (multiplayer/1v1) and **logs it as evidence only**. Play
-  scores never demote an answer; only the game's own dive-end bank is
-  authoritative (see `DECISIONS.md`).
+- After submission it reads the per-answer score from `.kr-reveal-points` in
+  Classic and **logs it as evidence only**. In multiplayer/1v1 the shared
+  `.kr-board-head` shows *other players'* points, so it is never scraped as our
+  score — only our own submit/refusal outcomes are logged. Play scores never
+  demote an answer; only the game's own dive-end bank is authoritative (see
+  `DECISIONS.md` and `STATES.md`).
 - At the end of a Classic dive it clicks the "Show answers" toggle and every
   row, then imports the revealed answers. It also captures the site's own
   `/api/krillion/answers` responses so complete tiers are recorded, not just
@@ -61,7 +64,7 @@ remembered between page loads.
 - **Pick** dropdown: `Random 100-point answer`, `Top of list`, or `God player` — mostly 85-point answers, with a 100-point answer every 7th submission. Exact 85 answers are used where the archive captured a graded bank; otherwise it falls back to non-100 answers from the full DB (correctly below 100, exact tier unknown).
 - **Mode** dropdown:
   - `Classic` — begin a Classic dive.
-  - `Multiplayer · 5s / 50 prompts` — joins the open `THE MARATHON · 5 SEC` room (50 prompts, 5s each) for fast coin farming.
+  - `Multiplayer · 5s / 50 prompts` — joins a 5-second Marathon room (`The Marathon · 5 sec`, 50 prompts) for fast coin farming.
   - `Multiplayer · most players` — joins the room with the highest player count in the lobby.
   - `Krillocity · daily race` — follows the "Play Krillocity" link to `/krillocity`, starts the daily race, and submits multiple distinct rare answers per rapid-fire prompt (the game asks you to "name as many as you can").
   - `1 vs 1` — starts a duel. The bot follows the real Colosseum screens: accepts the tab rule if shown, queues, waits silently on the match-found countdown, and queues another match after a result. It never clicks "Leave before it starts" or "Back to the arena".
@@ -93,16 +96,23 @@ The bridge never merges them:
 
 ## Files written by the bridge
 
-- `injection/data/corrections.jsonl` — answers demoted from the 100-point tier
-- `injection/data/learned.jsonl` — answers observed during play
+- `injection/data/evidence.jsonl` — every submitted answer, tagged with `game_state` / `input_state`
+- `injection/data/prompt_review.jsonl` — uncertain prompts, no-matches and refusals, with the exact on-screen wording
+- `injection/data/bot_log.jsonl` — bot mode starts and lobby room choices
+- `injection/data/failed_prompts.jsonl` — prompts with no bank and unreachable-bridge events
+- `injection/data/fetch_queue.jsonl` — missing prompts queued for bank fetch
+- `injection/data/corrections.jsonl` — answers demoted from the 100-point tier (authoritative bank data only)
+- `injection/data/learned.jsonl` — answers observed at dive end (own rows and the game's graded banks)
+- `data/answers_injection.jsonl` — new answer rows in the importer's format, mirrored outside `injection/` so the normal import can ingest them
 - `injection/CHANGELOG.md` — timestamped log of every change
 
-No existing database or file owned by the webapp optimizer is modified.
+No existing database or webapp-owned source file is modified; the rare-answers
+database is opened read-only.
 
 ## Health check / diagnosing a failed prompt
 
-Open this in Edge's address bar — if it returns JSON, the bridge is reachable
-from Edge itself:
+Open this in the address bar of the browser where you play — if it returns JSON,
+the bridge is reachable from that browser:
 
 ```
 http://127.0.0.1:8768/api/health?t=krillion-local-v1
@@ -130,18 +140,19 @@ looks wrong. **Play scores never demote an answer** —
 the game AI-grades unknown answers inconsistently. Only the dive-end graded bank
 can change the rare tier; the policy is in `DECISIONS.md`.
 
-Every log event carries `game_state` (which of the game's screens was on screen)
-and `input_state` (was the answer box present, visible, enabled). The full
-live-mapped inventory — including the slow-loading shell and the 6-second /
-50-prompt Marathon room — and the log / no-log decision for each state is in
-**`STATES.md`**.
+Every log event (`evidence.jsonl`, `prompt_review.jsonl`, `bot_log.jsonl`)
+carries `game_state` (the screen on screen — e.g. `prompt-reveal` before the
+input mounts, `answering` once it does), `input_state` (was the answer box
+present, visible and enabled) and `mode`. The full live-mapped inventory —
+including the slow-loading shell and the 6-second / 50-prompt Marathon room —
+and the log / no-log decision for each state is in **`STATES.md`**.
 
 When a prompt has no bank, the helper can fetch that prompt's real graded bank
 from `playdaily.org`, respecting the cooldown and de-duplicating. Disable with
 `KRILLION_NO_FETCH=1`. Queue: `/api/fetch-queue?t=krillion-local-v1`.
 
-The userscript retries each failed request up to 3 times with a 12-second
-timeout before showing an error.
+The userscript makes up to 3 attempts (2 retries) per request with a 12-second
+timeout before showing an error, then queues failed writes for the next run.
 
 **Other players are never recorded.** In multiplayer/1v1 only our own answers
 (`source: own`) and the game's own graded banks (`source: api`) enter the archive.

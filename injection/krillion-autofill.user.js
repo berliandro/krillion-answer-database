@@ -142,7 +142,7 @@
       --ka-surface:#1d2228; --ka-surface-2:#262d34;
       --ka-raised:#313a43; --ka-text:#eceee9; --ka-muted:#b4bcc0;
       --ka-accent:#e0ae6a; --ka-success:#9fc6a8; --ka-error:#e6a19a;
-      --ka-line:#343c44; --ka-line-strong:#4d5a63;
+      --ka-on-bg:#2c3a30; --ka-line:#343c44; --ka-line-strong:#4d5a63;
       position:fixed; top:18px; right:18px; z-index:2147483000;
       width:min(312px, calc(100vw - 24px));
       max-height:min(74vh,640px); display:flex; flex-direction:column;
@@ -159,11 +159,13 @@
         --ka-surface-2:oklch(0.35 0.016 250); --ka-raised:oklch(0.41 0.018 250);
         --ka-text:oklch(0.94 0.01 90); --ka-muted:oklch(0.78 0.018 250);
         --ka-accent:oklch(0.82 0.10 75); --ka-success:oklch(0.84 0.07 155);
+        --ka-on-bg:oklch(0.36 0.045 155);
         --ka-line:oklch(0.38 0.014 250); --ka-line-strong:oklch(0.49 0.016 250);
       }
     }
     @keyframes ka-in{from{opacity:0;transform:translate3d(8px,-6px,0) scale(.985)}to{opacity:1;transform:none}}
     @keyframes ka-in-quiet{from{opacity:0}to{opacity:1}}
+    @keyframes ka-pulse{0%,100%{opacity:.35}50%{opacity:1}}
     #ka-root::before{
       content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -188,37 +190,45 @@
       padding:3px 8px; font-size:11px; font-weight:650; line-height:1.2; flex:none;
     }
     #ka-count[hidden]{display:none}
-    #ka-toggle,#ka-auto{
+    #ka-toggle,#ka-auto,#ka-bot{
       appearance:none; background:var(--ka-surface-2); color:var(--ka-text);
       border:1px solid var(--ka-line-strong); border-radius:8px;
       padding:5px 10px; font:inherit; font-size:12px; line-height:1.2; cursor:pointer;
       transition:background-color .12s ease,border-color .12s ease;
     }
-    #ka-toggle:hover,#ka-auto:hover{background:var(--ka-raised);border-color:var(--ka-accent)}
-    #ka-toggle:active,#ka-auto:active{background:var(--ka-surface)}
-    #ka-toggle:focus-visible,#ka-auto:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
-    #ka-auto[aria-pressed="true"]{
-      background:#2c3a30; border-color:var(--ka-success); color:var(--ka-success);
+    /* Bot is the primary control on its bar: give it a touch more presence. */
+    #ka-bot{background:var(--ka-surface);font-weight:600}
+    #ka-toggle:hover,#ka-auto:hover,#ka-bot:hover{background:var(--ka-raised);border-color:var(--ka-accent)}
+    #ka-toggle:active,#ka-auto:active,#ka-bot:active{background:var(--ka-surface)}
+    #ka-toggle:focus-visible,#ka-auto:focus-visible,#ka-bot:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
+    #ka-auto[aria-pressed="true"],#ka-bot[aria-pressed="true"]{
+      background:var(--ka-on-bg); border-color:var(--ka-success); color:var(--ka-success);
     }
     #ka-body{padding:12px;overflow:auto;display:grid;gap:10px;min-height:0}
     #ka-root[data-collapsed="true"] #ka-body{display:none}
     #ka-status{
-      margin:0; color:var(--ka-muted); font-size:12px; line-height:1.45;
-      min-height:1.45em; display:flex; gap:8px; align-items:flex-start; text-wrap:pretty;
+      margin:0; color:var(--ka-muted); font-size:12.5px; line-height:1.4;
+      font-weight:500; min-height:1.4em; display:flex; gap:9px;
+      align-items:flex-start; text-wrap:pretty;
     }
     #ka-status::before{
-      content:""; width:6px; height:6px; border-radius:50%;
-      background:currentColor; flex:none; margin-top:6px; opacity:.85;
+      content:""; width:7px; height:7px; border-radius:50%;
+      background:currentColor; flex:none; margin-top:5px; opacity:.9;
     }
-    #ka-status[data-kind="ok"]{color:var(--ka-success)}
-    #ka-status[data-kind="error"]{color:var(--ka-error)}
+    #ka-status[data-kind="loading"]{color:var(--ka-accent)}
+    #ka-status[data-kind="loading"]::before{animation:ka-pulse 1.3s ease-in-out infinite}
+    #ka-status[data-kind="ok"]{color:var(--ka-success);font-weight:600}
+    #ka-status[data-kind="error"]{color:var(--ka-error);font-weight:600}
     #ka-list{display:grid;gap:2px;margin:0;padding:0;list-style:none;min-width:0}
     #ka-list>li{min-width:0}
     .ka-group{
+      /* Bank labels stay put while a long list scrolls, so the user never
+         loses which near-duplicate prompt an answer belongs to. */
+      position:sticky; top:12px; z-index:1;
       display:flex; justify-content:space-between; gap:8px; align-items:baseline;
       color:var(--ka-muted); font-size:11px; line-height:1.35; letter-spacing:.01em;
-      border-bottom:1px solid var(--ka-line); padding:8px 2px 6px; margin-top:6px;
-      text-wrap:balance;
+      background:var(--ka-surface); border-bottom:1px solid var(--ka-line);
+      padding:8px 2px 6px; margin-top:6px; text-wrap:balance;
     }
     .ka-group:first-child{margin-top:0}
     .ka-group .ka-group-name{color:var(--ka-muted);min-width:0}
@@ -240,7 +250,12 @@
     .ka-chip:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
     .ka-chip[data-filled="true"]{color:var(--ka-success);border-color:var(--ka-line-strong)}
     .ka-chip[data-filled="true"]::before{background:var(--ka-accent)}
-    .ka-empty{color:var(--ka-muted);font-size:12px;text-align:center;padding:18px 10px;margin:0;text-wrap:pretty}
+    .ka-empty{
+      color:var(--ka-muted); font-size:12px; line-height:1.5; text-align:center;
+      padding:20px 14px; margin:0; text-wrap:pretty;
+      background:var(--ka-surface-2); border:1px dashed var(--ka-line-strong);
+      border-radius:10px;
+    }
     #ka-foot{
       border-top:1px solid var(--ka-line); padding:9px 14px; color:var(--ka-muted);
       font-size:11px; line-height:1.4; flex:none; text-wrap:pretty;
@@ -253,19 +268,29 @@
     .ka-botrow{display:flex;align-items:center;gap:8px}
     .ka-botrow label{color:var(--ka-muted);font-size:11px;flex:none}
     .ka-botrow select{
-      flex:1; min-width:0; appearance:none; background:var(--ka-surface);
+      flex:1; min-width:0; appearance:none; cursor:pointer;
+      /* appearance:none removes the native arrow — draw a brass-free chevron
+         so the control still reads as a dropdown. */
+      background:var(--ka-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23b4bcc0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 9px center;
       color:var(--ka-text); border:1px solid var(--ka-line-strong);
-      border-radius:7px; padding:5px 7px; font:inherit; font-size:12px;
+      border-radius:7px; padding:5px 26px 5px 9px; font:inherit; font-size:12px;
     }
+    .ka-botrow select:hover{border-color:var(--ka-accent)}
     .ka-botrow select:focus-visible{outline:2px solid var(--ka-accent);outline-offset:1px}
-    #ka-bot[aria-pressed="true"]{background:#2c3a30;border-color:var(--ka-success);color:var(--ka-success)}
+    #ka-botstate{
+      flex:1; min-width:0; display:inline-flex; align-items:center; gap:6px;
+      color:var(--ka-muted); font-size:11.5px; line-height:1.3;
+      overflow-wrap:anywhere; text-wrap:pretty;
+    }
+    #ka-botstate::before{
+      content:""; width:6px; height:6px; border-radius:50%;
+      background:var(--ka-line-strong); flex:none;
+    }
+    #ka-bot[aria-pressed="true"] ~ #ka-botstate::before{background:var(--ka-success)}
     @media (pointer: coarse){
       .ka-botrow select{min-height:44px}
-      #ka-bot{min-height:44px}
-    }
-    @media (pointer: coarse){
-      .ka-chip{min-height:44px}
-      #ka-toggle,#ka-auto{min-height:44px;padding-inline:12px}
+      .ka-chip,#ka-toggle,#ka-auto,#ka-bot{min-height:44px}
+      #ka-toggle,#ka-auto,#ka-bot{padding-inline:12px}
     }
     @media (max-width: 560px){
       #ka-root{
@@ -276,13 +301,16 @@
       }
     }
     @media (forced-colors: active){
-      #ka-root,#ka-toggle,#ka-auto,.ka-chip{border:1px solid CanvasText}
-      .ka-chip[data-filled="true"]::before{background:Highlight}
-      #ka-toggle:focus-visible,#ka-auto:focus-visible,.ka-chip:focus-visible{outline:2px solid Highlight}
+      #ka-root,#ka-toggle,#ka-auto,#ka-bot,.ka-chip{border:1px solid CanvasText}
+      .ka-chip[data-filled="true"]::before,
+      #ka-bot[aria-pressed="true"] ~ #ka-botstate::before{background:Highlight}
+      #ka-toggle:focus-visible,#ka-auto:focus-visible,#ka-bot:focus-visible,.ka-chip:focus-visible{outline:2px solid Highlight}
     }
     @media (prefers-reduced-motion: reduce){
-      #ka-root{animation:ka-in-quiet .16s ease-out both}
-      .ka-chip,.ka-chip::before{transition:background-color .12s ease,color .12s ease}
+      #ka-root{animation:ka-in-quiet .12s ease-out both}
+      #ka-status[data-kind="loading"]::before{animation:none;opacity:1}
+      /* Keep all color feedback instant; drop every scripted transition. */
+      #ka-toggle,#ka-auto,#ka-bot,.ka-chip,.ka-chip::before,.ka-botrow select{transition:none}
     }
   `);
 
