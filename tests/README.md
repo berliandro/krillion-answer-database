@@ -36,6 +36,7 @@ non-zero if any test failed. Target runtime is under 60 seconds.
 | `site-js.site_inline_js_syntax` | `test_site_js.py` | Extracts every inline `<script>` block from `index.html`, `krillion/index.html`, and `webapp/index.html` into temporary `.js` files and runs `node --check` on each. |
 | `policy.policy_constants_and_pure_guard` | `test_policy.py` | Checks `scripts/config.py` policy constants, that `BANK_AUTHORITATIVE_MODES` and `PLAY_MODES` are disjoint, and that `derive.is_bank_authoritative()` accepts every bank-mode/removal-action combination while rejecting play modes and non-removal actions. Also validates the real corrections log. |
 | `policy.policy_demotion_probe` | `test_policy.py` | In-memory SQLite probe through `ingest.apply_bank_demotions()`: a play-mode record must not demote, a bank-mode record must demote. |
+| `modes.test_modes` | `test_modes.py` | Source-level regression assertions for the two mode fixes: classic dive-end bank capture is gated before restart (bounded wait, idempotency, one gated restart in the finalize helper) and Krillocity bursts rare-then-low-tier answers without the 700 ms throttle, with per-prompt dedupe and self-scheduled re-entry. Also re-checks the shared IDs, header credit and footer link. |
 
 ## Design notes
 
@@ -47,3 +48,8 @@ non-zero if any test failed. Target runtime is under 60 seconds.
 - Tests assert against the current repo state (with the generated DBs from
   `bootstrap.py --apply` present) and are deterministic: no random data, no live
   game API, no localhost 8768 traffic.
+- `tests/mode_harness.js` is a supplementary Node harness (not called by
+  `run_all.py`) that evaluates the userscript with stubbed GM/DOM globals and
+  functionally drives both mode contracts, including advancing fake timers to
+  prove the Krillocity burst submits distinct answers rapidly. Run it with
+  `node tests/mode_harness.js`.

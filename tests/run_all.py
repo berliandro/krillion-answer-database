@@ -25,6 +25,7 @@ MODULES = (
     ("userscript", "test_userscript"),
     ("site-js", "test_site_js"),
     ("policy", "test_policy"),
+    ("modes", "test_modes"),
 )
 
 

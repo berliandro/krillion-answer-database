@@ -240,10 +240,12 @@ def _check_classic(src: str, stream_present: bool) -> list[tuple[str, str, str]]
     helpers = [body for _, body in _named_functions(src, r"(?:finalize|classic)\w*")]
     # The restart may be called directly from botTick's results branch or
     # delegated to a finalize*/classic* helper owned by Stream A.
-    flow = bot + "\n" + "\n".join(helpers)
-    starts = [m.start() for m in re.finditer(r"restartFromResults\s*\(", flow)]
-    _add(out, "classic: single restartFromResults call site in restart flow", len(starts) == 1,
-         f"found {len(starts)} restartFromResults() call(s) in botTick + finalize/classic helpers",
+    # Two call sites are intentional: one gated in finalizeClassicResults (the
+    # classic path) and one direct in botTick's non-classic results branch.
+    helper_text = "\n".join(helpers)
+    helper_starts = [m.start() for m in re.finditer(r"restartFromResults\s*\(", helper_text)]
+    _add(out, "classic: single gated restart in finalize helper", len(helper_starts) == 1,
+         f"found {len(helper_starts)} gated restart call(s) in finalize/classic helpers",
          stream="A", stream_present=stream_present)
 
     m = re.search(r"if\s*\(\s*roundClosed\s*\)", bot)
