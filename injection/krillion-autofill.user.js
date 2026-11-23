@@ -279,278 +279,323 @@
   // ---- panel -------------------------------------------------------------
   GM_addStyle(`
     #ka-root{
-      /* Reference skin: a white card lifted off the dark game, with a soft
-         lavender→peach accent. All values are CSS variables for easy recall. */
-      --ka-ink:#302c3c;          /* bold dark titles */
-      --ka-ink-2:#6d6979;        /* muted grey secondary */
-      --ka-ink-3:#928da0;        /* quiet metadata */
-      --ka-surface:#ffffff;      /* card surfaces */
-      --ka-surface-2:#f5f4f8;    /* light grey tracks / grouped blocks */
-      --ka-surface-3:#fbfaff;
-      --ka-line:#ebe9f1;
-      --ka-line-strong:#ddd9e8;
-      --ka-accent:#8a6cc0;       /* lavender-violet */
-      --ka-accent-deep:#6547a3;  /* text-safe accent */
-      --ka-accent-soft:#f2edfb;
-      --ka-grad-a:#cdb1e6;
-      --ka-grad-b:#f7d9c9;
-      --ka-success:#2f7d5b;
-      --ka-success-soft:#e8f6ef;
-      --ka-error:#b04a4a;
-      --ka-error-soft:#fdeeee;
-      --ka-shadow:0 12px 32px rgba(52,38,78,.18), 0 2px 8px rgba(52,38,78,.08);
-      --ka-shadow-sm:0 2px 7px rgba(52,38,78,.10);
+      /* Reference skin: a lavender -> peach field carrying white, softly
+         shadowed cards. One violet accent; dark ink + muted grey copy. */
+      --ka-card:#ffffff;
+      --ka-track:#eeecf3;        --ka-track-hover:#e6e2ed;
+      --ka-ink:#34313d;          --ka-muted:#6e6a77;        --ka-faint:#8f8a9a;
+      --ka-accent:#7055bd;       --ka-accent-deep:#5a3fa6;  --ka-accent-soft:#f4effc;
+      --ka-success:#2e7d58;      --ka-success-soft:#e8f6ef;
+      --ka-error:#b4485a;        --ka-error-soft:#fdeeee;
+      --ka-line:#e7e3ee;         --ka-line-strong:#d4cfdd;
+      --ka-grad-a:#d9c9e7;       --ka-grad-mid:#ecd9e6;     --ka-grad-b:#f8e3d1;
+      --ka-shadow:0 6px 18px rgba(78,58,104,.14), 0 1px 3px rgba(78,58,104,.08);
+      --ka-shadow-sm:0 2px 6px rgba(78,58,104,.12);
+      /* Motion primitives shared by every animation in the motion lane. */
+      --ka-ease:cubic-bezier(.16,1,.3,1);
+      --ka-quick:130ms;          --ka-soft:200ms;
+      --ka-lift:0 6px 16px rgba(78,58,104,.18);
+      /* Monochrome mask icons: painted with background:currentColor so they
+         inherit text state, never load an image or a CDN. */
+      --ka-i-eye:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.2 12S5.8 5.5 12 5.5 21.8 12 21.8 12 18.2 18.5 12 18.5 2.2 12 2.2 12Z'/%3E%3Ccircle cx='12' cy='12' r='2.8'/%3E%3C/svg%3E");
+      --ka-i-bolt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13.5 2.5 4.8 13.2h6.4L9.6 21.5l9.6-11.2h-6.4l.7-7.8Z'/%3E%3C/svg%3E");
+      --ka-i-robot:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='8' width='17' height='12.5' rx='3.5'/%3E%3Cpath d='M12 4.6V8'/%3E%3Ccircle cx='12' cy='3.4' r='1.4'/%3E%3Ccircle cx='9' cy='13.2' r='1'/%3E%3Ccircle cx='15' cy='13.2' r='1'/%3E%3Cpath d='M9.5 16.7h5'/%3E%3C/svg%3E");
+      --ka-i-dice:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='3.5' y='3.5' width='17' height='17' rx='4'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.3' fill='%23000' stroke='none'/%3E%3Ccircle cx='15.5' cy='8.5' r='1.3' fill='%23000' stroke='none'/%3E%3Ccircle cx='12' cy='12' r='1.3' fill='%23000' stroke='none'/%3E%3Ccircle cx='8.5' cy='15.5' r='1.3' fill='%23000' stroke='none'/%3E%3Ccircle cx='15.5' cy='15.5' r='1.3' fill='%23000' stroke='none'/%3E%3C/svg%3E");
+      --ka-i-flag:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 21V3.8'/%3E%3Cpath d='M5.5 5h12.8l-2.6 3.6 2.6 3.6H5.5'/%3E%3C/svg%3E");
+      --ka-i-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.8 4.4 4.4L19 7.6'/%3E%3C/svg%3E");
       position:fixed; top:18px; right:18px; z-index:2147483000;
-      width:min(312px, calc(100vw - 24px));
-      max-height:min(74vh,640px); display:flex; flex-direction:column;
-      background:var(--ka-surface); border:1px solid var(--ka-line); border-radius:18px;
-      box-shadow:var(--ka-shadow);
-      color:var(--ka-ink); font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+      width:min(320px, calc(100vw - 24px));
+      max-height:min(78vh,660px); display:flex; flex-direction:column; gap:10px; padding:10px;
+      background:linear-gradient(158deg,var(--ka-grad-a) 0%,var(--ka-grad-mid) 46%,var(--ka-grad-b) 100%);
+      border:1px solid rgba(255,255,255,.7); border-radius:18px;
+      box-shadow:0 18px 44px rgba(86,62,112,.22), 0 2px 8px rgba(86,62,112,.10);
+      color:var(--ka-ink); font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
       font-variant-numeric:tabular-nums; overflow:hidden; overflow-wrap:anywhere;
-      caret-color:var(--ka-accent-deep);
-      animation:ka-in .24s cubic-bezier(.16,1,.3,1) both;
+      caret-color:var(--ka-accent);
+      animation:ka-in .28s var(--ka-ease) both;
     }
-    @keyframes ka-in{from{opacity:0;transform:translate3d(0,-6px,0) scale(.99)}to{opacity:1;transform:none}}
+    @keyframes ka-in{from{opacity:0;transform:translate3d(8px,-6px,0) scale(.985)}to{opacity:1;transform:none}}
     @keyframes ka-in-quiet{from{opacity:0}to{opacity:1}}
-    @keyframes ka-pulse{0%,100%{opacity:.35}50%{opacity:1}}
-    #ka-root ::selection{background:rgba(138,108,192,.22);color:var(--ka-ink)}
+    #ka-root ::selection{background:rgba(112,85,189,.22);color:var(--ka-ink)}
     #ka-root *{scrollbar-color:var(--ka-line-strong) transparent;scrollbar-width:thin}
     #ka-root *::-webkit-scrollbar{width:8px;height:8px}
     #ka-root *::-webkit-scrollbar-track{background:transparent}
-    #ka-root *::-webkit-scrollbar-thumb{background:var(--ka-line-strong);border-radius:99px;border:2px solid var(--ka-surface)}
-    /* Header: brand glyph + bold title / muted subtitle, count pill, quiet hide. */
-    #ka-head{
-      display:flex; align-items:flex-start; gap:9px; padding:14px 14px 13px;
-      flex:none; min-width:0; border-bottom:1px solid var(--ka-line);
-      background:linear-gradient(120deg, rgba(205,177,230,.20), rgba(247,217,201,.16));
+    #ka-root *::-webkit-scrollbar-thumb{background:var(--ka-line-strong);border-radius:99px;border:2px solid var(--ka-card)}
+    /* Each section reads as its own white card on the gradient field. */
+    #ka-head,#ka-body,.ka-botgroup,#ka-foot{
+      background:var(--ka-card); border:1px solid rgba(255,255,255,.85);
+      border-radius:13px; box-shadow:var(--ka-shadow);
     }
+    #ka-head{display:flex;align-items:center;gap:9px;padding:11px 12px;flex:none;min-width:0}
     .ka-brand{
-      flex:none; width:30px; height:30px; border-radius:10px;
-      display:grid; place-items:center; color:var(--ka-accent-deep);
+      flex:none; width:30px; height:30px; border-radius:9px; display:grid; place-items:center;
+      color:var(--ka-accent-deep);
       background:linear-gradient(135deg,var(--ka-grad-a),var(--ka-grad-b));
       box-shadow:var(--ka-shadow-sm);
     }
-    .ka-ico{width:13px;height:13px;flex:none;color:var(--ka-accent-deep)}
-    .ka-ico-brand{width:17px;height:17px}
-    .ka-heading{flex:1;min-width:0}
+    .ka-brand .ka-ico{width:16px;height:16px;color:inherit}
+    .ka-headtext{flex:1;min-width:0}
     #ka-title{
-      margin:0; font-size:14.5px; font-weight:700; letter-spacing:-.018em;
-      line-height:1.3; color:var(--ka-ink); text-wrap:balance;
+      margin:0; font-size:14px; font-weight:700; letter-spacing:-.015em; line-height:1.25;
+      color:var(--ka-ink); text-wrap:balance;
     }
-    .ka-subtitle{
-      margin:2px 0 0; font-size:11.5px; font-weight:450; line-height:1.35;
-      color:var(--ka-ink-2); text-wrap:pretty;
-    }
+    .ka-subtitle{margin:2px 0 0;font-size:11px;line-height:1.35;color:var(--ka-muted);text-wrap:pretty}
     #ka-count{
-      flex:none; align-self:flex-start; display:inline-flex; align-items:center; gap:4px;
-      background:linear-gradient(135deg,var(--ka-grad-a),var(--ka-grad-b));
-      color:#3b2b52; border:1px solid rgba(255,255,255,.8); border-radius:999px;
-      padding:3px 8px; font-size:11px; font-weight:700; line-height:1.2;
-      box-shadow:var(--ka-shadow-sm);
+      display:inline-flex; align-items:center; gap:5px; flex:none;
+      color:var(--ka-accent-deep); background:var(--ka-accent-soft);
+      border-radius:999px; padding:3px 8px; font-size:11px; font-weight:700; line-height:1.2;
     }
-    #ka-count::before{
-      content:""; width:10px; height:10px; flex:none; border-radius:50%;
-      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.6 9.8 6.2 14.4 8 9.8 9.8 8 14.4 6.2 9.8 1.6 8 6.2 6.2z' fill='%233b2b52'/%3E%3C/svg%3E") center/contain no-repeat;
-    }
+    #ka-count::before{content:"";width:8px;height:8px;flex:none;border-radius:50%;background:var(--ka-accent)}
     #ka-count[hidden]{display:none}
+    /* Hide is window chrome: a quiet pill with an eye glyph, not a primary action. */
     #ka-toggle{
-      appearance:none; flex:none; align-self:flex-start; cursor:pointer; font:inherit;
-      background:rgba(255,255,255,.85); color:var(--ka-ink-2);
-      border:1px solid var(--ka-line); border-radius:999px;
-      padding:4px 9px; font-size:11px; font-weight:600; line-height:1.3;
-      box-shadow:var(--ka-shadow-sm);
-      transition:background-color .16s ease,color .16s ease,border-color .16s ease;
+      appearance:none; display:inline-flex; align-items:center; gap:5px; flex:none;
+      background:var(--ka-track); color:var(--ka-muted); border:1px solid transparent;
+      border-radius:9px; padding:6px 9px; font:inherit; font-size:11px; font-weight:600; line-height:1;
+      cursor:pointer; -webkit-tap-highlight-color:transparent;
+      transition:background-color var(--ka-quick) ease,color var(--ka-quick) ease,
+                 transform var(--ka-quick) var(--ka-ease),box-shadow var(--ka-soft) var(--ka-ease);
     }
-    /* Toggles are white raised pills that sit on a light grey track. */
-    #ka-auto,#ka-bot{
-      appearance:none; cursor:pointer; font:inherit; font-size:12px; font-weight:650;
-      line-height:1.3; white-space:nowrap; color:var(--ka-ink);
-      background-color:#fff; background-repeat:no-repeat;
-      background-position:10px center; background-size:13px 13px;
-      border:1px solid var(--ka-line); border-radius:9px;
-      padding:7px 10px 7px 29px; box-shadow:var(--ka-shadow-sm);
-      transition:background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease;
+    /* Inline SVG icons inherit currentColor; mask icons are painted the same way. */
+    .ka-ico{display:inline-block;width:14px;height:14px;flex:none;color:var(--ka-accent-deep)}
+    .ka-ico-mask,#ka-toggle::before,.ka-chip[data-filled="true"]::after{
+      content:""; background:currentColor;
+      -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+      -webkit-mask-position:center; mask-position:center;
+      -webkit-mask-size:contain; mask-size:contain;
     }
-    #ka-auto{
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236d6979' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M5.5 3.5 18.3 11.6l-5.6 1.1-2.4 5.5z'/%3E%3C/svg%3E");
-      flex:none; min-width:132px;
+    .ka-ico-eye{-webkit-mask-image:var(--ka-i-eye);mask-image:var(--ka-i-eye)}
+    .ka-ico-bolt{-webkit-mask-image:var(--ka-i-bolt);mask-image:var(--ka-i-bolt)}
+    .ka-ico-robot{-webkit-mask-image:var(--ka-i-robot);mask-image:var(--ka-i-robot)}
+    .ka-ico-dice{-webkit-mask-image:var(--ka-i-dice);mask-image:var(--ka-i-dice)}
+    .ka-ico-flag{-webkit-mask-image:var(--ka-i-flag);mask-image:var(--ka-i-flag)}
+    .ka-ico-check{-webkit-mask-image:var(--ka-i-check);mask-image:var(--ka-i-check)}
+    #ka-toggle::before{-webkit-mask-image:var(--ka-i-eye);mask-image:var(--ka-i-eye)}
+    .ka-chip[data-filled="true"]::after{-webkit-mask-image:var(--ka-i-check);mask-image:var(--ka-i-check)}
+    #ka-toggle:hover{background:var(--ka-track-hover);color:var(--ka-ink)}
+    #ka-toggle:active{background:var(--ka-line)}
+    #ka-toggle:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
+    /* Segmented pill: a light grey track with a raised white selected pill. */
+    .ka-seg{
+      position:relative; appearance:none; flex:none; width:112px; margin-left:auto;
+      display:flex; align-items:stretch; padding:3px;
+      background:var(--ka-track); border:1px solid var(--ka-line); border-radius:10px;
+      box-shadow:inset 0 1px 2px rgba(78,58,104,.06);
+      font:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent;
+      transition:background-color var(--ka-quick) ease,
+                 transform var(--ka-quick) var(--ka-ease),box-shadow var(--ka-soft) var(--ka-ease);
     }
-    #ka-bot{
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236547a3' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M8 5.5 18 12 8 18.5z'/%3E%3C/svg%3E");
-      flex:none; min-width:128px; color:var(--ka-accent-deep); border-color:#dcd0ef;
+    .ka-seg-opt{
+      position:relative; z-index:1; flex:1; text-align:center; padding:6px 2px;
+      font-size:11px; font-weight:600; line-height:1; color:var(--ka-faint);
+      transition:color var(--ka-quick) ease;
     }
-    .ka-autorow{
-      display:flex; flex-wrap:wrap; align-items:center; gap:7px; min-width:0;
-      background:var(--ka-surface-2); border:1px solid var(--ka-line);
-      border-radius:12px; padding:5px 6px;
+    .ka-seg-thumb{
+      position:absolute; z-index:0; left:3px; top:3px; bottom:3px; width:calc(50% - 3px);
+      background:var(--ka-card); border-radius:7px;
+      box-shadow:0 1px 3px rgba(78,58,104,.20), 0 1px 1px rgba(78,58,104,.10);
+      transition:transform .2s var(--ka-ease);
     }
-    .ka-autolabel{flex:none;min-width:52px;color:var(--ka-ink-2);font-size:10.5px;font-weight:600;line-height:1.25}
-    #ka-auto:disabled{opacity:.55;cursor:not-allowed;background-color:var(--ka-surface-2)}
-    #ka-toggle:hover{background:#fff;color:var(--ka-ink)}
-    #ka-auto:hover:not(:disabled),#ka-bot:hover{background-color:var(--ka-surface-3);border-color:#cdbdea}
-    #ka-toggle:active,#ka-auto:active,#ka-bot:active{background-color:var(--ka-accent-soft)}
-    #ka-toggle:focus-visible,#ka-auto:focus-visible,#ka-bot:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
-    #ka-auto[aria-pressed="true"],#ka-bot[aria-pressed="true"]{
-      background-color:var(--ka-accent-soft); color:var(--ka-accent-deep);
-      border-color:#cdbdea; font-weight:700;
-    }
-    /* Body: each grouped block is a quiet, inset panel — not a nested card. */
-    #ka-body{padding:12px;overflow:auto;display:grid;gap:12px;min-height:0;background:var(--ka-surface)}
+    .ka-seg[data-on="false"] .ka-seg-opt[data-val="off"],
+    .ka-seg[data-on="true"] .ka-seg-opt[data-val="on"]{color:var(--ka-ink)}
+    .ka-seg[data-on="true"] .ka-seg-opt[data-val="on"]{color:var(--ka-accent-deep)}
+    .ka-seg[data-on="true"] .ka-seg-thumb{transform:translateX(100%)}
+    .ka-seg:hover{background:var(--ka-track-hover)}
+    .ka-seg:active .ka-seg-thumb{box-shadow:0 1px 2px rgba(78,58,104,.16)}
+    .ka-seg:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
+    .ka-seg:disabled{opacity:.55;cursor:not-allowed}
+    .ka-seg:disabled:hover{background:var(--ka-track)}
+    #ka-body{padding:11px 12px 12px;overflow:auto;display:grid;gap:8px;min-height:0;align-content:start}
     #ka-root[data-collapsed="true"] #ka-body{display:none}
-    .ka-card{
-      background:var(--ka-surface-3); border:1px solid var(--ka-line);
-      border-radius:13px; padding:11px;
-    }
-    .ka-status-card{
-      background:linear-gradient(120deg, rgba(242,237,251,.92), rgba(252,244,238,.78));
-      border-color:#e7dff3;
-    }
     .ka-section-head{
-      display:flex; align-items:center; gap:6px; margin:0 0 8px;
-      color:var(--ka-ink-2); font-size:11px; font-weight:650; line-height:1.3;
-      letter-spacing:.005em;
+      display:flex; align-items:center; gap:7px; margin:0;
+      color:var(--ka-muted); font-size:11px; font-weight:650; letter-spacing:.01em; line-height:1.3;
     }
     #ka-status{
-      margin:0; color:var(--ka-ink-2); font-size:12px; line-height:1.45;
-      font-weight:500; min-height:1.45em; display:flex; gap:8px;
+      margin:0; color:var(--ka-muted); font-size:12px; line-height:1.45;
+      font-weight:500; min-height:1.45em; display:flex; gap:9px;
       align-items:flex-start; text-wrap:pretty;
     }
     #ka-status::before{
-      content:""; width:9px; height:9px; border-radius:50%;
-      background:var(--ka-accent); flex:none; margin-top:4px;
-      box-shadow:0 0 0 3px var(--ka-accent-soft);
+      content:""; width:7px; height:7px; border-radius:50%;
+      background:currentColor; flex:none; margin-top:6px; opacity:.85;
     }
     #ka-status[data-kind="loading"]{color:var(--ka-accent-deep)}
-    #ka-status[data-kind="loading"]::before{animation:ka-pulse 1.3s ease-in-out infinite}
     #ka-status[data-kind="ok"]{color:var(--ka-success);font-weight:650}
-    #ka-status[data-kind="ok"]::before{background:var(--ka-success);box-shadow:0 0 0 3px var(--ka-success-soft)}
     #ka-status[data-kind="error"]{color:var(--ka-error);font-weight:650}
-    #ka-status[data-kind="error"]::before{background:var(--ka-error);box-shadow:0 0 0 3px var(--ka-error-soft)}
-    /* Chip field: a wrapping flex row, not a one-answer-per-line list.
-       Short answers share a line; long answers claim the full row. */
+    /* Chip field: a wrapping flex row — short answers pack two per row. */
     #ka-list{
       display:flex; flex-wrap:wrap; align-items:stretch; gap:6px;
       margin:0; padding:0; list-style:none; min-width:0;
     }
     #ka-list>li{min-width:0;max-width:100%}
     .ka-group{
-      /* Bank labels span their own row and stay put while the list scrolls,
-         so the user never loses which near-duplicate prompt an answer belongs to. */
+      /* Bank labels span their own row and stay put while the list scrolls. */
       flex:0 0 100%;
       position:sticky; top:0; z-index:2;
       display:flex; justify-content:space-between; gap:8px; align-items:center;
-      color:var(--ka-ink-2); font-size:11px; line-height:1.35; letter-spacing:.01em;
-      background:var(--ka-surface); border-bottom:1px solid var(--ka-line);
+      color:var(--ka-muted); font-size:10.5px; line-height:1.35; letter-spacing:.01em;
+      background:var(--ka-card); border-bottom:1px solid var(--ka-line);
       padding:6px 2px; margin-top:4px; text-wrap:balance;
     }
     .ka-group:first-child{margin-top:0}
-    .ka-group .ka-group-name{color:var(--ka-ink-2);min-width:0}
+    .ka-group .ka-group-name{color:var(--ka-muted);min-width:0}
     .ka-group .ka-match{
       color:var(--ka-accent-deep); background:var(--ka-accent-soft);
       border-radius:999px; padding:2px 7px; font-weight:700; flex:none;
     }
-    /* Every chip takes at least half a row, so two short answers pack together. */
     #ka-list>li:not(.ka-group):not(.ka-empty){flex:1 1 auto;min-width:calc(50% - 3px)}
-    /* Long answers opt out of pairing and read cleanly across the whole panel. */
     #ka-list>li.ka-wide{flex-basis:100%}
     .ka-chip{
       position:relative; appearance:none; display:flex; align-items:center;
-      width:100%; height:100%; min-width:0; min-height:36px; text-align:start; cursor:pointer;
-      background-color:#fff; color:var(--ka-ink); border:1px solid var(--ka-line);
-      border-radius:10px; padding:7px 10px; font:inherit; font-size:12.5px;
-      line-height:1.35; overflow-wrap:anywhere; box-shadow:0 1px 2px rgba(52,38,78,.05);
-      transition:background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease;
+      width:100%; height:100%; min-width:0; min-height:40px; text-align:start; cursor:pointer;
+      background:var(--ka-card); color:var(--ka-ink); border:1px solid var(--ka-line);
+      border-radius:9px; padding:8px 10px; font:inherit; font-size:12.5px;
+      line-height:1.35; overflow-wrap:anywhere; box-shadow:0 1px 2px rgba(78,58,104,.05);
+      transition:background-color var(--ka-quick) ease,border-color var(--ka-quick) ease,
+                 color var(--ka-quick) ease,transform var(--ka-quick) var(--ka-ease),
+                 box-shadow var(--ka-soft) var(--ka-ease);
     }
     .ka-chip::after{
-      content:""; position:absolute; inset-inline-end:8px; top:50%;
-      width:12px; height:12px; transform:translateY(-50%) scale(.6); opacity:0;
-      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5 6.2 11.7 13 5' fill='none' stroke='%236547a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
-      transition:opacity .16s ease,transform .16s ease;
+      content:""; position:absolute; right:9px; top:50%; width:12px; height:12px;
+      transform:translateY(-50%) scale(.6); opacity:0; color:var(--ka-accent-deep);
+      transition:opacity var(--ka-quick) ease,transform var(--ka-quick) var(--ka-ease);
     }
-    .ka-chip:hover{background-color:var(--ka-surface-3);border-color:#cdbdea;box-shadow:var(--ka-shadow-sm)}
-    .ka-chip:active{background-color:var(--ka-accent-soft)}
+    .ka-chip:hover{border-color:#c9bde3}
+    .ka-chip:active{background:var(--ka-accent-soft)}
     .ka-chip:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
     .ka-chip[data-filled="true"]{
-      background-color:var(--ka-accent-soft); color:var(--ka-accent-deep);
-      border-color:#cdbdea; font-weight:650; padding-inline-end:24px;
+      background:var(--ka-accent-soft); color:var(--ka-accent-deep);
+      border-color:var(--ka-accent); font-weight:650; padding-right:26px;
     }
     .ka-chip[data-filled="true"]::after{opacity:1;transform:translateY(-50%) scale(1)}
     .ka-empty{
       flex:0 0 100%;
-      color:var(--ka-ink-2); font-size:12px; line-height:1.5; text-align:center;
+      color:var(--ka-muted); font-size:12px; line-height:1.5; text-align:center;
       padding:20px 14px; margin:0; text-wrap:pretty;
-      background:var(--ka-surface-2); border:1px dashed var(--ka-line-strong);
-      border-radius:12px;
+      background:var(--ka-track); border:1px dashed var(--ka-line-strong);
+      border-radius:10px;
     }
-    #ka-botbar{
-      flex:none; margin:0 12px 8px; padding:11px; display:grid; gap:10px;
-      background:linear-gradient(180deg, #f7f6fa, #fbfaff);
-      border:1px solid var(--ka-line); border-radius:13px;
-    }
+    #ka-botbar{display:grid;gap:8px;flex:none;min-width:0}
     #ka-botbar[hidden]{display:none}
-    #ka-botdeps{display:grid;gap:8px;border-top:1px solid var(--ka-line);padding-top:9px;margin-top:1px}
+    .ka-botgroup{padding:11px 12px 12px;display:grid;gap:10px;min-width:0}
+    .ka-grouphead{display:grid;gap:2px}
+    .ka-grouptitle{font-size:12px;font-weight:700;line-height:1.3;color:var(--ka-ink)}
+    .ka-groupsub{color:var(--ka-muted);font-size:11px;line-height:1.4;text-wrap:pretty}
+    .ka-autorow{display:flex;align-items:center;gap:10px;min-width:0}
+    .ka-rowlabel{
+      display:inline-flex; align-items:center; gap:7px; flex:1; min-width:0;
+      color:var(--ka-ink); font-size:12px; font-weight:600; line-height:1.25;
+    }
+    .ka-rowlabel .ka-ico{color:var(--ka-accent)}
+    #ka-botdeps{display:grid;gap:8px;border-top:1px solid var(--ka-line);padding-top:10px;margin-top:1px}
     #ka-botdeps[hidden]{display:none}
-    .ka-botnote{margin:0;color:var(--ka-ink-2);font-size:10.5px;line-height:1.4;text-wrap:pretty}
-    .ka-botrow{display:flex;align-items:center;gap:8px}
+    .ka-botnote{
+      margin:0; color:var(--ka-muted); font-size:11px; line-height:1.45;
+      text-wrap:pretty; background:var(--ka-accent-soft); border-radius:8px; padding:8px 10px;
+    }
+    .ka-botrow{display:flex;align-items:center;gap:10px}
     .ka-botrow label{
-      display:inline-flex; align-items:center; gap:5px; flex:none; min-width:56px;
-      color:var(--ka-ink-2); font-size:11px; font-weight:600;
+      display:inline-flex; align-items:center; gap:7px; flex:none; min-width:52px;
+      color:var(--ka-ink); font-size:12px; font-weight:600;
     }
+    .ka-botrow label .ka-ico{color:var(--ka-accent)}
     .ka-botrow select{
-      flex:1; min-width:0; appearance:none; cursor:pointer;
-      /* appearance:none removes the native arrow — draw a quiet chevron. */
-      background-color:#fff;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.6 6 6.4 11 1.6' fill='none' stroke='%238a8496' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat:no-repeat; background-position:right 9px center; background-size:12px 8px;
-      color:var(--ka-ink); border:1px solid var(--ka-line-strong); border-radius:9px;
-      padding:7px 26px 7px 9px; font:inherit; font-size:11.5px; line-height:1.3;
-      box-shadow:0 1px 2px rgba(52,38,78,.05);
+      flex:1; min-width:0; appearance:none; cursor:pointer; display:block;
+      /* appearance:none removes the native arrow — draw a clean chevron. */
+      background:var(--ka-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%236e6a77' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+      color:var(--ka-ink); border:1px solid var(--ka-line-strong);
+      border-radius:9px; padding:7px 30px 7px 10px; font:inherit; font-size:12px;
+      box-shadow:inset 0 1px 2px rgba(78,58,104,.04);
     }
-    .ka-botrow select:hover{border-color:#cdbdea}
+    .ka-botrow select:hover{border-color:#c9bde3}
     .ka-botrow select:focus-visible{outline:2px solid var(--ka-accent);outline-offset:1px}
     #ka-botstate{
-      flex:1 1 100%; min-width:0; display:inline-flex; align-items:center; gap:6px;
-      color:var(--ka-ink-2); font-size:11px; line-height:1.35;
-      padding:2px 2px 0; overflow-wrap:anywhere; text-wrap:pretty;
+      flex:1; min-width:0; display:inline-flex; align-items:center; gap:7px;
+      color:var(--ka-muted); font-size:11.5px; line-height:1.35;
+      overflow-wrap:anywhere; text-wrap:pretty;
     }
     #ka-botstate::before{
-      content:""; width:6px; height:6px; border-radius:50%;
-      background:var(--ka-ink-3); flex:none;
+      content:""; width:7px; height:7px; border-radius:50%;
+      background:var(--ka-line-strong); flex:none;
     }
-    #ka-bot[aria-pressed="true"] ~ #ka-botstate::before{
+    #ka-botstate[data-active="true"]{color:var(--ka-success);font-weight:600}
+    #ka-botstate[data-active="true"]::before{
       background:var(--ka-success); box-shadow:0 0 0 3px var(--ka-success-soft);
     }
-    #ka-foot{
-      flex:none; padding:2px 14px 12px; color:var(--ka-ink-3);
-      font-size:10.5px; line-height:1.4; text-align:center; text-wrap:pretty;
-    }
-    #ka-foot a{color:var(--ka-accent-deep);text-decoration:none;font-weight:650}
+    #ka-foot{padding:9px 13px;color:var(--ka-muted);font-size:11px;line-height:1.4;flex:none;text-wrap:pretty}
+    #ka-foot a{color:var(--ka-accent-deep);text-decoration:none;font-weight:600}
     #ka-foot a:hover,#ka-foot a:focus-visible{text-decoration:underline}
     #ka-foot a:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px;border-radius:3px}
+    /* ---- motion lane: balanced, light feedback --------------------------
+       One authored arrival (the panel) plus short acknowledgements. Only
+       transform + opacity move; colour/border/shadow carry state. Every
+       animation reads the merged tokens above, so no var is undefined. */
+    @keyframes ka-surface-in{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:none}}
+    @keyframes ka-load-pulse{0%,100%{opacity:.4;transform:scale(.82)}50%{opacity:1;transform:scale(1.12)}}
+    @keyframes ka-count-in{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+    @keyframes ka-chip-in{from{opacity:0;transform:translate3d(0,5px,0)}to{opacity:1;transform:none}}
+    @keyframes ka-chip-set{0%{transform:scale(1)}45%{transform:scale(1.035)}100%{transform:scale(1)}}
+    @keyframes ka-dot-breathe{0%,100%{opacity:.6;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+    #ka-body{animation:ka-surface-in var(--ka-soft) var(--ka-ease) backwards}
+    #ka-status{transition:color var(--ka-soft) ease,opacity var(--ka-quick) ease}
+    #ka-status::before{transition:transform var(--ka-soft) var(--ka-ease)}
+    #ka-status[data-kind="ok"]::before,#ka-status[data-kind="error"]::before{transform:scale(1.2)}
+    #ka-status[data-kind="loading"]::before{animation:ka-load-pulse 1.6s ease-in-out infinite}
+    #ka-count:not([hidden]){animation:ka-count-in var(--ka-soft) var(--ka-ease) backwards}
+    #ka-list>li:not(.ka-group) .ka-chip{animation:ka-chip-in var(--ka-soft) var(--ka-ease) backwards}
+    #ka-list>li:nth-child(2) .ka-chip{animation-delay:18ms}
+    #ka-list>li:nth-child(3) .ka-chip{animation-delay:36ms}
+    #ka-list>li:nth-child(4) .ka-chip{animation-delay:54ms}
+    #ka-list>li:nth-child(5) .ka-chip{animation-delay:72ms}
+    #ka-list>li:nth-child(6) .ka-chip{animation-delay:90ms}
+    #ka-list>li:nth-child(7) .ka-chip{animation-delay:108ms}
+    #ka-list>li:nth-child(n+8) .ka-chip{animation-delay:126ms}
+    #ka-list>li.ka-empty{animation:ka-surface-in var(--ka-soft) var(--ka-ease) backwards}
+    .ka-chip:hover{transform:translate3d(0,-1px,0);box-shadow:var(--ka-lift)}
+    .ka-chip:active{transform:scale(.985);box-shadow:none}
+    .ka-chip[data-filled="true"]{animation:ka-chip-set 220ms var(--ka-ease) backwards}
+    #ka-toggle:active,#ka-seg:active{transform:scale(.97)}
+    #ka-seg[data-on="true"]{box-shadow:inset 0 1px 2px rgba(78,58,104,.10)}
+    #ka-botstate::before{transition:background-color var(--ka-soft) ease,transform var(--ka-soft) var(--ka-ease)}
+    #ka-botstate[data-active="true"]::before{animation:ka-dot-breathe 2s ease-in-out infinite}
+    #ka-botbar:not([hidden]){animation:ka-surface-in var(--ka-soft) var(--ka-ease) backwards}
     @media (pointer: coarse){
       .ka-botrow select{min-height:44px}
-      .ka-chip,#ka-toggle,#ka-auto,#ka-bot{min-height:44px}
-      #ka-toggle,#ka-auto,#ka-bot{padding-inline:12px}
+      .ka-chip,#ka-toggle,.ka-seg{min-height:44px}
+      #ka-toggle{padding-inline:12px}
+      .ka-seg{width:118px}
     }
     @media (max-width: 560px){
       #ka-root{
         top:max(10px, env(safe-area-inset-top));
         right:max(10px, env(safe-area-inset-right));
-        width:min(312px, calc(100vw - 20px));
-        max-height:min(78vh,600px);
+        width:min(320px, calc(100vw - 20px));
+        max-height:min(80vh,620px);
       }
     }
     @media (forced-colors: active){
-      #ka-root,#ka-toggle,#ka-auto,#ka-bot,.ka-chip,.ka-autorow,.ka-botrow select{border:1px solid CanvasText}
-      #ka-status::before,
-      #ka-bot[aria-pressed="true"] ~ #ka-botstate::before{background:Highlight}
-      #ka-toggle:focus-visible,#ka-auto:focus-visible,#ka-bot:focus-visible,.ka-chip:focus-visible{outline:2px solid Highlight}
+      #ka-root,#ka-toggle,.ka-seg,.ka-chip,.ka-botrow select{border:1px solid CanvasText}
+      .ka-seg-thumb{background:Canvas;box-shadow:none;border:1px solid CanvasText}
+      #ka-status::before,#ka-botstate[data-active="true"]::before{background:Highlight}
+      #ka-toggle:focus-visible,.ka-seg:focus-visible,.ka-chip:focus-visible,
+      .ka-botrow select:focus-visible{outline:2px solid Highlight}
     }
     @media (prefers-reduced-motion: reduce){
+      /* Collapse every motion-lane animation/transition to instant. State and
+         colour feedback (data-kind, data-on, data-active, data-filled) stays. */
       #ka-root{animation:ka-in-quiet .12s ease-out both}
-      #ka-status[data-kind="loading"]::before{animation:none;opacity:1}
-      /* Keep all color feedback instant; drop every scripted transition. */
-      #ka-toggle,#ka-auto,#ka-bot,.ka-chip,.ka-chip::after,.ka-botrow select{transition:none}
+      #ka-body,#ka-status,#ka-count:not([hidden]),
+      #ka-list>li:not(.ka-group) .ka-chip,#ka-list>li.ka-empty,
+      .ka-chip[data-filled="true"],#ka-botbar:not([hidden]),
+      #ka-status[data-kind="loading"]::before,
+      #ka-botstate[data-active="true"]::before{animation:none}
+      #ka-status[data-kind="loading"]::before{opacity:1;transform:none}
+      #ka-status[data-kind]::before{transform:none}
+      .ka-chip:hover,.ka-chip:active,#ka-toggle:active,#ka-seg:active,
+      #ka-auto:active:not(:disabled),#ka-bot:active{transform:none;box-shadow:none}
+      #ka-toggle,.ka-seg,.ka-seg-thumb,.ka-seg-opt,.ka-chip,.ka-chip::after,
+      .ka-botrow select,#ka-status,#ka-status::before,#ka-botstate::before{transition:none}
     }
   `);
 
@@ -572,49 +617,66 @@
   root.innerHTML =
     '<div id="ka-head">' +
       '<span class="ka-brand" aria-hidden="true">' + ICON.brand + '</span>' +
-      '<div class="ka-heading">' +
+      '<div class="ka-headtext">' +
         '<h2 id="ka-title">Krillion rare answers</h2>' +
-        '<p class="ka-subtitle">100-point answers</p>' +
+        '<p class="ka-subtitle">100-point answers, ready to dive.</p>' +
       '</div>' +
       '<span id="ka-count" hidden></span>' +
       '<button id="ka-toggle" type="button" aria-controls="ka-body" aria-expanded="true">Hide</button>' +
     '</div>' +
     '<div id="ka-body">' +
-      '<div class="ka-card ka-status-card">' +
-        '<p id="ka-status" role="status" aria-live="polite" aria-atomic="true" data-kind="loading">Connecting to local bridge…</p>' +
-      '</div>' +
-      '<div class="ka-answers">' +
-        '<div class="ka-section-head">' + ICON.list + '<span>Known answers</span></div>' +
-        '<ul id="ka-list"></ul>' +
-      '</div>' +
+      '<div class="ka-section-head">' + ICON.list + '<span>Known answers</span></div>' +
+      '<p id="ka-status" role="status" aria-live="polite" aria-atomic="true" data-kind="loading">Connecting to local bridge…</p>' +
+      '<ul id="ka-list"></ul>' +
     '</div>' +
     '<div id="ka-botbar">' +
-      '<div class="ka-section-head">' + ICON.sliders + '<span>Playback</span></div>' +
-      '<div class="ka-autorow">' + ICON.cursor +
-        '<span class="ka-autolabel">Manual</span>' +
-        '<button id="ka-auto" type="button" aria-pressed="false" title="When on, clicking an answer also submits it — no Enter needed.">Dive on click: Off</button>' +
+      '<div class="ka-botgroup">' +
+        '<div class="ka-grouphead">' +
+          '<span class="ka-grouptitle">Manual</span>' +
+          '<span class="ka-groupsub">Answer prompts yourself — click any answer to fill it in.</span>' +
+        '</div>' +
+        '<div class="ka-autorow">' +
+          '<span class="ka-rowlabel"><span class="ka-ico ka-ico-mask ka-ico-bolt"></span>Dive on click</span>' +
+          '<button id="ka-auto" class="ka-seg" type="button" aria-pressed="false" data-on="false" aria-label="Dive on click: Off" title="When on, clicking an answer also submits it — no Enter needed.">' +
+            '<span class="ka-seg-opt" data-val="off">Off</span>' +
+            '<span class="ka-seg-opt" data-val="on">On</span>' +
+            '<span class="ka-seg-thumb" aria-hidden="true"></span>' +
+          '</button>' +
+        '</div>' +
       '</div>' +
-      '<div class="ka-autorow">' + ICON.play +
-        '<span class="ka-autolabel">Auto-play</span>' +
-        '<button id="ka-bot" type="button" aria-pressed="false" aria-describedby="ka-botnote" title="Plays whole dives for you: picks an answer, fills it and submits it. Use Pick and Mode to choose how.">Play for me: Off</button>' +
-        '<span id="ka-botstate" title="Play for me is off — you answer prompts yourself.">Off · you are playing</span>' +
-      '</div>' +
-      '<p class="ka-botnote" id="ka-botnote">While Play for me is on, it drives the dive and pauses Dive on click.</p>' +
-      '<div id="ka-botdeps" hidden>' +
-        '<div class="ka-botrow"><label for="ka-pick">' + ICON.pick + 'Pick</label>' +
-          '<select id="ka-pick">' +
-            '<option value="random">Random 100-point answer</option>' +
-            '<option value="top">Top of list</option>' +
-            '<option value="god">God player · Gaussian mix, peak at 85</option>' +
-          '</select></div>' +
-        '<div class="ka-botrow"><label for="ka-mode">' + ICON.mode + 'Mode</label>' +
-          '<select id="ka-mode">' +
-            '<option value="classic">Classic</option>' +
-            '<option value="krillocity">Krillocity · daily race</option>' +
-            '<option value="marathon5">Multiplayer · 5s / 50 prompts</option>' +
-            '<option value="showoff">Multiplayer · most players</option>' +
-            '<option value="duel">1 vs 1</option>' +
-          '</select></div>' +
+      '<div class="ka-botgroup">' +
+        '<div class="ka-grouphead">' +
+          '<span class="ka-grouptitle">Auto-play</span>' +
+          '<span class="ka-groupsub">The bot fills and submits answers for you.</span>' +
+        '</div>' +
+        '<div class="ka-autorow">' +
+          '<span class="ka-rowlabel"><span class="ka-ico ka-ico-mask ka-ico-robot"></span>Play for me</span>' +
+          '<button id="ka-bot" class="ka-seg" type="button" aria-pressed="false" data-on="false" aria-describedby="ka-botnote" aria-label="Play for me: Off" title="Plays whole dives for you: picks an answer, fills it and submits it. Use Pick and Mode to choose how.">' +
+            '<span class="ka-seg-opt" data-val="off">Off</span>' +
+            '<span class="ka-seg-opt" data-val="on">On</span>' +
+            '<span class="ka-seg-thumb" aria-hidden="true"></span>' +
+          '</button>' +
+        '</div>' +
+        '<div class="ka-autorow">' +
+          '<span id="ka-botstate" data-active="false" title="Play for me is off — you answer prompts yourself.">Off · you are playing</span>' +
+        '</div>' +
+        '<p class="ka-botnote" id="ka-botnote">While Play for me is on, it drives the dive and pauses Dive on click.</p>' +
+        '<div id="ka-botdeps" hidden>' +
+          '<div class="ka-botrow"><label for="ka-pick"><span class="ka-ico ka-ico-mask ka-ico-dice"></span>Pick</label>' +
+            '<select id="ka-pick">' +
+              '<option value="random">Random 100-point answer</option>' +
+              '<option value="top">Top of list</option>' +
+              '<option value="god">God player · Gaussian mix, peak at 85</option>' +
+            '</select></div>' +
+          '<div class="ka-botrow"><label for="ka-mode"><span class="ka-ico ka-ico-mask ka-ico-flag"></span>Mode</label>' +
+            '<select id="ka-mode">' +
+              '<option value="classic">Classic</option>' +
+              '<option value="krillocity">Krillocity · daily race</option>' +
+              '<option value="marathon5">Multiplayer · 5s / 50 prompts</option>' +
+              '<option value="showoff">Multiplayer · most players</option>' +
+              '<option value="duel">1 vs 1</option>' +
+            '</select></div>' +
+        '</div>' +
       '</div>' +
     '</div>' +
     '<div id="ka-foot">Krillion rare answers · local archive · <a href="https://github.com/berliandro/krillion-answer-database" target="_blank" rel="noopener noreferrer">by berliandro · GitHub</a></div>';
@@ -627,7 +689,10 @@
   function renderAuto() {
     const btn = $('ka-auto');
     btn.setAttribute('aria-pressed', String(state.autoEnter));
-    btn.textContent = state.autoEnter ? 'Dive on click: On' : 'Dive on click: Off';
+    // The Off/On segments are static markup; only the selected state moves.
+    // Update the accessible label without overwriting the pill structure.
+    btn.dataset.on = String(state.autoEnter);
+    btn.setAttribute('aria-label', state.autoEnter ? 'Dive on click: On' : 'Dive on click: Off');
     btn.disabled = botActive;
     btn.setAttribute('aria-disabled', String(botActive));
     btn.title = botActive
@@ -1313,10 +1378,13 @@
     try { GM_setValue(BOT_KEY, bot.on); } catch (e) { /* no storage */ }
     const btn = document.getElementById('ka-bot');
     btn.setAttribute('aria-pressed', String(bot.on));
-    btn.textContent = bot.on ? 'Play for me: On' : 'Play for me: Off';
+    btn.dataset.on = String(bot.on);
+    btn.setAttribute('aria-label', bot.on ? 'Play for me: On' : 'Play for me: Off');
     btn.title = bot.on
       ? 'Playing dives for you. Click again to stop and take control.'
       : 'Plays whole dives for you: picks an answer, fills it and submits it.';
+    const stateEl = document.getElementById('ka-botstate');
+    if (stateEl) stateEl.dataset.active = String(bot.on);
     renderAuto();
     if (bot.on) {
       botStatus('starting…');
