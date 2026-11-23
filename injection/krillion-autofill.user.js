@@ -283,13 +283,13 @@
          shadowed cards. One violet accent; dark ink + muted grey copy. */
       --ka-card:#ffffff;
       --ka-track:#eeecf3;        --ka-track-hover:#e6e2ed;
-      --ka-ink:#34313d;          --ka-muted:#6e6a77;        --ka-faint:#8f8a9a;
+      --ka-ink:#34313d;          --ka-muted:#6e6a77;        --ka-faint:#76717f;
       --ka-accent:#7055bd;       --ka-accent-deep:#5a3fa6;  --ka-accent-soft:#f4effc;
       --ka-success:#2e7d58;      --ka-success-soft:#e8f6ef;
       --ka-error:#b4485a;        --ka-error-soft:#fdeeee;
       --ka-line:#e7e3ee;         --ka-line-strong:#d4cfdd;
-      --ka-grad-a:#d9c9e7;       --ka-grad-mid:#ecd9e6;     --ka-grad-b:#f8e3d1;
-      --ka-shadow:0 6px 18px rgba(78,58,104,.14), 0 1px 3px rgba(78,58,104,.08);
+      --ka-grad-a:#d9c9e7;       --ka-grad-mid:#e7d4e3;     --ka-grad-b:#f8e3d1;
+      --ka-shadow:0 8px 22px rgba(78,58,104,.13), 0 2px 5px rgba(78,58,104,.08);
       --ka-shadow-sm:0 2px 6px rgba(78,58,104,.12);
       /* Motion primitives shared by every animation in the motion lane. */
       --ka-ease:cubic-bezier(.16,1,.3,1);
@@ -305,9 +305,9 @@
       --ka-i-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.8 4.4 4.4L19 7.6'/%3E%3C/svg%3E");
       position:fixed; top:18px; right:18px; z-index:2147483000;
       width:min(320px, calc(100vw - 24px));
-      max-height:min(78vh,660px); display:flex; flex-direction:column; gap:10px; padding:10px;
-      background:linear-gradient(158deg,var(--ka-grad-a) 0%,var(--ka-grad-mid) 46%,var(--ka-grad-b) 100%);
-      border:1px solid rgba(255,255,255,.7); border-radius:18px;
+      max-height:min(78vh,660px); display:flex; flex-direction:column; gap:12px; padding:10px;
+      background:linear-gradient(168deg,var(--ka-grad-a) 0%,var(--ka-grad-mid) 46%,var(--ka-grad-b) 100%);
+      border:1px solid rgba(255,255,255,.7); border-radius:20px;
       box-shadow:0 18px 44px rgba(86,62,112,.22), 0 2px 8px rgba(86,62,112,.10);
       color:var(--ka-ink); font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
       font-variant-numeric:tabular-nums; overflow:hidden; overflow-wrap:anywhere;
@@ -324,7 +324,7 @@
     /* Each section reads as its own white card on the gradient field. */
     #ka-head,#ka-body,.ka-botgroup,#ka-foot{
       background:var(--ka-card); border:1px solid rgba(255,255,255,.85);
-      border-radius:13px; box-shadow:var(--ka-shadow);
+      border-radius:16px; box-shadow:var(--ka-shadow);
     }
     #ka-head{display:flex;align-items:center;gap:9px;padding:11px 12px;flex:none;min-width:0}
     .ka-brand{
@@ -378,8 +378,8 @@
     /* Segmented pill: a light grey track with a raised white selected pill. */
     .ka-seg{
       position:relative; appearance:none; flex:none; width:112px; margin-left:auto;
-      display:flex; align-items:stretch; padding:3px;
-      background:var(--ka-track); border:1px solid var(--ka-line); border-radius:10px;
+      display:flex; align-items:stretch; padding:4px;
+      background:var(--ka-track); border:1px solid var(--ka-line); border-radius:12px;
       box-shadow:inset 0 1px 2px rgba(78,58,104,.06);
       font:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent;
       transition:background-color var(--ka-quick) ease,
@@ -391,14 +391,15 @@
       transition:color var(--ka-quick) ease;
     }
     .ka-seg-thumb{
-      position:absolute; z-index:0; left:3px; top:3px; bottom:3px; width:calc(50% - 3px);
-      background:var(--ka-card); border-radius:7px;
+      position:absolute; z-index:0; left:4px; top:4px; bottom:4px; width:calc(50% - 4px);
+      background:var(--ka-card); border-radius:9px;
       box-shadow:0 1px 3px rgba(78,58,104,.20), 0 1px 1px rgba(78,58,104,.10);
       transition:transform .2s var(--ka-ease);
     }
     .ka-seg[data-on="false"] .ka-seg-opt[data-val="off"],
     .ka-seg[data-on="true"] .ka-seg-opt[data-val="on"]{color:var(--ka-ink)}
-    .ka-seg[data-on="true"] .ka-seg-opt[data-val="on"]{color:var(--ka-accent-deep)}
+    /* The reference keeps the selected label charcoal; violet stays a restrained
+       accent (count, links, focus, chosen answers), not the pill's text colour. */
     .ka-seg[data-on="true"] .ka-seg-thumb{transform:translateX(100%)}
     .ka-seg:hover{background:var(--ka-track-hover)}
     .ka-seg:active .ka-seg-thumb{box-shadow:0 1px 2px rgba(78,58,104,.16)}
