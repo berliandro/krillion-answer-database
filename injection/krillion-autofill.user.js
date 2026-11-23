@@ -197,8 +197,13 @@
       padding:5px 10px; font:inherit; font-size:12px; line-height:1.2; cursor:pointer;
       transition:background-color .12s ease,border-color .12s ease;
     }
-    /* Play for me is the primary control; Dive on click is a manual assist. */
-    #ka-bot{background:var(--ka-surface);font-weight:600}
+    /* Hide is window chrome, not an action: keep it quiet in the header. */
+    #ka-toggle{padding:4px 8px;font-size:11px;color:var(--ka-muted)}
+    /* Both automation toggles share one group; Play for me is the primary. */
+    #ka-bot{background:var(--ka-surface);font-weight:600;flex:none;min-width:126px}
+    #ka-auto{flex:none;min-width:118px}
+    .ka-autorow{display:flex;align-items:center;gap:8px;min-width:0}
+    .ka-autolabel{flex:none;min-width:62px;color:var(--ka-muted);font-size:11px;line-height:1.3}
     #ka-auto:disabled{opacity:.55;cursor:not-allowed}
     #ka-auto:disabled:hover{background:var(--ka-surface-2);border-color:var(--ka-line-strong)}
     #ka-toggle:hover,#ka-auto:hover:not(:disabled),#ka-bot:hover{background:var(--ka-raised);border-color:var(--ka-accent)}
@@ -268,6 +273,11 @@
       display:grid; gap:8px; background:var(--ka-surface-2);
     }
     #ka-botbar[hidden]{display:none}
+    #ka-botdeps{
+      display:grid; gap:6px; border-top:1px solid var(--ka-line);
+      padding-top:8px; margin-top:2px;
+    }
+    #ka-botdeps[hidden]{display:none}
     .ka-botnote{
       margin:0; color:var(--ka-muted); font-size:11px; line-height:1.4;
       text-wrap:pretty;
@@ -328,7 +338,6 @@
     '<div id="ka-head">' +
       '<h2 id="ka-title">Krillion rare answers</h2>' +
       '<span id="ka-count" hidden></span>' +
-      '<button id="ka-auto" type="button" aria-pressed="false" title="When on, clicking an answer also submits it — no Enter needed.">Dive on click: Off</button>' +
       '<button id="ka-toggle" type="button" aria-controls="ka-body" aria-expanded="true">Hide</button>' +
     '</div>' +
     '<div id="ka-body">' +
@@ -336,27 +345,34 @@
       '<ul id="ka-list"></ul>' +
     '</div>' +
     '<div id="ka-botbar">' +
-      '<div class="ka-botrow">' +
+      '<div class="ka-autorow">' +
+        '<span class="ka-autolabel">Manual</span>' +
+        '<button id="ka-auto" type="button" aria-pressed="false" title="When on, clicking an answer also submits it — no Enter needed.">Dive on click: Off</button>' +
+      '</div>' +
+      '<div class="ka-autorow">' +
+        '<span class="ka-autolabel">Auto-play</span>' +
         '<button id="ka-bot" type="button" aria-pressed="false" aria-describedby="ka-botnote" title="Plays whole dives for you: picks an answer, fills it and submits it. Use Pick and Mode to choose how.">Play for me: Off</button>' +
         '<span id="ka-botstate">Off — you are playing</span>' +
       '</div>' +
       '<p class="ka-botnote" id="ka-botnote">While Play for me is on, it drives the dive and pauses Dive on click.</p>' +
-      '<div class="ka-botrow"><label for="ka-pick">Pick</label>' +
-        '<select id="ka-pick">' +
-          '<option value="random">Random 100-point answer</option>' +
-          '<option value="top">Top of list</option>' +
-          '<option value="god">God player · mostly 85, 1-in-7 at 100</option>' +
-        '</select></div>' +
-      '<div class="ka-botrow"><label for="ka-mode">Mode</label>' +
-        '<select id="ka-mode">' +
-          '<option value="classic">Classic</option>' +
-          '<option value="krillocity">Krillocity · daily race</option>' +
-          '<option value="marathon5">Multiplayer · 5s / 50 prompts</option>' +
-          '<option value="showoff">Multiplayer · most players</option>' +
-          '<option value="duel">1 vs 1</option>' +
-        '</select></div>' +
+      '<div id="ka-botdeps" hidden>' +
+        '<div class="ka-botrow"><label for="ka-pick">Pick</label>' +
+          '<select id="ka-pick">' +
+            '<option value="random">Random 100-point answer</option>' +
+            '<option value="top">Top of list</option>' +
+            '<option value="god">God player · mostly 85, 1-in-7 at 100</option>' +
+          '</select></div>' +
+        '<div class="ka-botrow"><label for="ka-mode">Mode</label>' +
+          '<select id="ka-mode">' +
+            '<option value="classic">Classic</option>' +
+            '<option value="krillocity">Krillocity · daily race</option>' +
+            '<option value="marathon5">Multiplayer · 5s / 50 prompts</option>' +
+            '<option value="showoff">Multiplayer · most players</option>' +
+            '<option value="duel">1 vs 1</option>' +
+          '</select></div>' +
+      '</div>' +
     '</div>' +
-    '<div id="ka-foot">Click an answer to fill the box, then press Enter to dive.</div>';
+    '<div id="ka-foot">Krillion rare answers · local archive</div>';
   document.body.appendChild(root);
 
   const $ = (id) => root.querySelector('#' + id);
@@ -372,10 +388,8 @@
   });
 
   function footText() {
-    if (botActive) return 'Play for me is driving. Turn it off to play yourself.';
-    return state.autoEnter
-      ? 'Dive on click is ON — clicking an answer fills and submits it.'
-      : 'Click an answer to fill the box, then press Enter to dive.';
+    // Provenance only — the status line and the controls already state the mode.
+    return 'Krillion rare answers · local archive';
   }
   function renderAuto() {
     const btn = $('ka-auto');
@@ -902,6 +916,8 @@
   function setBot(on) {
     bot.on = !!on;
     botActive = bot.on;
+    const deps = document.getElementById('ka-botdeps');
+    if (deps) deps.hidden = !bot.on;
     try { GM_setValue(BOT_KEY, bot.on); } catch (e) { /* no storage */ }
     const btn = document.getElementById('ka-bot');
     btn.setAttribute('aria-pressed', String(bot.on));
