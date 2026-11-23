@@ -33,6 +33,10 @@ FULL_DB = DATA_DIR / "krillion_full.db"
 # Optional manifest written by the build worker. Absent or unparseable is fine:
 # clients then fall back to the legacy, version-less behaviour.
 MANIFEST = DATA_DIR / "manifest.json"
+# Compact low-tier snapshot (built by the build worker). Optional: when it is
+# missing or corrupt, /api/all-tier computes the same rows on demand instead so
+# fresh clones work before bootstrap.
+TIER_DATA = DATA_DIR / "tier-data.json"
 # New answers are also mirrored here so the optimizer's krillion_db.py import
 # can ingest them into the authoritative full DB and rebuild the derived DBs.
 IMPORT_JSONL = DATA_DIR / "answers_injection.jsonl"
@@ -221,6 +225,10 @@ PERF = {
 
 
 _MANIFEST_CACHE = None  # (cache_key, parsed_dict_or_None)
+# (cache_key, (version, etag, rows) or None) for data/tier-data.json. A None
+# cached value means "no usable snapshot" — callers then use the on-demand
+# fallback rather than treating a missing file as an error.
+_TIER_SNAPSHOT_CACHE = None
 
 
 def load_manifest():
@@ -500,6 +508,105 @@ def tier_answers(question):
         "ORDER BY answer COLLATE NOCASE LIMIT 20", (question,)
     ).fetchall()
     return rare, [a for (a,) in rows], False
+
+
+def _load_tier_snapshot():
+    """Return (version, etag, rows) from data/tier-data.json, else None.
+
+    Cached by mtime_ns + size (microsecond-safe, same idea as cached_learned
+    and load_manifest). A missing/unreadable/malformed file is NOT an error:
+    return None so callers compute the rows on demand with version 0. The
+    build worker creates this file in parallel, so it may not exist yet.
+    """
+    global _TIER_SNAPSHOT_CACHE
+    try:
+        st = TIER_DATA.stat()
+        key = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        key = None
+    with CACHE_LOCK:
+        if _TIER_SNAPSHOT_CACHE is not None and _TIER_SNAPSHOT_CACHE[0] == key:
+            return _TIER_SNAPSHOT_CACHE[1]
+        result = None
+        if key is not None:
+            try:
+                raw = TIER_DATA.read_bytes()
+                payload = json.loads(raw.decode("utf-8"))
+                version = payload.get("version")
+                rows = payload.get("rows")
+                if (isinstance(payload, dict)
+                        and isinstance(version, int) and not isinstance(version, bool)
+                        and isinstance(rows, list)
+                        and all(
+                            isinstance(r, (list, tuple)) and len(r) == 2
+                            and isinstance(r[0], str) and isinstance(r[1], list)
+                            for r in rows
+                        )):
+                    result = (version, hashlib.sha256(raw).hexdigest(),
+                              [[r[0], list(r[1])] for r in rows])
+            except (OSError, ValueError, TypeError, UnicodeDecodeError):
+                result = None
+        _TIER_SNAPSHOT_CACHE = (key, result)
+        return result
+
+
+def _compute_tier_rows():
+    """Compute low-tier snapshot rows on demand (mirrors the build worker).
+
+    For every question in the FULL DB with non-krillion answers, take up to 20
+    of those answers ORDER BY answer COLLATE NOCASE. Prepend the exact DEEP CUT
+    answers from learned.jsonl (tierIndex 4 / tier "DEEP CUT" / points 85),
+    dedupe keeping first occurrence (so DEEP CUT wins), cap at 20, and order
+    the final rows by question. Same logic the snapshot builder uses, so the
+    fallback is byte-for-byte equivalent before the snapshot exists.
+    """
+    deepcut = {}
+    for r in cached_learned():
+        question = r.get("question")
+        answer = r.get("answer")
+        if not question or not answer:
+            continue
+        if (r.get("tierIndex") == 4 or r.get("tier") == "DEEP CUT"
+                or r.get("points") == 85):
+            bucket = deepcut.setdefault(question, [])
+            if answer not in bucket:
+                bucket.append(answer)
+
+    c = db_conn(FULL_DB)
+    questions = [r[0] for r in c.execute(
+        "SELECT DISTINCT question FROM answers WHERE is_krillion=0 ORDER BY question"
+    )]
+    rows = []
+    for question in questions:
+        db_answers = [a for (a,) in c.execute(
+            "SELECT answer FROM answers INDEXED BY idx_answers_question "
+            "WHERE question=? AND is_krillion=0 "
+            "ORDER BY answer COLLATE NOCASE LIMIT 20", (question,)
+        )]
+        merged = []
+        seen = set()
+        for answer in deepcut.get(question, []) + db_answers:
+            if answer in seen:
+                continue
+            seen.add(answer)
+            merged.append(answer)
+            if len(merged) >= 20:
+                break
+        if merged:
+            rows.append([question, merged])
+    return rows
+
+
+def all_tier_payload():
+    """Return (version, etag, rows) for the low-tier preload snapshot.
+
+    Serve data/tier-data.json when present and valid; otherwise compute the
+    identical rows on demand and report version 0 (old clones, pre-bootstrap).
+    """
+    snapshot = _load_tier_snapshot()
+    if snapshot is not None:
+        return snapshot
+    return 0, "0", _compute_tier_rows()
 
 
 def add_evidence(body):
@@ -892,6 +999,12 @@ class Handler(BaseHTTPRequestHandler):
             if etag is not None:
                 resp["etag"] = etag
             self._send(200, resp)
+            return
+        if parsed.path == "/api/all-tier":
+            version, etag, rows = all_tier_payload()
+            self._send(200, {
+                "ok": True, "version": version, "etag": etag, "data": rows,
+            })
             return
         if parsed.path == "/api/prompt-review":
             self._send(200, {"ok": True, "prompts": read_jsonl(PROMPT_REVIEW)[-200:]})

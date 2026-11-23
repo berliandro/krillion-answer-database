@@ -252,6 +252,161 @@ def _v2_payloads() -> dict[str, list]:
     return {cfg.V2_SEARCH_JSON: search, cfg.V2_KRILLION_JSON: krillion}
 
 
+# ---------------------------------------------------------------------------
+# God-mode low-tier snapshot (see injection/GOD-PRELOAD-CONTRACT.md, frozen).
+# The rows mirror bridge.tier_answers()'s fallback SQL, with exact DEEP CUT
+# answers from learned.jsonl merged ahead of them. Nothing here writes to the
+# Full DB or to any data log; the snapshot is a pure derived artefact.
+# ---------------------------------------------------------------------------
+TIER_ANSWER_LIMIT = 20
+_TIER_SQL = (
+    "SELECT answer FROM answers INDEXED BY idx_answers_question "
+    "WHERE question=? AND is_krillion=0 "
+    "ORDER BY answer COLLATE NOCASE LIMIT 20"
+)
+_TIER_BY_TEXT = {
+    "PLANKTON": 10, "TOO CLEVER": 15, "SCHOOLER": 30,
+    "RARE": 60, "DEEP CUT": 85, "ONE IN A KRILLION": 100,
+}
+
+
+def _grade(rec: dict) -> int | None:
+    """The six-grade point value of a learned.jsonl record, if graded.
+
+    tierIndex takes priority, then tier text, then the points field — the same
+    order as injection/GOD-DISTRIBUTION.md. Ungraded records return None and
+    are treated exactly like any other unknown low answer.
+    """
+    idx = rec.get("tierIndex")
+    if isinstance(idx, bool):
+        idx = None
+    if isinstance(idx, int) and 0 <= idx <= 5:
+        return cfg.TIER_POINTS[idx]
+    if isinstance(idx, str) and idx.strip().isdigit() and int(idx) <= 5:
+        return cfg.TIER_POINTS[int(idx)]
+    tier = str(rec.get("tier") or "").strip().upper()
+    for sep in ("-", "_"):
+        tier = tier.replace(sep, " ")
+    tier = " ".join(tier.split())
+    if tier in _TIER_BY_TEXT:
+        return _TIER_BY_TEXT[tier]
+    points = rec.get("points")
+    if isinstance(points, bool):
+        return None
+    if isinstance(points, int) and points in cfg.TIER_POINTS:
+        return points
+    if isinstance(points, str) and points.strip().isdigit():
+        value = int(points)
+        if value in cfg.TIER_POINTS:
+            return value
+    return None
+
+
+def _learned_grades() -> dict[tuple[str, str], int]:
+    """(question, answer) -> graded points; first graded row wins."""
+    grades: dict[tuple[str, str], int] = {}
+    for rec in derive.read_jsonl(cfg.LEARNED):
+        points = _grade(rec)
+        if points is not None:
+            grades.setdefault((rec.get("question"), rec.get("answer")), points)
+    return grades
+
+
+def _krillion_pairs() -> set[tuple[str, str]]:
+    """(question, answer) rows explicitly graded as 100 in the Full DB."""
+    with sqlite3.connect(f"file:{cfg.FULL_DB.as_posix()}?mode=ro", uri=True) as c:
+        return set(c.execute(
+            "SELECT question, answer FROM answers WHERE is_krillion=1"
+        ))
+
+
+def _answer_points(question, answer, grades, krillion) -> int | None:
+    # Learned grades win over the archive flag; unknown low answers stay null
+    # (the userscript maps null onto the 85pt Deep Cut bucket).
+    graded = grades.get((question, answer))
+    if graded is not None:
+        return graded
+    return 100 if (question, answer) in krillion else None
+
+
+def _exact_deepcut() -> dict[str, list[str]]:
+    """question -> exact 85-point answers, in learned.jsonl order.
+
+    The tier predicate is copied verbatim from bridge.tier_answers(). Empty
+    answers are dropped there too, so drop them here as well.
+    """
+    by_question: dict[str, list[str]] = {}
+    for rec in derive.read_jsonl(cfg.LEARNED):
+        if not (
+            rec.get("tierIndex") == 4
+            or rec.get("tier") == "DEEP CUT"
+            or rec.get("points") == 85
+        ):
+            continue
+        answer = rec.get("answer", "")
+        if not answer:
+            continue
+        by_question.setdefault(rec.get("question"), []).append(answer)
+    return by_question
+
+
+def tier_rows() -> list[list]:
+    """Build the deterministic [[question, [[answer, points], ...]], ...] rows.
+
+    Answer selection is unchanged from schema 1 (DB fallback order plus exact
+    DEEP CUT answers first, deduped, capped at 20); only the point tags are new.
+    """
+    exact = _exact_deepcut()
+    grades = _learned_grades()
+    krillion = _krillion_pairs()
+    with sqlite3.connect(f"file:{cfg.FULL_DB.as_posix()}?mode=ro", uri=True) as c:
+        questions = [r[0] for r in c.execute(
+            "SELECT DISTINCT question FROM answers WHERE is_krillion=0 ORDER BY question"
+        )]
+        rows = []
+        for question in questions:
+            db_answers = [a for (a,) in c.execute(_TIER_SQL, (question,))]
+            merged: list[str] = []
+            seen: set[str] = set()
+            for answer in exact.get(question, []) + db_answers:
+                if answer not in seen:
+                    seen.add(answer)
+                    merged.append(answer)
+            tagged = [
+                [answer, _answer_points(question, answer, grades, krillion)]
+                for answer in merged[:TIER_ANSWER_LIMIT]
+            ]
+            rows.append([question, tagged])
+    return rows
+
+
+def build_tier_data(dest: Path | None = None, version: int | None = None) -> Path:
+    """Write data/tier-data.json into dest (and its runtime location)."""
+    dest = Path(dest) if dest is not None else cfg.STAGING
+    dest.mkdir(parents=True, exist_ok=True)
+    if version is None:
+        version = next_data_version()
+    payload = {
+        "schema": cfg.TIER_SCHEMA_VERSION,
+        "version": int(version),
+        "rows": tier_rows(),
+    }
+    out = dest / cfg.TIER_DATA_JSON
+    _write_json(out, payload)
+    # publish.py only moves the four web artefacts; mirror to runtime data/ so
+    # the bridge (and verify) can read the snapshot without a publish step.
+    runtime = cfg.TIER_DATA
+    if runtime.resolve() != out.resolve():
+        runtime.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(out, runtime)
+    print(
+        f"emitted {cfg.TIER_DATA_JSON} schema={payload['schema']} "
+        f"version={payload['version']} rows={len(payload['rows'])} "
+        f"bytes={out.stat().st_size} -> {out}"
+    )
+    return out
+
+
 def emit(out_dir: Path | None = None) -> dict:
     """Write manifest, generated JS and v2 arrays into out_dir (staging)."""
     out_dir = Path(out_dir) if out_dir is not None else cfg.STAGING
@@ -260,6 +415,9 @@ def emit(out_dir: Path | None = None) -> dict:
     payloads = _v2_payloads()
     for name, data in payloads.items():
         _write_json(out_dir / name, data)
+
+    version = next_data_version()
+    tier_path = build_tier_data(out_dir, version=version)
 
     js = out_dir / cfg.NORM_JS.relative_to(cfg.ROOT)
     js.parent.mkdir(parents=True, exist_ok=True)
@@ -278,6 +436,7 @@ def emit(out_dir: Path | None = None) -> dict:
     counts = derive.counts()
     artifacts = {
         MATCHER_INDEX_JSON: sha256_file(index_path),
+        cfg.TIER_DATA_JSON: sha256_file(tier_path),
         cfg.LEGACY_SEARCH_JSON: file_digest(cfg.ROOT / cfg.LEGACY_SEARCH_JSON),
         cfg.LEGACY_KRILLION_JSON: file_digest(cfg.ROOT / cfg.LEGACY_KRILLION_JSON),
         cfg.V2_SEARCH_JSON: sha256_file(out_dir / cfg.V2_SEARCH_JSON),
@@ -286,13 +445,20 @@ def emit(out_dir: Path | None = None) -> dict:
     }
     manifest = {
         "schema_version": cfg.SCHEMA_VERSION,
-        "data_version": next_data_version(),
+        "data_version": version,
         "etag": etag(),
         "built_at": cfg.utc_now(),
         "counts": {k: counts[k] for k in ("full", "search", "krillion", "prompts")},
         "artifacts": artifacts,
     }
-    _write_json(out_dir / cfg.MANIFEST.relative_to(cfg.ROOT), manifest)
+    staged_manifest = out_dir / cfg.MANIFEST.relative_to(cfg.ROOT)
+    _write_json(staged_manifest, manifest)
+    # The bridge reads the manifest from data/ at runtime; publish.py moves the
+    # staged copy there only on `all`. Mirror it here as well so a plain `emit`
+    # leaves a readable manifest (including the tier sha) in place.
+    if cfg.MANIFEST.resolve() != staged_manifest.resolve():
+        cfg.MANIFEST.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(staged_manifest, cfg.MANIFEST)
     print(
         f"emitted manifest data_version={manifest['data_version']} "
         f"etag={manifest['etag'][:12]} counts={manifest['counts']} -> {out_dir}"

@@ -278,6 +278,112 @@ def check_manifest(counts: dict) -> bool:
     return ok
 
 
+def check_tier_data() -> bool:
+    """God-mode snapshot: well-formed and in sync with the FULL DB low tier."""
+    path = cfg.TIER_DATA
+    if not path.exists():
+        print(f"[verify] tier data: MISSING {path}")
+        return False
+    try:
+        raw = path.read_bytes()
+        payload = json.loads(raw.decode("utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"[verify] tier data: invalid JSON ({e})")
+        return False
+    if not isinstance(payload, dict):
+        print("[verify] tier data: payload is not a JSON object")
+        return False
+
+    schema = payload.get("schema")
+    version = payload.get("version")
+    rows = payload.get("rows")
+    ok = True
+    if isinstance(schema, bool) or schema != cfg.TIER_SCHEMA_VERSION:
+        print(f"[verify] tier data: bad schema={schema!r}")
+        ok &= False
+    if isinstance(version, bool) or not isinstance(version, int) or version < 1:
+        print(f"[verify] tier data: bad version={version!r}")
+        ok &= False
+    if not isinstance(rows, list):
+        print(f"[verify] tier data: bad rows (type={type(rows).__name__})")
+        return False
+
+    questions = []
+    bad_shape = bad_points = over_limit = duplicates = 0
+    point_hist: dict[str, int] = {}
+    for row in rows:
+        if (not isinstance(row, list) or len(row) != 2
+                or not isinstance(row[0], str) or not isinstance(row[1], list)):
+            bad_shape += 1
+            continue
+        question, answers = row
+        questions.append(question)
+        over_limit += len(answers) > 20
+        answer_strings = []
+        for entry in answers:
+            if (not isinstance(entry, list) or len(entry) != 2
+                    or not isinstance(entry[0], str)):
+                bad_shape += 1
+                continue
+            points = entry[1]
+            if isinstance(points, bool) or (points is not None and not (
+                isinstance(points, int) and points in cfg.TIER_POINTS
+            )):
+                bad_points += 1
+                continue
+            answer_strings.append(entry[0])
+            label = "null" if points is None else str(points)
+            point_hist[label] = point_hist.get(label, 0) + 1
+        duplicates += len(set(answer_strings)) != len(answer_strings)
+    if bad_shape or bad_points or over_limit or duplicates:
+        print(
+            f"[verify] tier data: bad rows (shape={bad_shape} bad_points={bad_points} "
+            f"over_20={over_limit} duplicate_answers={duplicates})"
+        )
+        ok &= False
+    if questions != sorted(questions) or len(set(questions)) != len(questions):
+        print("[verify] tier data: questions not sorted/unique")
+        ok &= False
+
+    with _ro(cfg.FULL_DB) as c:
+        expected = {
+            r[0] for r in c.execute(
+                "SELECT DISTINCT question FROM answers WHERE is_krillion=0"
+            )
+        }
+    got = set(questions)
+    if got != expected:
+        ok &= False
+        print(
+            f"[verify] tier data: question set mismatch "
+            f"(missing={sorted(expected - got)[:3]}, extra={sorted(got - expected)[:3]})"
+        )
+
+    manifest_sha = None
+    if cfg.MANIFEST.exists():
+        try:
+            m = json.loads(cfg.MANIFEST.read_text(encoding="utf-8"))
+            if isinstance(m, dict) and isinstance(m.get("artifacts"), dict):
+                manifest_sha = m["artifacts"].get(cfg.TIER_DATA_JSON)
+        except (OSError, ValueError):
+            pass
+    actual_sha = hashlib.sha256(raw).hexdigest()
+    if manifest_sha != actual_sha:
+        print(
+            f"[verify] tier data: manifest sha mismatch "
+            f"({manifest_sha} != {actual_sha})"
+        )
+        ok &= False
+
+    print(
+        f"[verify] tier data: schema={schema} version={version} rows={len(rows)} "
+        f"questions={len(got)} db_low_tier_questions={len(expected)} "
+        f"set_match={got == expected} points={point_hist} bytes={len(raw)} "
+        f"manifest_sha={str(manifest_sha)[:12]} -> {'ok' if ok else 'FAIL'}"
+    )
+    return bool(ok)
+
+
 def verify() -> dict:
     ok_counts, counts = check_counts()
     ok = ok_counts
@@ -287,6 +393,7 @@ def verify() -> dict:
     ok &= check_corrections()
     ok &= check_groups_and_aliases()
     ok &= check_manifest(counts)
+    ok &= check_tier_data()
     print(f"[verify] RESULT: {'PASS' if ok else 'FAIL'}")
     return {"ok": bool(ok), "counts": counts}
 

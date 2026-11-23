@@ -64,6 +64,7 @@
     deepcutExact: false,
     deepcutPrompt: '',
     premap: null,
+    tierPremap: null,     // null until /api/all-tier resolves; Map afterwards
     netCache: new Map(),
     bankCapturing: false, // guards the 50ms-debounced end-of-dive capture
     refusedAnswers: new Set(),
@@ -501,7 +502,7 @@
           '<select id="ka-pick">' +
             '<option value="random">Random 100-point answer</option>' +
             '<option value="top">Top of list</option>' +
-            '<option value="god">God player · mostly 85, 1-in-7 at 100</option>' +
+            '<option value="god">God player · Gaussian mix, peak at 85</option>' +
           '</select></div>' +
         '<div class="ka-botrow"><label for="ka-mode">Mode</label>' +
           '<select id="ka-mode">' +
@@ -768,6 +769,37 @@
   }
 
   async function preloadAnswers() {
+    // Start the 10–85pt snapshot BEFORE awaiting /api/all so the two downloads
+    // overlap. It is intentionally independent: a missing/old bridge (404 on
+    // /api/all-tier) must never delay or break the 100pt fast path.
+    request('/api/all-tier', { timeout: LOOKUP_TIMEOUT, retries: 1 })
+      .then((d) => {
+        const map = new Map();
+        const rows = (d && d.data) || [];
+        rows.forEach((row) => {
+          if (!row) return;
+          const q = Array.isArray(row) ? row[0] : row.q;
+          const answers = Array.isArray(row) ? row[1] : row.answers;
+          if (!q) return;
+          // Same key source as the rare premap (keyFor -> bridge nq / normLocal).
+          // Keep each answer WITH its point value for the God group draw.
+          map.set(keyFor(q), parseTierAnswers(answers));
+        });
+        state.tierPremap = map;
+      })
+      .catch(() => {
+        // No /api/all-tier on an old bridge, or any transient failure: ready but
+        // empty. God mode then uses the rare list — no crash, no error log.
+        state.tierPremap = new Map();
+      })
+      .then(() => {
+        if (!bot.on) return;
+        // If a God fallback was started while the premap was pending, let this
+        // one tick re-read the current prompt from the now-ready map.
+        if (state.question) state.deepcutPrompt = '';
+        setTimeout(botTick, 0); // exactly one immediate tick; no second timer
+      });
+
     const cachedMeta = storageGet(SNAPSHOT_META_KEY, null);
     const cachedData = storageGet(SNAPSHOT_DATA_KEY, null);
     const hasCache = !!(cachedMeta && Array.isArray(cachedData));
@@ -1197,9 +1229,121 @@
     return !!(el && (el.offsetParent !== null || el.getClientRects().length > 0));
   }
 
+  // God mode draws a point GROUP, not a fixed cadence. Gaussian w(i) =
+  // exp(-(i-4)^2 / (2*1.1^2)) over tier indices 4..9 (10..100), normalised to
+  // 100%: 10=0.05%, 15=0.95%, 30=7.54%, 60=26.04%, 85=39.37%, 100=26.04%.
+  const GOD_TIER_POINTS = [10, 15, 30, 60, 85, 100];
+  const GOD_TIER_CHANCE = { 10: 0.05, 15: 0.95, 30: 7.54, 60: 26.04, 85: 39.37, 100: 26.04 };
+  const GOD_TIER_TEXT_POINTS = {
+    PLANKTON: 10, 'TOO CLEVER': 15, SCHOOLER: 30, RARE: 60,
+    'DEEP CUT': 85, 'ONE IN A KRILLION': 100,
+  };
+
+  // Unknown / null / bare-string points land in the 85pt Deep Cut bucket —
+  // exactly the old "deepcut" pool, now the mode of the distribution.
+  function tierPointsOf(value) {
+    if (value === null || value === undefined || value === '') return 85;
+    if (typeof value === 'string') {
+      const text = value.trim().toUpperCase();
+      if (GOD_TIER_TEXT_POINTS[text]) return GOD_TIER_TEXT_POINTS[text];
+    }
+    const n = Number(value);
+    if (GOD_TIER_POINTS.indexOf(n) !== -1) return n;
+    if (Number.isInteger(n) && n >= 0 && n <= 5) return GOD_TIER_POINTS[n]; // tierIndex
+    return 85;
+  }
+
+  // /api/all-tier schema 2 rows hold [answer, points|null] pairs; an old bridge
+  // sends bare answer strings. Both become {answer, points} for the premap.
+  function parseTierAnswers(answers) {
+    const out = [];
+    (answers || []).forEach((entry) => {
+      if (entry === null || entry === undefined) return;
+      let answer, points;
+      if (Array.isArray(entry)) {
+        answer = entry[0];
+        points = entry[1];
+      } else if (typeof entry === 'object') {
+        answer = entry.answer;
+        points = entry.points;
+      } else {
+        answer = entry; // legacy bare string
+      }
+      answer = String(answer == null ? '' : answer).trim();
+      if (answer) out.push({ answer, points: tierPointsOf(points) });
+    });
+    return out;
+  }
+
+  // Empty groups hand their chance to the nearest populated group; ties favour
+  // the high-value anchors 85, then 60, then 100.
+  function nearestGodGroup(points, available) {
+    let bestDist = Infinity;
+    let candidates = [];
+    available.forEach((p) => {
+      const d = Math.abs(p - points);
+      if (d < bestDist) { bestDist = d; candidates = [p]; }
+      else if (d === bestDist) candidates.push(p);
+    });
+    const preferred = [85, 60, 100];
+    for (let i = 0; i < preferred.length; i++) {
+      if (candidates.indexOf(preferred[i]) !== -1) return preferred[i];
+    }
+    return candidates.length ? candidates[0] : null;
+  }
+
   function pickAnswer(list) {
     if (!list || !list.length) return '';
     return bot.pick === 'top' ? list[0] : list[Math.floor(Math.random() * list.length)];
+  }
+
+  function pickGodAnswer(prompt, rareList, isRace) {
+    const groups = {};
+    GOD_TIER_POINTS.forEach((p) => { groups[p] = []; });
+    (state.deepcut || []).forEach((entry) => {
+      const item = (entry && typeof entry === 'object' && !Array.isArray(entry))
+        ? entry : parseTierAnswers([entry])[0];
+      if (item && item.answer && groups[item.points]) groups[item.points].push(item.answer);
+    });
+    (rareList || []).forEach((value) => {
+      const a = String(value == null ? '' : value).trim();
+      if (a && groups[100].indexOf(a) === -1) groups[100].push(a);
+    });
+    GOD_TIER_POINTS.forEach((p) => {
+      groups[p] = groups[p].filter((a) =>
+        !state.refusedAnswers.has(prompt + '\u0000' + a)
+        && !(isRace && bot.submittedForPrompt.has(prompt + '\u0000' + a)));
+    });
+
+    const available = GOD_TIER_POINTS.filter((p) => groups[p].length);
+    if (!available.length) return '';
+    const chance = {};
+    // Base chances first: an empty group's mass must not be added to a bucket
+    // whose own base chance is assigned later in the tier order.
+    GOD_TIER_POINTS.forEach((p) => { chance[p] = groups[p].length ? GOD_TIER_CHANCE[p] : 0; });
+    GOD_TIER_POINTS.forEach((p) => {
+      if (groups[p].length) return;
+      const target = nearestGodGroup(p, available);
+      if (target !== null) chance[target] += GOD_TIER_CHANCE[p];
+    });
+
+    const draw = Math.random() * 100; // uniform in [0,100)
+    let acc = 0;
+    let chosen = null;
+    for (let i = 0; i < GOD_TIER_POINTS.length; i++) {
+      const p = GOD_TIER_POINTS[i];
+      if (!chance[p]) continue; // never select from an empty group
+      acc += chance[p];
+      if (draw < acc) { chosen = p; break; }
+    }
+    if (chosen === null) {
+      // Rounding guard: cumulative bands can end a hair under 100.
+      for (let i = GOD_TIER_POINTS.length - 1; i >= 0; i--) {
+        if (chance[GOD_TIER_POINTS[i]]) { chosen = GOD_TIER_POINTS[i]; break; }
+      }
+    }
+    const list = groups[chosen];
+    return list && list.length ? pickAnswer(list) : '';
   }
 
   function answerCurrentPrompt() {
@@ -1218,32 +1362,52 @@
       state.deepcutPrompt = prompt;
       state.deepcut = [];
       const bank = (state.answerQuestion[rareList[0]] || groups[0].question || prompt);
-      request('/api/answers-tier?q=' + encodeURIComponent(bank)
-        + '&alt=' + encodeURIComponent(prompt), {
-          timeout: LOOKUP_TIMEOUT,
-          forever: true,
-          isStale: () => state.question !== prompt,
-          onFinalFail: (info) => logLookupFailure(prompt, info),
-        })
-        .then((d) => {
-          if (state.question !== prompt) return; // stale tier response
-          clearLookupFailure();
-          state.deepcut = d.deepcut || [];
-          state.deepcutExact = !!d.deepcut_exact;
-        })
-        .catch(() => { /* stale/cancelled — krillion answers remain usable */ });
+      if (state.tierPremap !== null) {
+        // Premap ready: synchronous lookup, no HTTP and no 500ms gate. Try the
+        // on-screen prompt first, then the matched bank's stored question.
+        const tier = state.tierPremap.get(keyFor(prompt))
+          || state.tierPremap.get(keyFor(bank));
+        if (tier && tier.length) state.deepcut = parseTierAnswers(tier);
+      } else {
+        // Premap still pending: the original async fallback stays intact, with
+        // its forever retry, backoff and stale-prompt guards.
+        request('/api/answers-tier?q=' + encodeURIComponent(bank)
+          + '&alt=' + encodeURIComponent(prompt), {
+            timeout: LOOKUP_TIMEOUT,
+            forever: true,
+            isStale: () => state.question !== prompt,
+            onFinalFail: (info) => logLookupFailure(prompt, info),
+          })
+          .then((d) => {
+            if (state.question !== prompt) return; // stale tier response
+            if (state.tierPremap !== null) return; // premap won — ignore late reply
+            clearLookupFailure();
+            // Old endpoint still returns bare strings; tag them as Deep Cut.
+            state.deepcut = parseTierAnswers(d.deepcut);
+            state.deepcutExact = !!d.deepcut_exact;
+          })
+          .catch(() => { /* stale/cancelled — krillion answers remain usable */ });
+      }
     }
-    if (bot.pick === 'god' && !state.deepcut.length) {
+    const noTierAnswers = bot.pick === 'god' && !state.deepcut.length;
+    if (noTierAnswers && state.tierPremap === null) {
+      // Premap not ready and no async result yet: keep the original gate.
       botStatus('loading 85-point answers');
       return false;
     }
-    const useRare = bot.pick !== 'god' || (bot.answerCount + 1) % 7 === 0;
-    const pool = useRare ? rareList : state.deepcut;
-    const list = pool.filter(
-      (a) => !state.refusedAnswers.has(prompt + '\u0000' + a)
-        && !(isRace && bot.submittedForPrompt.has(prompt + '\u0000' + a))
-    );
-    const answer = pickAnswer(list);
+    let answer;
+    if (bot.pick === 'god') {
+      // Gaussian point-group draw. The 100pt rare list is one of the groups,
+      // so a prompt with no low-tier data still answers instead of stalling.
+      answer = pickGodAnswer(prompt, rareList, isRace);
+    } else {
+      // Non-God picks are untouched: random/top from the 100-point list.
+      const list = rareList.filter(
+        (a) => !state.refusedAnswers.has(prompt + '\u0000' + a)
+          && !(isRace && bot.submittedForPrompt.has(prompt + '\u0000' + a))
+      );
+      answer = pickAnswer(list);
+    }
     if (!answer) return false;
     if (bot.pick === 'god') bot.answerCount++;
     if (isRace) {
