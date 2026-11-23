@@ -110,24 +110,76 @@
   })();
 
   function request(path, options = {}) {
-    let left = options.retries === undefined ? 2 : options.retries;
+    const configuredRetries = options.retries === undefined ? 2 : options.retries;
+    let left = configuredRetries;
+    const timeout = options.timeout === undefined ? 12000 : options.timeout;
+    const forever = !!options.forever;
+    let backoffMs = 1000; // bounded exponential backoff: 1s,2s,4s,8s,16s,30s cap
+    let loggedFinalFail = false;
+    let settled = false;
+
     return new Promise((resolve, reject) => {
-      const retry = (err) => {
-        if (left-- > 0) setTimeout(go, 400);
-        else reject(err);
+      const isStale = () => !!(options.isStale && options.isStale());
+      const settleReject = (err) => {
+        if (settled) return;
+        settled = true;
+        reject(err);
       };
+
+      const retry = (err) => {
+        if (settled) return;
+        // Drop retries for a prompt the user has already moved past.
+        if (isStale()) { settleReject(new Error('stale request')); return; }
+        if (left > 0) {
+          left--;
+          setTimeout(go, 400);
+          return;
+        }
+        if (!forever) { settleReject(err); return; }
+
+        // Normal attempts (default 3) are exhausted. Log the outage ONCE for
+        // this request, then keep trying in the background until it succeeds.
+        if (!loggedFinalFail) {
+          loggedFinalFail = true;
+          try {
+            if (typeof options.onFinalFail === 'function') {
+              options.onFinalFail({
+                path,
+                reason: (err && err.message) || String(err),
+                attempts: configuredRetries + 1,
+              });
+            }
+          } catch (e) { /* logging must never break the retry chain */ }
+        }
+        setTimeout(go, backoffMs);
+        backoffMs = Math.min(backoffMs * 2, 30000);
+      };
+
       const go = () => {
+        if (settled) return;
+        if (isStale()) { settleReject(new Error('stale request')); return; }
         GM_xmlhttpRequest({
           method: options.method || 'GET',
           // Token in the URL, not a custom header: custom headers force a CORS
           // preflight that Edge/Tampermonkey can abort on https -> loopback.
           url: BRIDGE + path + (path.indexOf('?') === -1 ? '?' : '&') + 't=' + encodeURIComponent(TOKEN),
-          timeout: 12000,
+          timeout,
           headers: {},
           data: options.body ? JSON.stringify(options.body) : undefined,
           onload: (r) => {
-            try { resolve(JSON.parse(r.responseText)); }
-            catch (e) { reject(new Error('bridge returned non-JSON')); }
+            if (settled) return;
+            let parsed;
+            try { parsed = JSON.parse(r.responseText); }
+            catch (e) {
+              // A transient non-JSON reply should not kill a forever lookup.
+              // POSTs (no `forever`) keep the original immediate-reject behavior.
+              if (forever) retry(new Error('bridge returned non-JSON'));
+              else settleReject(new Error('bridge returned non-JSON'));
+              return;
+            }
+            if (isStale()) { settleReject(new Error('stale request')); return; }
+            settled = true;
+            resolve(parsed);
           },
           onerror: () => retry(new Error('bridge offline')),
           ontimeout: () => retry(new Error('bridge timeout')),
@@ -136,6 +188,24 @@
       go();
     });
   }
+
+  // Answer-lookup GETs need a short timeout so a dead bridge is detected
+  // inside a fast (5s) prompt. POSTs keep the original 12000ms timeout.
+  const LOOKUP_TIMEOUT = 2500;
+  const FAIL_LOG_COOLDOWN = 30000;
+  let lastFailLogAt = -Infinity;
+
+  // One "bridge down" episode produces one miss record even when several
+  // prompts fail together. Any successful lookup closes the episode.
+  function logLookupFailure(question, info) {
+    const now = Date.now();
+    if (now - lastFailLogAt < FAIL_LOG_COOLDOWN) return;
+    lastFailLogAt = now;
+    reportMiss(question,
+      'unreachable: ' + info.reason + ' after ' + info.attempts + ' attempts',
+      { lookup_path: info.path, attempts: info.attempts });
+  }
+  function clearLookupFailure() { lastFailLogAt = -Infinity; }
 
   // ---- panel -------------------------------------------------------------
   GM_addStyle(`
@@ -548,16 +618,28 @@
   async function loadAnswers(question) {
     state.question = question;
     state.loadedPrompt = question;
+    state.loadToken = (state.loadToken || 0) + 1;
+    const loadToken = state.loadToken;
+    // A request token as well as the prompt text: a repeated prompt must not
+    // let an older retry apply its result on top of a newer load.
+    const isStale = () => state.question !== question || state.loadToken !== loadToken;
     state.answers = [];
     state.groups = [];
     state.lastFilled = '';
     state.refusalActive = false;
     render();
 
-    // The first prompt can appear before preloading finishes — wait for it.
+    // The first prompt can appear before preloading finishes — wait briefly,
+    // but never let a forever-retrying /api/all block this prompt's lookup.
     if (!state.premap && state.preloadPromise) {
-      try { await state.preloadPromise; } catch (e) { /* continue with network */ }
+      try {
+        await Promise.race([
+          state.preloadPromise,
+          new Promise((r) => setTimeout(r, LOOKUP_TIMEOUT)),
+        ]);
+      } catch (e) { /* continue with network */ }
     }
+    if (isStale()) return;
 
     // Fast path: the whole rare-answer archive was loaded once at page start.
     const key = normLocal(question);
@@ -576,10 +658,19 @@
 
     status('Loading 100-point answers…', 'loading');
     try {
-      const data = await request('/api/answers?q=' + encodeURIComponent(question));
-      state.netCache.set(key, data);
+      const data = await request('/api/answers?q=' + encodeURIComponent(question), {
+        timeout: LOOKUP_TIMEOUT,
+        forever: true,
+        isStale,
+        onFinalFail: (info) => logLookupFailure(question, info),
+      });
+      if (isStale()) return; // a newer prompt won while we were retrying
+      clearLookupFailure();
+      state.netCache.set(key, data); // only successful lookups are cached
       applyResult(data, question);
     } catch (e) {
+      // Stale requests are cancelled on purpose — never log them as misses.
+      if (isStale()) return;
       reportMiss(question, 'unreachable: ' + (e && e.message || e));
       status(e && /timeout/.test(e.message)
         ? 'The local archive took too long to answer — retrying on the next prompt.'
@@ -589,7 +680,12 @@
 
   async function preloadAnswers() {
     try {
-      const data = await request('/api/all');
+      const data = await request('/api/all', {
+        timeout: LOOKUP_TIMEOUT,
+        forever: true,
+        onFinalFail: (info) => logLookupFailure(state.question || '(preload)', info),
+      });
+      clearLookupFailure();
       const map = new Map();
       (data.data || []).forEach((item) => {
         if (item && item.q) map.set(normLocal(item.q), { q: item.q, answers: item.answers || [] });
@@ -963,12 +1059,19 @@
       state.deepcut = [];
       const bank = (state.answerQuestion[rareList[0]] || groups[0].question || prompt);
       request('/api/answers-tier?q=' + encodeURIComponent(bank)
-        + '&alt=' + encodeURIComponent(prompt))
+        + '&alt=' + encodeURIComponent(prompt), {
+          timeout: LOOKUP_TIMEOUT,
+          forever: true,
+          isStale: () => state.question !== prompt,
+          onFinalFail: (info) => logLookupFailure(prompt, info),
+        })
         .then((d) => {
+          if (state.question !== prompt) return; // stale tier response
+          clearLookupFailure();
           state.deepcut = d.deepcut || [];
           state.deepcutExact = !!d.deepcut_exact;
         })
-        .catch(() => { /* krillion answers remain usable */ });
+        .catch(() => { /* stale/cancelled — krillion answers remain usable */ });
     }
     if (bot.pick === 'god' && !state.deepcut.length) {
       botStatus('loading 85-point answers');

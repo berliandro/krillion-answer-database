@@ -10,6 +10,7 @@ Run:  python injection/bridge.py        (listens on 127.0.0.1:8768)
 import json
 import re
 import sqlite3
+from collections import OrderedDict
 import sys
 import threading
 import time
@@ -60,6 +61,67 @@ except Exception as _e:
     print(f"paraphrase matcher unavailable, exact matching only: {_e}")
     normalise = lambda s: " ".join(str(s).strip().lower().split())
 
+
+def _build_norm_map():
+    """One-time normalised-prompt -> stored-wording map.
+
+    resolve_question() used to re-read every DISTINCT question and call
+    normalise() on all 5,801 of them on *every* request. Building the map once
+    at startup turns exact and rewritten-exact detection into O(1) dict
+    lookups. The query is sorted so collisions keep the same first-wins
+    behaviour as the matcher's own exact index.
+    """
+    with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as c:
+        questions = [r[0] for r in c.execute(
+            "SELECT DISTINCT question FROM answers ORDER BY question"
+        )]
+    mapping = {}
+    for q in questions:
+        mapping.setdefault(normalise(q), q)
+    return mapping, questions
+
+
+try:
+    NORM_TO_QUESTION, ALL_QUESTIONS = _build_norm_map()
+except Exception as _e:
+    print(f"normalised prompt map unavailable, fuzzy only: {_e}")
+    NORM_TO_QUESTION, ALL_QUESTIONS = {}, []
+
+# Dedicated lock for the read caches. Kept separate from LOCK (which guards
+# append-only writes) so a slow cold resolve never blocks bleed logging.
+CACHE_LOCK = threading.RLock()
+RESOLVE_MAX = 512
+# normalised query -> (is_exact, tuple of (stored_question, score)).
+# Groups (answers) are rebuilt on every call so removed_pairs() corrections
+# always apply, even for a cached match.
+RESOLVE_CACHE = OrderedDict()
+LEARNED_CACHE = None
+LEARNED_KEY = None
+PERF = {
+    "resolve_hits": 0, "resolve_misses": 0,
+    "learned_hits": 0, "learned_misses": 0,
+    "all_hits": 0, "all_misses": 0,
+}
+
+
+def cached_learned():
+    """read_jsonl(LEARNED) cached by mtime+size (same idea as _ALL_CACHE)."""
+    global LEARNED_CACHE, LEARNED_KEY
+    try:
+        st = LEARNED.stat()
+        key = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        key = (0, 0)
+    with CACHE_LOCK:
+        if LEARNED_CACHE is None or LEARNED_KEY != key:
+            LEARNED_KEY = key
+            LEARNED_CACHE = read_jsonl(LEARNED)
+            PERF["learned_misses"] += 1
+        else:
+            PERF["learned_hits"] += 1
+        return LEARNED_CACHE
+
+
 DATA.mkdir(parents=True, exist_ok=True)
 for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES, EVIDENCE, PROMPT_REVIEW, BOT_LOG, FETCH_QUEUE):
     f.touch(exist_ok=True)
@@ -100,6 +162,8 @@ def all_answers_payload():
         src_path.stat().st_mtime if src_path.exists() else 0,
         CORRECTIONS.stat().st_mtime if CORRECTIONS.exists() else 0,
     )
+    with CACHE_LOCK:
+        PERF["all_hits" if (_ALL_CACHE is not None and _ALL_KEY == key) else "all_misses"] += 1
     if _ALL_CACHE is None or _ALL_KEY != key:
         _ALL_KEY = key
         if src_path.exists():
@@ -165,33 +229,24 @@ def answers_for(question, removed=None):
     return [a for (a,) in rows if (question, a) not in removed]
 
 
-def resolve_question(query):
-    """Return DISTINCT candidate prompts, never a merged answer list.
+def _resolve_candidates(nq):
+    """Pure, cacheable part of resolve_question().
 
-    Exact match wins outright. Otherwise fuzzy candidates are returned as
-    separately labelled groups so similar prompts (e.g. with/without a ball)
-    stay visually and logically separate.
+    Returns (is_exact, ((stored_question, score), ...)) for a normalised
+    query. All matching rules are preserved: exact first, rewritten-exact
+    second, distinct labelled banks (never merged), kind/type variants, and
+    the strict relative cut-off.
     """
-    removed = removed_pairs()
-    with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as c:
-        all_questions = [r[0] for r in c.execute("SELECT DISTINCT question FROM answers")]
-    nq = normalise(query)
-    exact = next((q for q in all_questions if normalise(q) == nq), None)
+    exact = NORM_TO_QUESTION.get(nq)
     if exact:
-        return True, [{
-            "question": exact, "score": 1.0,
-            "answers": answers_for(exact, removed),
-        }]
+        return True, ((exact, 1.0),)
 
     # A rewritten wording can become an exact stored prompt (e.g. "Name one
     # verb" -> "Name a verb"), so check that before fuzzy matching.
-    q = rewrite_query(query)
-    rewritten_exact = next((x for x in all_questions if normalise(x) == q), None)
+    q = rewrite_query(nq)
+    rewritten_exact = NORM_TO_QUESTION.get(q)
     if rewritten_exact:
-        return True, [{
-            "question": rewritten_exact, "score": 1.0,
-            "answers": answers_for(rewritten_exact, removed),
-        }]
+        return True, ((rewritten_exact, 1.0),)
 
     hits = MATCHER.search(q, limit=5, threshold=0.62) if MATCHER else []
     # "kind/type" are separate stored wordings; try both if the first pass
@@ -209,11 +264,41 @@ def resolve_question(query):
     if hits:
         best = max(h["score"] for h in hits)
         hits = [h for h in hits if h["score"] >= max(0.62, best * 0.90)]
+    return False, tuple((h["question"], h["score"]) for h in hits)
+
+
+def resolve_question(query):
+    """Return DISTINCT candidate prompts, never a merged answer list.
+
+    Exact match wins outright. Otherwise fuzzy candidates are returned as
+    separately labelled groups so similar prompts (e.g. with/without a ball)
+    stay visually and logically separate. The expensive candidate resolution
+    is cached by normalised query; only the small answers_for() DB lookups and
+    corrections are redone per call.
+    """
+    nq = normalise(query)
+    with CACHE_LOCK:
+        cached = RESOLVE_CACHE.get(nq)
+        if cached is not None:
+            RESOLVE_CACHE.move_to_end(nq)  # LRU: most-recent last
+            PERF["resolve_hits"] += 1
+            exact, candidates = cached
+        else:
+            PERF["resolve_misses"] += 1
+            # Held across the compute on purpose: single-flight, so two
+            # concurrent identical prompts never both pay the ~10s search.
+            exact, candidates = _resolve_candidates(nq)
+            RESOLVE_CACHE[nq] = (exact, candidates)
+            while len(RESOLVE_CACHE) > RESOLVE_MAX:
+                RESOLVE_CACHE.popitem(last=False)
+
+    # always fresh so demotions reported during play take effect immediately
+    removed = removed_pairs()
     groups = [{
-        "question": h["question"], "score": h["score"],
-        "answers": answers_for(h["question"], removed),
-    } for h in hits]
-    return False, groups
+        "question": q, "score": s,
+        "answers": answers_for(q, removed),
+    } for q, s in candidates]
+    return exact, groups
 
 
 def tier_answers(question):
@@ -224,7 +309,7 @@ def tier_answers(question):
     answers from the full DB (correctly below 100, exact tier unknown).
     """
     rare = answers_for(question)
-    learned = read_jsonl(LEARNED)
+    learned = cached_learned()
     exact = [r.get("answer", "") for r in learned
              if r.get("question") == question
              and (r.get("tierIndex") == 4 or r.get("tier") == "DEEP CUT"
@@ -233,8 +318,12 @@ def tier_answers(question):
     if exact:
         return rare, exact, True
     with sqlite3.connect(f"file:{FULL_DB}?mode=ro", uri=True) as c:
+        # Force the question index. The planner otherwise picks
+        # idx_answers_krillion and builds a temp B-tree, turning an O(log n)
+        # probe into a cold multi-second scan.
         rows = c.execute(
-            "SELECT answer FROM answers WHERE question=? AND is_krillion=0 "
+            "SELECT answer FROM answers INDEXED BY idx_answers_question "
+            "WHERE question=? AND is_krillion=0 "
             "ORDER BY answer COLLATE NOCASE LIMIT 20", (question,)
         ).fetchall()
     return rare, [a for (a,) in rows], False
@@ -508,6 +597,30 @@ class Handler(BaseHTTPRequestHandler):
         supplied = (params.get("t") or [self.headers.get('X-Krillion-Token', "")])[0]
         if supplied != TOKEN:
             self._send(403, {"ok": False, "error": "bad token"})
+            return
+        if parsed.path == "/api/perf":
+            with CACHE_LOCK:
+                snap = dict(PERF)
+                resolve_size = len(RESOLVE_CACHE)
+                learned_rows = len(LEARNED_CACHE) if LEARNED_CACHE is not None else 0
+                all_items = len(_ALL_CACHE) if _ALL_CACHE is not None else 0
+            self._send(200, {
+                "ok": True,
+                "resolve_cache": {
+                    "size": resolve_size, "max": RESOLVE_MAX,
+                    "hits": snap["resolve_hits"], "misses": snap["resolve_misses"],
+                },
+                "learned_cache": {
+                    "rows": learned_rows,
+                    "hits": snap["learned_hits"], "misses": snap["learned_misses"],
+                },
+                "all_cache": {
+                    "items": all_items,
+                    "hits": snap["all_hits"], "misses": snap["all_misses"],
+                },
+                "normalised_prompts": len(NORM_TO_QUESTION),
+                "matcher_questions": len(MATCHER.questions) if MATCHER else 0,
+            })
             return
         if parsed.path in ("/api/status", "/api/health"):
             self._send(200, {

@@ -151,8 +151,27 @@ When a prompt has no bank, the helper can fetch that prompt's real graded bank
 from `playdaily.org`, respecting the cooldown and de-duplicating. Disable with
 `KRILLION_NO_FETCH=1`. Queue: `/api/fetch-queue?t=krillion-local-v1`.
 
-The userscript makes up to 3 attempts (2 retries) per request with a 12-second
-timeout before showing an error, then queues failed writes for the next run.
+The userscript makes up to 3 attempts (2 retries) for writes/POSTs with a
+12-second timeout before queuing failed writes for the next run. Answer-lookup
+GETs are different — see "Performance & retries" below.
+
+### Performance & retries
+
+- **Cached lookups, infinite retries.** Answer lookups are cached. A lookup GET
+  that fails retries indefinitely with capped exponential backoff, using a
+  shorter timeout so a 5-second room is not missed. After 3 failed attempts it
+  logs once to `failed_prompts.jsonl`, then keeps retrying rather than showing an
+  error. POSTs and queued writes are unchanged: failed writes are still queued
+  for the next run.
+- **One indexed DB, on purpose.** `data/krillion_only.db` stays a single file with
+  an index on `question` — exact lookups are ~0ms (21,384 answers / 5,801
+  prompts). The old slowness came from in-process normalisation/fuzzy matching
+  and re-reading `learned.jsonl`, not from SQLite, so splitting the DB would add
+  complexity without helping. Full benchmark evidence is in `PERF.md`.
+- **Cold vs warm bridge.** The first lookup after the bridge starts can be slower
+  while caches warm; later lookups should be fast. A prompt that still takes many
+  seconds to resolve means the bridge is running without the caching fix. Check
+  `/api/perf?t=krillion-local-v1` (if available) for lookup timings.
 
 **Other players are never recorded.** In multiplayer/1v1 only our own answers
 (`source: own`) and the game's own graded banks (`source: api`) enter the archive.

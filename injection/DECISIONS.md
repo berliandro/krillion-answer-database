@@ -122,6 +122,21 @@ never modified.
    logged, never a scraped opponent score. `mode()` detects the persistent
    arena container (`.kr-stage-multi`), because `.kr-board-rows` exists only
    between rounds and mis-reported the mode while answering.
+8. **Keep one indexed DB; fix speed with caching, not sharding.** Parent
+   benchmarks showed the slowdown was in-process: `resolve_question()` normalised
+   all 5,801 prompts on every call and ran a ~10.6s fuzzy `Matcher.search()` on
+   non-exact prompts, and `tier_answers()` re-read the 826KB / 4,920-row
+   `learned.jsonl` (~234ms) on every call. SQLite was not the bottleneck —
+   `data/krillion_only.db` (21,384 answers / 5,801 prompts, indexed on `question`)
+   answers exact lookups in ~0ms. Splitting answers into multiple files with a
+   pointer adds complexity without fixing the matcher/IO cost. Fix with caching,
+   an O(1) exact lookup and a single read of `learned.jsonl`; full evidence in
+   `PERF.md`.
+9. **Answer-lookup GETs retry forever.** Lookup GETs use a shorter timeout so a
+   5-second room is not missed. On failure they retry indefinitely with capped
+   exponential backoff; after 3 failed attempts the script logs once, then keeps
+   retrying instead of showing an error. POST/queue behaviour is unchanged —
+   failed writes stay queued in Tampermonkey storage for the next run.
 
 ### "Process the log"
 
