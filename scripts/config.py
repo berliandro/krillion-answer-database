@@ -65,8 +65,10 @@ MATCH_THRESHOLD = 0.34          # scripts/paraphrase_match.py Matcher.search def
 BRIDGE_THRESHOLD = 0.62         # injection/bridge.py _resolve_candidates default
 SEARCH_LIMIT = 10
 
-# Bridge query rewrites (mirrored verbatim from injection/bridge.py REWRITES;
-# emit.py re-extracts them from that file and fails loudly if they drift).
+# Bridge query rewrites (extracted from injection/bridge.py REWRITES at emit
+# time and mirrored here). Drift between this list and bridge.py is currently
+# NOT enforced: emit.py only extracts the rules from bridge.py; nothing compares
+# them to cfg.REWRITES, so keep these in sync manually.
 REWRITES = [
     (r"^what is an example of an ", "name an "),
     (r"^what is an example of a ", "name a "),

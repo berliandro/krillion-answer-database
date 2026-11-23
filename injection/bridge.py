@@ -46,6 +46,9 @@ LEARNED = DATA / "learned.jsonl"
 CHANGELOG = INJ / "CHANGELOG.md"
 PORT = 8768
 TOKEN = 'krillion-local-v1'
+# Only the game's own origin may make cross-origin requests to this loopback
+# bridge. GM_xmlhttpRequest is CORS-exempt, so the userscript is unaffected.
+ALLOWED_ORIGINS = ("https://playdaily.org", "https://playdaily.org/")
 LOCK = threading.Lock()
 
 
@@ -599,10 +602,15 @@ def add_bank(rows):
         question = str(row.get("question", "")).strip()
         answer = str(row.get("answer", "")).strip()
         tier = str(row.get("tier", "")).strip()
+        # Keep an unparseable/missing points value as None (no signal) instead
+        # of coercing it to 0. The demotion step below needs to tell "unknown"
+        # apart from "explicitly zero", otherwise a partial capture is treated
+        # as a low tier and permanently poisons the pair via dedup.
+        raw_points = row.get("points")
         try:
-            points = int(row.get("points", 0))
+            points = int(raw_points) if raw_points is not None else None
         except (TypeError, ValueError):
-            points = 0
+            points = None
         if not question or not answer or (question, answer) in existing:
             continue
         existing.add((question, answer))
@@ -641,14 +649,34 @@ def add_bank(rows):
     }
     with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as c:
         for r in new_records:
+            # A demotion needs POSITIVE evidence of a low tier. A missing or
+            # unparseable points value is "no signal", NOT "zero points": the
+            # old default-to-0 turned a partial capture into a permanent
+            # removal, and dedup then blocked any later correct capture from
+            # reversing it. Only the game's own graded bank can demote — play
+            # scores never reach this function (source filter above).
+            raw_points = r.get("points")
             try:
-                observed = int(r.get("points", 0))
+                observed = int(raw_points) if raw_points is not None else None
             except (TypeError, ValueError):
-                observed = 0
-            tier = r.get("tier", "")
-            is_low = observed < 100 or (
-                r.get("tierIndex") is not None and r.get("tierIndex") != 5
-            ) or (tier and "krillion" not in tier.lower() and observed == 0)
+                observed = None
+            tier = str(r.get("tier", "")).strip()
+            tier_index = r.get("tierIndex")
+            try:
+                tier_index_num = int(tier_index) if tier_index is not None else None
+            except (TypeError, ValueError):
+                tier_index_num = None
+
+            # tierIndex 5 (or explicitly Krillion tier text) is the
+            # authoritative "this IS a 100-point Krillion tier" signal and wins
+            # outright — even if a stray/unparseable points value reads low.
+            is_krillion = (tier_index_num == 5) or ("krillion" in tier.lower())
+            # Each of these is positive evidence of a LOW tier; the absence of
+            # all three (e.g. garbage points, no tier data) is no-signal.
+            low_points = observed is not None and observed < 100
+            low_tier_index = tier_index is not None and tier_index_num != 5
+            low_tier_text = bool(tier) and "krillion" not in tier.lower()
+            is_low = not is_krillion and (low_points or low_tier_index or low_tier_text)
             if not is_low:
                 continue
             key = (r["question"], r["answer"])
@@ -753,7 +781,15 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        # Responses vary by Origin. Echo Access-Control-Allow-Origin ONLY for
+        # the game's own origin; with no ACAO header the browser rejects every
+        # other site, so a random web page cannot POST to the loopback bridge
+        # with the public token and demote answers. Non-CORS clients (the
+        # userscript via GM_xmlhttpRequest, curl, same-origin) are unaffected.
+        self.send_header("Vary", "Origin")
+        origin = self.headers.get("Origin", "")
+        if origin in ALLOWED_ORIGINS:
+            self.send_header("Access-Control-Allow-Origin", origin)
         self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Krillion-Token")
         self.end_headers()
         self.wfile.write(body)

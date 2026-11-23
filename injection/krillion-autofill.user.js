@@ -65,6 +65,7 @@
     deepcutPrompt: '',
     premap: null,
     netCache: new Map(),
+    bankCapturing: false, // guards the 50ms-debounced end-of-dive capture
     refusedAnswers: new Set(),
     refusalKey: '',
     refusalActive: false,
@@ -492,7 +493,7 @@
       '<div class="ka-autorow">' +
         '<span class="ka-autolabel">Auto-play</span>' +
         '<button id="ka-bot" type="button" aria-pressed="false" aria-describedby="ka-botnote" title="Plays whole dives for you: picks an answer, fills it and submits it. Use Pick and Mode to choose how.">Play for me: Off</button>' +
-        '<span id="ka-botstate">Off — you are playing</span>' +
+        '<span id="ka-botstate" title="Play for me is off — you answer prompts yourself.">Off · you are playing</span>' +
       '</div>' +
       '<p class="ka-botnote" id="ka-botnote">While Play for me is on, it drives the dive and pauses Dive on click.</p>' +
       '<div id="ka-botdeps" hidden>' +
@@ -513,19 +514,11 @@
       '</div>' +
     '</div>' +
     '<div id="ka-foot">Krillion rare answers · local archive · <a href="https://github.com/berliandro/krillion-answer-database" target="_blank" rel="noopener noreferrer">by berliandro · GitHub</a></div>';
-  document.body.appendChild(root);
 
   const $ = (id) => root.querySelector('#' + id);
   const statusEl = $('ka-status');
   const listEl = $('ka-list');
   const countEl = $('ka-count');
-
-  $('ka-toggle').addEventListener('click', () => {
-    state.collapsed = !state.collapsed;
-    root.dataset.collapsed = String(state.collapsed);
-    $('ka-toggle').textContent = state.collapsed ? 'Show' : 'Hide';
-    $('ka-toggle').setAttribute('aria-expanded', String(!state.collapsed));
-  });
 
   function renderAuto() {
     const btn = $('ka-auto');
@@ -548,10 +541,6 @@
     }
   }
 
-  try { state.autoEnter = !!GM_getValue(AUTO_KEY, false); } catch (e) { /* no storage */ }
-  setAuto(state.autoEnter);
-  $('ka-auto').addEventListener('click', () => setAuto(!state.autoEnter));
-
   function status(text, kind = '') {
     statusEl.textContent = text;
     statusEl.dataset.kind = kind;
@@ -571,7 +560,7 @@
       // Near-duplicate prompts stay as distinct, labelled banks — never merged.
       if (multi) {
         const pct = Math.round((g.score || 0) * 100);
-        html += `<li class="ka-group" role="presentation" aria-label="Bank: ${escapeHtml(g.question)} — ${pct}% match">` +
+        html += `<li class="ka-group" aria-label="Bank: ${escapeHtml(g.question)} — ${pct}% match">` +
                 `<span class="ka-group-name">${escapeHtml(g.question)}</span>` +
                 `<span class="ka-match">${pct}%</span></li>`;
       }
@@ -602,6 +591,8 @@
       input.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true,
       }));
+      // Fallbacks are mutually exclusive: after Enter, never also click DIVE.
+      return true;
     }
     const send = document.querySelector(SEL.send);
     if (send) { send.click(); return true; }
@@ -617,6 +608,9 @@
     input.dispatchEvent(new Event('change', { bubbles: true }));
     input.focus();
     state.lastFilled = answer;
+    // A fresh selection closes the lingering-refusal tag for the old answer.
+    // refusalKey is left intact so the stale line is not logged again.
+    state.refusalActive = false;
     state.answerQuestion[answer] = btn.dataset.q || state.question;
     listEl.querySelectorAll('.ka-chip').forEach((b) => { b.dataset.filled = 'false'; });
     btn.dataset.filled = 'true';
@@ -1009,6 +1003,9 @@
     if (points === null) return;
     reportScore(q, answer, points, tier);
     state.lastFilled = '';
+    // A scored verdict closes this round. Clear per-answer state so a repeated
+    // prompt (same text, new round) gets answered instead of being skipped.
+    resetBotRound(true);
 
     // Classic shows a per-prompt verdict with a NEXT button. Without this the
     // bot stops after the first answer, and Auto mode leaves the user stuck.
@@ -1077,55 +1074,68 @@
 
   // ---- end-of-dive bank capture ------------------------------------------
   async function captureBanks() {
-    const rows = [...document.querySelectorAll(SEL.row)];
-    if (!rows.length) return;
-    const signature = rows.length + ':' + rows.map((r) => r.querySelector(SEL.rowPrompt)?.textContent || '').join('|');
-    if (state.bankSent === signature) return;
-
-    // The site hides the answer section behind a toggle; open it first.
-    const haul = document.querySelector(SEL.haul);
-    if (haul && haul.getAttribute('aria-expanded') === 'false') haul.click();
-    await new Promise((r) => setTimeout(r, 120));
-    rows.forEach((row) => {
-      const btn = row.querySelector(SEL.rowHead);
-      if (btn) btn.click();
-    });
-    await new Promise((r) => setTimeout(r, 260));
-
-    const learned = [];
-    rows.forEach((row) => {
-      const question = (row.querySelector(SEL.rowPrompt)?.textContent || '').trim().replace(/\s+/g, ' ');
-      // IMPORTANT: only OUR answers are reliable. Other players' answers are
-      // graded by the site's AI and can be 100 once and 60 the next time.
-      row.querySelectorAll(SEL.line).forEach((line) => {
-        if (!line.hasAttribute('data-me')) return;
-        const a = (line.querySelector(SEL.lineAnswer)?.textContent || '').trim();
-        const t = (line.querySelector(SEL.lineTier)?.textContent || '').trim();
-        const p = Number((line.querySelector(SEL.linePoints)?.textContent || '0').trim()) || 0;
-        if (question && a) learned.push({ question, answer: a, tier: t, points: p, source: 'own' });
-      });
-    });
-
-    // Full banks captured from the site's own API responses (DOM shows ~10/tier).
-    seenBanks.splice(0).forEach((bank) => {
-      const question = bank.question || seenDeals[bank.id] || '';
-      (bank.answers || []).forEach((row) => {
-        const tierIndex = Array.isArray(row) ? Number(row[0]) : Number(row && row.tier);
-        const answer = String((Array.isArray(row) ? row[1] : (row && (row.answer || row.name))) || '').trim();
-        if (question && answer) {
-          learned.push({ question, answer, tierIndex, points: tierIndex === 5 ? 100 : 0, source: 'api' });
-        }
-      });
-    });
-
-    if (!learned.length) return;
-    state.bankSent = signature;
+    // The observer is debounced to 50ms, so a second tick can land while this
+    // one is mid-await. Without a guard the two passes click each other's row
+    // heads and leave the bank collapsed/expanded in an inconsistent state.
+    if (state.bankCapturing) return;
+    state.bankCapturing = true;
     try {
-      const r = await request('/api/bank', { method: 'POST', body: { rows: learned } });
-      status(`Imported ${r.added || 0} answer(s) from the end-of-dive bank.`, 'ok');
-    } catch (e) {
-      queuePost('/api/bank', { rows: learned });
-      status('Bridge offline — bank queued for the next dive.', 'error');
+      const rows = [...document.querySelectorAll(SEL.row)];
+      if (!rows.length) return;
+      const signature = rows.length + ':' + rows.map((r) => r.querySelector(SEL.rowPrompt)?.textContent || '').join('|');
+      if (state.bankSent === signature) return;
+
+      // The site hides the answer section behind a toggle; open it first.
+      const haul = document.querySelector(SEL.haul);
+      if (haul && haul.getAttribute('aria-expanded') === 'false') haul.click();
+      await new Promise((r) => setTimeout(r, 120));
+      rows.forEach((row) => {
+        const btn = row.querySelector(SEL.rowHead);
+        if (btn) btn.click();
+      });
+      await new Promise((r) => setTimeout(r, 260));
+
+      const learned = [];
+      rows.forEach((row) => {
+        const question = (row.querySelector(SEL.rowPrompt)?.textContent || '').trim().replace(/\s+/g, ' ');
+        // IMPORTANT: only OUR answers are reliable. Other players' answers are
+        // graded by the site's AI and can be 100 once and 60 the next time.
+        row.querySelectorAll(SEL.line).forEach((line) => {
+          if (!line.hasAttribute('data-me')) return;
+          const a = (line.querySelector(SEL.lineAnswer)?.textContent || '').trim();
+          const t = (line.querySelector(SEL.lineTier)?.textContent || '').trim();
+          // Keep unparseable/missing points as null ("no signal"), NOT 0. The
+          // bridge must not demote a correct answer just because a selector
+          // drifted or the site formatted the tier text unexpectedly.
+          const ptsRaw = (line.querySelector(SEL.linePoints)?.textContent || '').trim();
+          const p = ptsRaw && isFinite(Number(ptsRaw)) ? Number(ptsRaw) : null;
+          if (question && a) learned.push({ question, answer: a, tier: t, points: p, source: 'own' });
+        });
+      });
+
+      // Full banks captured from the site's own API responses (DOM shows ~10/tier).
+      seenBanks.splice(0).forEach((bank) => {
+        const question = bank.question || seenDeals[bank.id] || '';
+        (bank.answers || []).forEach((row) => {
+          const tierIndex = Array.isArray(row) ? Number(row[0]) : Number(row && row.tier);
+          const answer = String((Array.isArray(row) ? row[1] : (row && (row.answer || row.name))) || '').trim();
+          if (question && answer) {
+            learned.push({ question, answer, tierIndex, points: tierIndex === 5 ? 100 : 0, source: 'api' });
+          }
+        });
+      });
+
+      if (!learned.length) return;
+      state.bankSent = signature;
+      try {
+        const r = await request('/api/bank', { method: 'POST', body: { rows: learned } });
+        status(`Imported ${r.added || 0} answer(s) from the end-of-dive bank.`, 'ok');
+      } catch (e) {
+        queuePost('/api/bank', { rows: learned });
+        status('Bridge offline — bank queued for the next dive.', 'error');
+      }
+    } finally {
+      state.bankCapturing = false;
     }
   }
 
@@ -1137,7 +1147,19 @@
     on: false, pick: 'random', mode: 'classic',
     timer: null, busy: false, answered: new Set(), lastAction: '', state: 'idle',
     submittedForPrompt: new Set(), lastSubmitAt: 0, answerCount: 0,
+    roundClosed: false, answeredInput: null,
   };
+
+  // A round ends on a verdict/results transition, not necessarily on a prompt
+  // TEXT change — a Marathon can show the same prompt again later. Clear the
+  // per-round answer state there so the repeated prompt is still answered.
+  // `closed` also records that the current round is over, so the bot cannot
+  // re-answer the still-open question while its verdict is on screen.
+  function resetBotRound(closed) {
+    bot.answeredPrompt = '';
+    bot.submittedForPrompt.clear();
+    bot.roundClosed = !!closed;
+  }
 
   function botStatus(text) {
     bot.state = text;
@@ -1166,7 +1188,7 @@
     } else {
       if (bot.timer) clearInterval(bot.timer);
       bot.timer = null;
-      botStatus('Off — you are playing');
+      botStatus('Off · you are playing');
     }
   }
 
@@ -1185,6 +1207,8 @@
     const input = document.querySelector(SEL.input);
     const isRace = mode() === 'krillocity';
     if (!prompt || !input) return false;
+    // A verdict/results screen is open for this round — never re-answer it.
+    if (bot.roundClosed) return false;
     if (!isRace && bot.answeredPrompt === prompt) return false;
     if (isRace && Date.now() - bot.lastSubmitAt < 700) return false;
     if (state.loadedPrompt !== prompt) { botStatus('loading answers'); return false; }
@@ -1231,8 +1255,12 @@
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
     state.lastFilled = answer;
+    // Retrying with a new answer clears the lingering-refusal tag; refusalKey
+    // stays put so the stale refusal line is not logged a second time.
+    state.refusalActive = false;
     state.answerQuestion[answer] = groups[0].question || prompt;
     if (!isRace) bot.answeredPrompt = prompt;
+    bot.answeredInput = input;
     botStatus(isRace ? 'race answer sent' : 'answered');
     setTimeout(submitAnswer, 120);
     return true;
@@ -1362,15 +1390,31 @@
       const p = promptText();
       if (p && p !== bot.lastPrompt) {
         bot.lastPrompt = p;
-        bot.answeredPrompt = '';
-        bot.submittedForPrompt.clear();
+        resetBotRound(false);
       }
-      if (p && visible(SEL.prompt) && visible(SEL.input)) {
+      // React may reuse the prompt text across rounds; a fresh input element
+      // is another reliable per-round boundary signal.
+      const input = document.querySelector(SEL.input);
+      if (input && bot.answeredInput && input !== bot.answeredInput) {
+        resetBotRound(false);
+        bot.answeredInput = null;
+      }
+      // Verdict / results transition (edge-triggered). Reset per-round answer
+      // state here, not only on a text change, so a repeated Marathon prompt
+      // can still be answered. `roundClosed` stops us answering the same,
+      // still-open question again while its verdict is on screen.
+      const roundClosed = isVisible(SEL.reveal)
+        || visible('.kr-over, .kr-over-next, .kr-board-head, .kr-board-rows, .kr-row');
+      if (roundClosed && !bot.roundClosed) resetBotRound(true);
+      bot.roundClosed = roundClosed;
+      if (roundClosed) {
+        if (visible('.kr-over') || visible('.kr-over-next')) restartFromResults();
+        else if (bot.mode === 'duel') duelTick();
+        else botStatus('waiting for the next round');
+      } else if (p && visible(SEL.prompt) && visible(SEL.input)) {
         answerCurrentPrompt();
       } else if (visible('.kr-lobby-tab') || visible('.kr-room-row')) {
         joinLobbyRoom();
-      } else if (visible('.kr-over') || visible('.kr-over-next')) {
-        restartFromResults();
       } else if (visible('.kr-intro') || visible('button.kr-begin')) {
         startMode();
       } else if (bot.mode === 'duel') {
@@ -1385,49 +1429,74 @@
     }
   }
 
-  try { bot.pick = GM_getValue(PICK_KEY, 'random'); } catch (e) { /* ignore */ }
-  try { bot.mode = GM_getValue(MODE_KEY, 'classic'); } catch (e) { /* ignore */ }
-  document.getElementById('ka-pick').value = bot.pick;
-  document.getElementById('ka-mode').value = bot.mode;
-  document.getElementById('ka-pick').addEventListener('change', (e) => {
-    bot.pick = e.target.value;
-    try { GM_setValue(PICK_KEY, bot.pick); } catch (err) { /* ignore */ }
-  });
-  document.getElementById('ka-mode').addEventListener('change', (e) => {
-    bot.mode = e.target.value;
-    try { GM_setValue(MODE_KEY, bot.mode); } catch (err) { /* ignore */ }
-    reportBot('mode-change', { note: bot.mode });
-  });
-  document.getElementById('ka-bot').addEventListener('click', () => setBot(!bot.on));
-  try {
-    if (GM_getValue(BOT_KEY, false)) setBot(true);
-  } catch (e) { /* ignore */ }
+  // ---- mount -------------------------------------------------------------
+  // @run-at document-start fires before <body> exists, so appending the panel
+  // and attaching listeners must wait for the DOM. The fetch wrapper installed
+  // above stays at document-start so no /deal response is ever missed.
+  function mount() {
+    document.body.appendChild(root);
 
-  // ---- watch the game ----------------------------------------------------
-  let lastPrompt = '';
-  let timer = null;
-  const observer = new MutationObserver(() => {
-    // clearTimeout is the coalescing guard: a burst of React remounts within
-    // MO_DEBOUNCE_MS collapses into one pass instead of one pass per mutation.
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      timer = null;
-      // Re-query on every tick: React remounts nodes and element refs go stale.
-      const q = promptText();
-      if (q && q !== lastPrompt) {
-        lastPrompt = q;
-        loadAnswers(q);
-      }
-      if (checkRefusal()) return;
-      checkVerdict();
-      if (document.querySelector(SEL.haul) || document.querySelector(SEL.row)) captureBanks();
-    }, MO_DEBOUNCE_MS);
-  });
-  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    $('ka-toggle').addEventListener('click', () => {
+      state.collapsed = !state.collapsed;
+      root.dataset.collapsed = String(state.collapsed);
+      $('ka-toggle').textContent = state.collapsed ? 'Show' : 'Hide';
+      $('ka-toggle').setAttribute('aria-expanded', String(!state.collapsed));
+    });
 
-  const initial = promptText();
-  if (initial) loadAnswers(initial);
-  else status('Waiting for the next prompt…', 'loading');
-  flushQueue();
-  state.preloadPromise = preloadAnswers();
+    try { state.autoEnter = !!GM_getValue(AUTO_KEY, false); } catch (e) { /* no storage */ }
+    setAuto(state.autoEnter);
+    $('ka-auto').addEventListener('click', () => setAuto(!state.autoEnter));
+
+    try { bot.pick = GM_getValue(PICK_KEY, 'random'); } catch (e) { /* ignore */ }
+    try { bot.mode = GM_getValue(MODE_KEY, 'classic'); } catch (e) { /* ignore */ }
+    document.getElementById('ka-pick').value = bot.pick;
+    document.getElementById('ka-mode').value = bot.mode;
+    document.getElementById('ka-pick').addEventListener('change', (e) => {
+      bot.pick = e.target.value;
+      try { GM_setValue(PICK_KEY, bot.pick); } catch (err) { /* ignore */ }
+    });
+    document.getElementById('ka-mode').addEventListener('change', (e) => {
+      bot.mode = e.target.value;
+      try { GM_setValue(MODE_KEY, bot.mode); } catch (err) { /* ignore */ }
+      reportBot('mode-change', { note: bot.mode });
+    });
+    document.getElementById('ka-bot').addEventListener('click', () => setBot(!bot.on));
+    try {
+      if (GM_getValue(BOT_KEY, false)) setBot(true);
+    } catch (e) { /* ignore */ }
+
+    // ---- watch the game --------------------------------------------------
+    let lastPrompt = '';
+    let timer = null;
+    const observer = new MutationObserver(() => {
+      // clearTimeout is the coalescing guard: a burst of React remounts within
+      // MO_DEBOUNCE_MS collapses into one pass instead of one pass per mutation.
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = null;
+        // Re-query on every tick: React remounts nodes and element refs go stale.
+        const q = promptText();
+        if (q && q !== lastPrompt) {
+          lastPrompt = q;
+          loadAnswers(q);
+        }
+        if (checkRefusal()) return;
+        checkVerdict();
+        if (document.querySelector(SEL.haul) || document.querySelector(SEL.row)) captureBanks();
+      }, MO_DEBOUNCE_MS);
+    });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+    // Start preloading BEFORE the first prompt lookup: loadAnswers() then
+    // awaits this promise and the cold load hits the in-memory snapshot
+    // instead of falling straight through to a network request.
+    state.preloadPromise = preloadAnswers();
+    const initial = promptText();
+    if (initial) loadAnswers(initial);
+    else status('Waiting for the next prompt…', 'loading');
+    flushQueue();
+  }
+
+  if (document.body) mount();
+  else document.addEventListener('DOMContentLoaded', mount, { once: true });
 })();

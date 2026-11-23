@@ -41,12 +41,27 @@ meant unless a step is genuinely blocked.
    ```
    This inserts new answers, applies corrections, rebuilds the search DB and
    `krillion_only.db`. Confirm the `demoted=` and `inserted=` counts.
-5. **Rebuild the public snapshot** so the webapp reflects the new data:
+5. **Rebuild the public snapshots** so both webapps reflect the new data:
    ```powershell
    python scripts/build_static.py
+   python scripts/build_krillion_site.py
    ```
+   `build_static.py` regenerates `index.html` / `search-data.json` (the `lookup`
+   webapp); `build_krillion_site.py` regenerates `krillion/index.html` and
+   `krillion/krillion-data.json`, which the bridge's `/api/all` reads. Both must
+   run — rebuilding only `build_static.py` leaves `/api/all` serving stale data.
+
+   > **Note:** `scripts/build.py all` (described in the root `README.md`) runs
+   > ingest/derive/emit/verify/publish but does NOT invoke either site builder,
+   > so it leaves these same snapshots stale. The two commands above are still
+   > required after `build.py all`.
 6. **Commit and push** the changed data + generated site, with a short message
-   naming the counts.
+   naming the counts. Make sure the regenerated `krillion/krillion-data.json`
+   from step 5 is included, e.g.:
+   ```powershell
+   git add data injection/data index.html search-data.json krillion/index.html krillion/krillion-data.json webapp/index.html
+   git commit -m "Process log: +N answers, -M demotions"
+   ```
 7. **Append a summary** to `injection/CHANGELOG.md`: what was processed,
    inserted, demoted, still unresolved, and any follow-up needed.
 8. **Rotate the diagnostic logs** so the repository does not grow forever:

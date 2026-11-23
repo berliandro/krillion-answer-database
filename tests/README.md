@@ -3,6 +3,16 @@
 A real, committed, dependency-free test suite. No pytest, no npm install, no
 network access, and no writes to repository data.
 
+**Prerequisite:** the SQLite databases are generated, not committed (they are
+gitignored), and several tests open them directly. After a fresh clone, run:
+
+```bat
+python scripts/bootstrap.py --apply
+```
+
+before `run_all.py`. The suite itself has no third-party dependencies, but it
+needs the generated DBs (`krillion_search.db`, `krillion_only.db`, ...) to exist.
+
 Run everything:
 
 ```bat
@@ -34,5 +44,6 @@ non-zero if any test failed. Target runtime is under 60 seconds.
 - Matcher tests open databases with SQLite's `mode=ro` URI.
 - Anything writable (bridge tree, extracted JS, policy probe files) lives in
   `tempfile.TemporaryDirectory()` and is removed automatically.
-- Tests assert against the current committed repo state and are deterministic:
-  no random data, no live game API, no localhost 8768 traffic.
+- Tests assert against the current repo state (with the generated DBs from
+  `bootstrap.py --apply` present) and are deterministic: no random data, no live
+  game API, no localhost 8768 traffic.

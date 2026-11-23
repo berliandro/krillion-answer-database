@@ -15,14 +15,15 @@ It began as a way to help a friend chase a high score. The scrape ran until the 
 
 ## Quick start
 
-The [public search](https://berliandro.github.io/krillion-answer-database/) works in any browser with no setup. To run a local copy:
+The [public search](https://berliandro.github.io/krillion-answer-database/) works in any browser with no setup. To run a local copy from a fresh clone, bootstrap once (the databases are generated, not committed):
 
 ```powershell
-python scripts/krillion_db.py init
-python scripts/krillion_db.py import
+python scripts/bootstrap.py --apply   # builds any missing/derived DBs, manifest, index, snapshots
 python webapp/app.py
 # open http://127.0.0.1:8765
 ```
+
+`python scripts/bootstrap.py --check` reports what is OK / MISSING / STALE without writing anything. The underlying commands still work individually (`init`, `import`, `rebuild`, `krillion-only`) — see `scripts/build.py all` for the single reproducible pipeline.
 
 During `import`, the tool also reads `injection/data/corrections.jsonl`, an append-only list of demotions from the gameplay bridge. Any `(question, answer)` pair listed there gets `is_krillion = 0` before the indexes are rebuilt, so a demoted answer disappears from the rare-answers site. The injection bridge only reads the rare-answers database and never writes to it.
 
@@ -117,6 +118,12 @@ Both sites share one design: a matte graphite palette with fine paper grain, sem
 
 On PC, a Tampermonkey userscript plus a small loopback helper (`injection/bridge.py`, port 8768) shows every known 100-point answer for the current prompt. It has an auto-fill toggle and a bot with Pick and Mode dropdowns. It records what it sees as evidence but never demotes an answer from gameplay scores — only the game's own graded bank is authoritative — and logs uncertain or rejected answers (with the game's refusal text) for later review. Every log event is tagged with the game and input state it happened in; the full state inventory and per-state log/no-log decisions are in `injection/STATES.md`. Play scores from multiplayer/1v1 never enter the archive — the shared board shows other players' points. Setup and details are in `injection/README.md`.
 
+The userscript **self-updates** from GitHub via `@updateURL`/`@downloadURL` (Tampermonkey fetches new versions automatically); the source, author credit and a link to this repo are in the script header and the panel footer. By **berliandro** — <https://github.com/berliandro/krillion-answer-database>.
+
+## Tests
+
+`python tests/run_all.py` runs the whole dependency-free suite (matcher parity, persisted-index parity, build invariants, isolated bridge endpoints, userscript static checks, site JS syntax, and policy/demotion guards) and exits non-zero on any failure. No extra packages needed.
+
 ## How we collected the data
 
 The answers are not in the page HTML. We found the game's own JSON API in its Next.js bundles and harvested it from Chrome:
@@ -146,11 +153,15 @@ The answers are not in the page HTML. We found the game's own JSON API in its Ne
 ## Repository layout
 
 ```text
-data/       raw JSONL, Full DB, Search DB, Krillion-only DB, notes
+data/       raw JSONL, Full DB, Search DB, Krillion-only DB, manifest.json, matcher index, notes
 assets/     animated banner, static frame, final stats chart
-scripts/    harvesters, krillion_db.py, site_builder.py, build_static.py, build_krillion_site.py, build_webapp.py
+scripts/    build.py + config/ingest/derive/emit/verify/publish, bootstrap.py, krillion_db.py,
+            build_static.py, build_krillion_site.py, build_webapp.py, paraphrase_match.py, harvesters
+shared/     norm.generated.js — generated normaliser shared by the sites
+tests/      dependency-free regression suite (run_all.py + test_*.py)
 webapp/     local search server and UI
-injection/  PC-only autofill userscript + loopback bridge; README.md, DECISIONS.md, STATES.md, PROCESS-LOG.md, data/ logs
+injection/  PC-only autofill userscript + loopback bridge; README.md, DECISIONS.md, STATES.md,
+            PERF.md, PROCESS-LOG.md, RESTRUCTURE-CONTRACT.md, data/ logs
 site-template.html   the one HTML file to edit (palette, layout, shared code)
 index.html, search-data.json   static all-answers Pages site
 krillion/   second static site: every 100-point answer, krillion-only database snapshot

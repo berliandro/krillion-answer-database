@@ -1,7 +1,9 @@
 # Answer-panel decisions: how play should improve the database
 
-Design note, written 2026-11-21. **Not yet implemented.** This document proposes
-the policy; the current shipped script is described under "Current behaviour".
+Design note, written 2026-11-21, updated 2026-11-23. **Implemented.** The policy
+below is enforced in the shipped userscript and bridge; "Current behaviour"
+records the original bug it replaced, and "Decisions made" lists the rules now
+in force.
 
 ## Current behaviour (the problem)
 
