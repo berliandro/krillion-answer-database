@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         Krillion Autofill — rare answers + self-correcting archive
 // @namespace    https://github.com/berliandro/krillion-answer-database
-// @version      1.1.0
-// @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running.
+// @author       berliandro — https://github.com/berliandro
+// @homepage     https://github.com/berliandro/krillion-answer-database
+// @version      1.1.1
+// @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running. By berliandro — https://github.com/berliandro/krillion-answer-database
 // @downloadURL https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @updateURL  https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @match        https://playdaily.org/krillion*
@@ -17,6 +19,7 @@
 // @run-at       document-start
 // @noframes
 // ==/UserScript==
+// Credit / source: berliandro — https://github.com/berliandro/krillion-answer-database
 // Tampermonkey will now auto-update this script from the raw GitHub URL above.
 // Bump @version on every future change, otherwise Tampermonkey won't fetch the update.
 
@@ -402,6 +405,9 @@
       border-top:1px solid var(--ka-line); padding:9px 14px; color:var(--ka-muted);
       font-size:11px; line-height:1.4; flex:none; text-wrap:pretty;
     }
+    #ka-foot a{color:var(--ka-accent);text-decoration:none}
+    #ka-foot a:hover,#ka-foot a:focus-visible{text-decoration:underline}
+    #ka-foot a:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
     #ka-botbar{
       border-top:1px solid var(--ka-line); padding:10px 14px 12px; flex:none;
       display:grid; gap:8px; background:var(--ka-surface-2);
@@ -506,7 +512,7 @@
           '</select></div>' +
       '</div>' +
     '</div>' +
-    '<div id="ka-foot">Krillion rare answers · local archive</div>';
+    '<div id="ka-foot">Krillion rare answers · local archive · <a href="https://github.com/berliandro/krillion-answer-database" target="_blank" rel="noopener noreferrer">by berliandro · GitHub</a></div>';
   document.body.appendChild(root);
 
   const $ = (id) => root.querySelector('#' + id);
@@ -521,10 +527,6 @@
     $('ka-toggle').setAttribute('aria-expanded', String(!state.collapsed));
   });
 
-  function footText() {
-    // Provenance only — the status line and the controls already state the mode.
-    return 'Krillion rare answers · local archive';
-  }
   function renderAuto() {
     const btn = $('ka-auto');
     btn.setAttribute('aria-pressed', String(state.autoEnter));
@@ -534,7 +536,6 @@
     btn.title = botActive
       ? 'Unavailable while Play for me is on — it already submits answers for you.'
       : 'When on, clicking an answer also submits it — no Enter needed.';
-    $('ka-foot').textContent = footText();
   }
   function setAuto(on) {
     state.autoEnter = !!on;
