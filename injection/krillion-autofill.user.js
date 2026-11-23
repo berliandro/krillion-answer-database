@@ -283,7 +283,8 @@
          shadowed cards. One violet accent; dark ink + muted grey copy. */
       --ka-card:#ffffff;
       --ka-track:#eeecf3;        --ka-track-hover:#e6e2ed;
-      --ka-ink:#34313d;          --ka-muted:#6e6a77;        --ka-faint:#8f8a9a;
+      --ka-ink:#34313d;          --ka-muted:#605d69;        --ka-faint:#66626f;
+      /* muted/faint are AA on every light surface: card, track, hover, accent-soft. */
       --ka-accent:#7055bd;       --ka-accent-deep:#5a3fa6;  --ka-accent-soft:#f4effc;
       --ka-success:#2e7d58;      --ka-success-soft:#e8f6ef;
       --ka-error:#b4485a;        --ka-error-soft:#fdeeee;
@@ -314,6 +315,9 @@
       caret-color:var(--ka-accent);
       animation:ka-in .28s var(--ka-ease) both;
     }
+    /* Host pages set box-sizing differently. Contain our sizing so the panel
+       and its wrapping chip row fit a 312px-wide narrow viewport. */
+    #ka-root,#ka-root *{box-sizing:border-box}
     @keyframes ka-in{from{opacity:0;transform:translate3d(8px,-6px,0) scale(.985)}to{opacity:1;transform:none}}
     @keyframes ka-in-quiet{from{opacity:0}to{opacity:1}}
     #ka-root ::selection{background:rgba(112,85,189,.22);color:var(--ka-ink)}
@@ -503,7 +507,7 @@
     .ka-botrow select{
       flex:1; min-width:0; appearance:none; cursor:pointer; display:block;
       /* appearance:none removes the native arrow — draw a clean chevron. */
-      background:var(--ka-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%236e6a77' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+      background:var(--ka-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23605d69' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
       color:var(--ka-ink); border:1px solid var(--ka-line-strong);
       border-radius:9px; padding:7px 30px 7px 10px; font:inherit; font-size:12px;
       box-shadow:inset 0 1px 2px rgba(78,58,104,.04);
@@ -579,7 +583,7 @@
       .ka-seg-thumb{background:Canvas;box-shadow:none;border:1px solid CanvasText}
       #ka-status::before,#ka-botstate[data-active="true"]::before{background:Highlight}
       #ka-toggle:focus-visible,.ka-seg:focus-visible,.ka-chip:focus-visible,
-      .ka-botrow select:focus-visible{outline:2px solid Highlight}
+      .ka-botrow select:focus-visible,#ka-foot a:focus-visible{outline:2px solid Highlight}
     }
     @media (prefers-reduced-motion: reduce){
       /* Collapse every motion-lane animation/transition to instant. State and
@@ -601,6 +605,8 @@
 
   const root = document.createElement('div');
   root.id = 'ka-root';
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-label', 'Krillion rare answers');
   root.dataset.collapsed = 'false';
   // Small monochrome icons, drawn once and reused. They inherit currentColor
   // so they recolor with state (no images, no CDN, no extra dependencies).
@@ -622,7 +628,7 @@
         '<p class="ka-subtitle">100-point answers, ready to dive.</p>' +
       '</div>' +
       '<span id="ka-count" hidden></span>' +
-      '<button id="ka-toggle" type="button" aria-controls="ka-body" aria-expanded="true">Hide</button>' +
+      '<button id="ka-toggle" type="button" aria-controls="ka-body" aria-expanded="true" aria-label="Hide answers">Hide</button>' +
     '</div>' +
     '<div id="ka-body">' +
       '<div class="ka-section-head">' + ICON.list + '<span>Known answers</span></div>' +
@@ -637,7 +643,7 @@
         '</div>' +
         '<div class="ka-autorow">' +
           '<span class="ka-rowlabel"><span class="ka-ico ka-ico-mask ka-ico-bolt"></span>Dive on click</span>' +
-          '<button id="ka-auto" class="ka-seg" type="button" aria-pressed="false" data-on="false" aria-label="Dive on click: Off" title="When on, clicking an answer also submits it — no Enter needed.">' +
+          '<button id="ka-auto" class="ka-seg" type="button" aria-pressed="false" data-on="false" aria-label="Dive on click" title="When on, clicking an answer also submits it — no Enter needed.">' +
             '<span class="ka-seg-opt" data-val="off">Off</span>' +
             '<span class="ka-seg-opt" data-val="on">On</span>' +
             '<span class="ka-seg-thumb" aria-hidden="true"></span>' +
@@ -651,7 +657,7 @@
         '</div>' +
         '<div class="ka-autorow">' +
           '<span class="ka-rowlabel"><span class="ka-ico ka-ico-mask ka-ico-robot"></span>Play for me</span>' +
-          '<button id="ka-bot" class="ka-seg" type="button" aria-pressed="false" data-on="false" aria-describedby="ka-botnote" aria-label="Play for me: Off" title="Plays whole dives for you: picks an answer, fills it and submits it. Use Pick and Mode to choose how.">' +
+          '<button id="ka-bot" class="ka-seg" type="button" aria-pressed="false" data-on="false" aria-describedby="ka-botnote" aria-label="Play for me" title="Plays whole dives for you: picks an answer, fills it and submits it. Use Pick and Mode to choose how.">' +
             '<span class="ka-seg-opt" data-val="off">Off</span>' +
             '<span class="ka-seg-opt" data-val="on">On</span>' +
             '<span class="ka-seg-thumb" aria-hidden="true"></span>' +
@@ -692,7 +698,7 @@
     // The Off/On segments are static markup; only the selected state moves.
     // Update the accessible label without overwriting the pill structure.
     btn.dataset.on = String(state.autoEnter);
-    btn.setAttribute('aria-label', state.autoEnter ? 'Dive on click: On' : 'Dive on click: Off');
+    // The accessible label is constant; aria-pressed is the single state signal.
     btn.disabled = botActive;
     btn.setAttribute('aria-disabled', String(botActive));
     btn.title = botActive
@@ -1379,7 +1385,6 @@
     const btn = document.getElementById('ka-bot');
     btn.setAttribute('aria-pressed', String(bot.on));
     btn.dataset.on = String(bot.on);
-    btn.setAttribute('aria-label', bot.on ? 'Play for me: On' : 'Play for me: Off');
     btn.title = bot.on
       ? 'Playing dives for you. Click again to stop and take control.'
       : 'Plays whole dives for you: picks an answer, fills it and submits it.';
@@ -1778,6 +1783,7 @@
       state.collapsed = !state.collapsed;
       root.dataset.collapsed = String(state.collapsed);
       $('ka-toggle').textContent = state.collapsed ? 'Show' : 'Hide';
+      $('ka-toggle').setAttribute('aria-label', state.collapsed ? 'Show answers' : 'Hide answers');
       $('ka-toggle').setAttribute('aria-expanded', String(!state.collapsed));
     });
 
