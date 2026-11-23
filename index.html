@@ -363,7 +363,57 @@ function setProgress(fraction) {
   fill.style.transform = 'scaleX(' + Math.max(0, Math.min(1, fraction)) + ')';
 }
 
+/* Progressive enhancement: the generated normaliser and v2 snapshots are
+ * optional. Any fetch failure falls through to the inline/legacy path. */
+function loadGeneratedNorm() {
+  return new Promise(resolve => {
+    if (window.KrillionNorm && typeof window.KrillionNorm.norm === 'function') return resolve();
+    const tag = document.createElement('script');
+    tag.src = new URL('shared/norm.generated.js', SITE_ROOT);
+    tag.async = true;
+    tag.onload = () => resolve();
+    tag.onerror = () => resolve();
+    document.head.appendChild(tag);
+  });
+}
+function hydrateSnapshot(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.rows)) {
+    const fields = Array.isArray(payload.fields) ? payload.fields : [];
+    return payload.rows.map(row => Array.isArray(row) && fields.length
+      ? Object.fromEntries(fields.map((f, i) => [f, row[i]]))
+      : row);
+  }
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  return null;
+}
+async function fetchOptionalArray(v2Url, legacyUrl) {
+  try {
+    const res = await fetch(new URL(v2Url, SITE_ROOT), { cache: 'no-store' });
+    if (res.ok) {
+      const rows = hydrateSnapshot(await res.json());
+      if (rows && rows.length) return rows;
+    }
+  } catch (e) { /* optional fast path unavailable */ }
+  const res = await fetch(new URL(legacyUrl, SITE_ROOT), { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const rows = hydrateSnapshot(await res.json());
+  if (!rows) throw new Error('Bad data snapshot');
+  return rows;
+}
+
 async function loadDatabase() {
+  try {
+    const res = await fetch(new URL('search-data.v2.json', SITE_ROOT), { cache: 'no-store' });
+    if (res.ok) {
+      const rows = hydrateSnapshot(await res.json());
+      if (rows && rows.length) {
+        setProgress(1);
+        if (status) status.textContent = rows.length.toLocaleString() + ' questions ready';
+        return rows;
+      }
+    }
+  } catch (e) { /* optional fast path unavailable */ }
   const res = await fetch('search-data.json', { cache: 'no-store' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const total = Number(res.headers.get('content-length')) || 0;
@@ -435,6 +485,9 @@ const CONTRACTIONS = [
 ];
 
 function normalise(s) {
+  if (window.KrillionNorm && typeof window.KrillionNorm.norm === 'function') {
+    return window.KrillionNorm.norm(s);
+  }
   let t = String(s).trim().toLowerCase()
     .replace(/[’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-');
   for (const [k, v] of CONTRACTIONS) t = t.replace(new RegExp('\\b' + k + '\\b', 'g'), v);
@@ -697,9 +750,7 @@ function updateSwitch() {
 }
 async function ensureLookup() {
   if (CACHE.lookup) { DATA = CACHE.lookup.data; IDX = CACHE.lookup.idx; return CACHE.lookup; }
-  const res = await fetch(new URL('search-data.json', SITE_ROOT));
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const data = await res.json();
+  const data = await fetchOptionalArray('search-data.v2.json', 'search-data.json');
   DATA = data; IDX = buildIndex(data);
   for (const w of ['Name a famous park', 'Name a song', 'Name a country']) search(w);
   CACHE.lookup = { data, idx: IDX, query: '' };
@@ -825,9 +876,7 @@ function renderVault(query) {
 }
 async function ensureVault() {
   if (CACHE.vault) { DATA = CACHE.vault.data; IDX = CACHE.vault.idx; return CACHE.vault; }
-  const res = await fetch(new URL('krillion/krillion-data.json', SITE_ROOT), { cache: 'no-store' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const data = await res.json();
+  const data = await fetchOptionalArray('krillion-data.v2.json', 'krillion/krillion-data.json');
   DATA = data; IDX = buildIndex(data);
   for (const w of ['Name a famous park', 'Name a song', 'Name a country']) search(w);
   CACHE.vault = { data, idx: IDX, query: '' };
@@ -865,6 +914,7 @@ let browseShown = 0;
 if ($('more')) $('more').addEventListener('click', () => showBrowse(false));
 
 async function init() {
+  await loadGeneratedNorm();
   const mode = document.body.dataset.mode || 'lookup';
   if (mode === 'vault') return initVault();
   if (mode === 'local') { input.disabled = false; return initLocal(); }
