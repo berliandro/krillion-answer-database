@@ -195,42 +195,67 @@ class Matcher:
                 total += 1.2 * self.idf_of(t)
         return total
 
-    def similarity(self, query: str, i: int) -> float:
+    def _query_side(self, query: str):
+        """Compute query-side scoring inputs exactly once per query.
+
+        These values are invariant across all candidates, so the hot loop in
+        search() must not recompute them for every one of the ~5,800 banks.
+        """
         qt = tokens(query)
+        qw = sum(self.idf_of(t) for t in qt)
+        qtri = trigrams(query)
+        qneg = bool(qt & NEGATIONS)
+        nq = normalise(query)
+        return qt, qw, qtri, qneg, nq
+
+    def _similarity_precomputed(self, qt, qw, qtri, qneg, nq, i: int) -> float:
+        """Score one candidate against precomputed query-side inputs.
+
+        Semantics are identical to similarity(); only the query-side work has
+        been hoisted out of the candidate loop by the caller.
+        """
         ct = self.toks[i]
         if not qt or not ct:
             return 0.0
         sw = self.shared_weight(qt, ct)
-        qw = sum(self.idf_of(t) for t in qt)
         cw = sum(self.idf_of(t) for t in ct)
         coverage = sw / qw if qw else 0.0
         precision = sw / cw if cw else 0.0
         # harmonic mean punishes candidates that add lots of extra words
         overlap = 2 * coverage * precision / (coverage + precision) if coverage + precision else 0.0
-        tri = dice(trigrams(query), self.tris[i])
+        tri = dice(qtri, self.tris[i])
         score = 0.88 * overlap + 0.12 * tri
-        if bool(qt & NEGATIONS) != bool(ct & NEGATIONS):
+        if qneg != bool(ct & NEGATIONS):
             score *= 0.7
-        if normalise(query) == self.norm[i]:
+        if nq == self.norm[i]:
             score = 1.0
-        elif normalise(query) in self.norm[i]:
+        elif nq in self.norm[i]:
             score = max(score, 0.90)
         return score
+
+    def similarity(self, query: str, i: int) -> float:
+        """Public single-candidate API (unchanged): hoists query work per call."""
+        qt, qw, qtri, qneg, nq = self._query_side(query)
+        return self._similarity_precomputed(qt, qw, qtri, qneg, nq, i)
 
     def search(self, query: str, limit: int = 10, threshold: float = 0.34) -> list[dict]:
         query = query[:200]
         if not query.strip():
             return []
-        if not tokens(query):
+        qt, qw, qtri, qneg, nq = self._query_side(query)
+        if not qt:
             # Non-Latin scripts / emoji produce no Latin tokens; degrade to a
             # literal substring match instead of reporting nothing.
-            q = normalise(query)
+            q = nq
             found = [
-                (q, i) for i, nq in enumerate(self.norm)
-                if q and q in nq
+                (q, i) for i, norm_q in enumerate(self.norm)
+                if q and q in norm_q
             ][:limit]
             return [{"question": self.questions[i], "score": 1.0} for _, i in found]
-        scored = [(self.similarity(query, i), i) for i in range(len(self.questions))]
+        scored = [
+            (self._similarity_precomputed(qt, qw, qtri, qneg, nq, i), i)
+            for i in range(len(self.questions))
+        ]
         scored = [(s, i) for s, i in scored if s >= threshold]
         scored.sort(key=lambda x: (-x[0], self.questions[x[1]]))
         # Relative cut-off: show the best hit (and genuine aliases) but not
