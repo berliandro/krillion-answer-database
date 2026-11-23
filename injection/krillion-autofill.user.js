@@ -560,8 +560,8 @@
     .ka-chip:hover{transform:translate3d(0,-1px,0);box-shadow:var(--ka-lift)}
     .ka-chip:active{transform:scale(.985);box-shadow:none}
     .ka-chip[data-filled="true"]{animation:ka-chip-set 220ms var(--ka-ease) backwards}
-    #ka-toggle:active,#ka-seg:active{transform:scale(.97)}
-    #ka-seg[data-on="true"]{box-shadow:inset 0 1px 2px rgba(78,58,104,.10)}
+    #ka-toggle:active,.ka-seg:active{transform:scale(.97)}
+    .ka-seg[data-on="true"]{box-shadow:inset 0 1px 2px rgba(78,58,104,.10)}
     #ka-botstate::before{transition:background-color var(--ka-soft) ease,transform var(--ka-soft) var(--ka-ease)}
     #ka-botstate[data-active="true"]::before{animation:ka-dot-breathe 2s ease-in-out infinite}
     #ka-botbar:not([hidden]){animation:ka-surface-in var(--ka-soft) var(--ka-ease) backwards}
@@ -597,7 +597,7 @@
       #ka-botstate[data-active="true"]::before{animation:none}
       #ka-status[data-kind="loading"]::before{opacity:1;transform:none}
       #ka-status[data-kind]::before{transform:none}
-      .ka-chip:hover,.ka-chip:active,#ka-toggle:active,#ka-seg:active,
+      .ka-chip:hover,.ka-chip:active,#ka-toggle:active,.ka-seg:active,
       #ka-auto:active:not(:disabled),#ka-bot:active{transform:none;box-shadow:none}
       #ka-toggle,.ka-seg,.ka-seg-thumb,.ka-seg-opt,.ka-chip,.ka-chip::after,
       .ka-botrow select,#ka-status,#ka-status::before,#ka-botstate::before{transition:none}
