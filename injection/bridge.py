@@ -7,6 +7,8 @@ injection/data/ and injection/CHANGELOG.md.
 
 Run:  python injection/bridge.py        (listens on 127.0.0.1:8768)
 """
+import hashlib
+import importlib.util
 import json
 import re
 import sqlite3
@@ -93,48 +95,110 @@ def db_conn(path):
 
 
 # Paraphrase tolerance lives in the repo's dependency-free matcher. It is
-# imported read-only; if that file ever changes, we fall back to exact match.
+# imported read-only. At startup we prefer the derived index emitted by
+# scripts/emit.py; if it is missing, stale or unreadable we rebuild from the
+# stored questions exactly as before. Validation happens once and its result
+# is cached in MATCHER_INDEX_STATUS (also exposed on /api/perf).
 MATCHER = None
-try:
-    import importlib.util
-    _spec = importlib.util.spec_from_file_location(
-        "krillion_paraphrase", ROOT / "scripts" / "paraphrase_match.py"
-    )
-    _mod = importlib.util.module_from_spec(_spec)
-    _spec.loader.exec_module(_mod)
-    with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as _c:
-        _questions = [r[0] for r in _c.execute("SELECT DISTINCT question FROM answers ORDER BY question")]
-    MATCHER = _mod.Matcher(_questions)
-    normalise = _mod.normalise
-except Exception as _e:
-    print(f"paraphrase matcher unavailable, exact matching only: {_e}")
-    normalise = lambda s: " ".join(str(s).strip().lower().split())
+NORM_TO_QUESTION = {}
+ALL_QUESTIONS = []
+normalise = lambda s: " ".join(str(s).strip().lower().split())
+
+INDEX_PATH = DATA_DIR / "matcher_index.json"
+MATCHER_SOURCE = ROOT / "scripts" / "paraphrase_match.py"
+_MATCHER_MODULE = None
+MATCHER_INDEX_STATUS = "not checked"
 
 
-def _build_norm_map():
-    """One-time normalised-prompt -> stored-wording map.
+def _sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
-    resolve_question() used to re-read every DISTINCT question and call
-    normalise() on all 5,801 of them on *every* request. Building the map once
-    at startup turns exact and rewritten-exact detection into O(1) dict
-    lookups. The query is sorted so collisions keep the same first-wins
-    behaviour as the matcher's own exact index.
-    """
+
+def _questions_from_db():
     with sqlite3.connect(f"file:{BASE_DB}?mode=ro", uri=True) as c:
-        questions = [r[0] for r in c.execute(
+        return [r[0] for r in c.execute(
             "SELECT DISTINCT question FROM answers ORDER BY question"
         )]
+
+
+def _norm_map_from(questions, norms):
+    """First-wins normalised -> stored wording map (same order as the DB)."""
     mapping = {}
-    for q in questions:
-        mapping.setdefault(normalise(q), q)
-    return mapping, questions
+    for q, n in zip(questions, norms):
+        mapping.setdefault(n, q)
+    return mapping
 
 
-try:
-    NORM_TO_QUESTION, ALL_QUESTIONS = _build_norm_map()
-except Exception as _e:
-    print(f"normalised prompt map unavailable, fuzzy only: {_e}")
-    NORM_TO_QUESTION, ALL_QUESTIONS = {}, []
+def _try_matcher_index():
+    """Return (matcher, norm_map, questions, status) if a valid index exists."""
+    try:
+        if not INDEX_PATH.exists():
+            return None, {}, [], "missing"
+        manifest = load_manifest()
+        expected = None
+        if isinstance(manifest, dict) and isinstance(manifest.get("artifacts"), dict):
+            expected = manifest["artifacts"].get("matcher_index.json")
+        actual = _sha256_file(INDEX_PATH)
+        if not isinstance(expected, str) or expected.lower() != actual:
+            return None, {}, [], "manifest-sha-mismatch"
+        payload = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
+        src = payload.get("matcher_source_sha256")
+        if not isinstance(src, str) or src.lower() != _sha256_file(MATCHER_SOURCE):
+            return None, {}, [], "source-hash-mismatch"
+        matcher = _MATCHER_MODULE.Matcher.from_index(INDEX_PATH)
+        if not matcher.questions:
+            return None, {}, [], "empty-index"
+        norm_map = _norm_map_from(matcher.questions, matcher.norm)
+        return matcher, norm_map, list(matcher.questions), "loaded"
+    except Exception as e:
+        print(f"matcher index unusable ({e}); rebuilding from questions")
+        return None, {}, [], "error"
+
+
+def _init_matcher():
+    """One-time startup: load a validated index, else build from questions."""
+    global MATCHER, NORM_TO_QUESTION, ALL_QUESTIONS, normalise
+    global MATCHER_INDEX_STATUS, _MATCHER_MODULE
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "krillion_paraphrase", MATCHER_SOURCE
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _MATCHER_MODULE = mod
+        normalise = mod.normalise
+    except Exception as e:
+        print(f"paraphrase matcher unavailable, exact matching only: {e}")
+        MATCHER_INDEX_STATUS = "no-module"
+        return
+
+    matcher, norm_map, questions, status = _try_matcher_index()
+    if matcher is not None:
+        MATCHER = matcher
+        NORM_TO_QUESTION = norm_map
+        ALL_QUESTIONS = questions
+        MATCHER_INDEX_STATUS = status
+        return
+
+    # Fallback: the original startup path (build matcher + norm map from DB).
+    try:
+        questions = _questions_from_db()
+        MATCHER = mod.Matcher(questions)
+        norm_map = {}
+        for q in questions:
+            norm_map.setdefault(normalise(q), q)
+        NORM_TO_QUESTION = norm_map
+        ALL_QUESTIONS = questions
+        MATCHER_INDEX_STATUS = status
+    except Exception as e:
+        print(f"paraphrase matcher build failed, exact matching only: {e}")
+        MATCHER = None
+        NORM_TO_QUESTION, ALL_QUESTIONS = {}, []
+        MATCHER_INDEX_STATUS = "build-error"
 
 # Dedicated lock for the read caches. Kept separate from LOCK (which guards
 # append-only writes) so a slow cold resolve never blocks bleed logging.
@@ -199,6 +263,11 @@ def manifest_meta():
     if not isinstance(counts, dict):
         counts = None
     return version, etag, counts
+
+
+# Startup bootstrap (defined above but called here, after load_manifest and
+# CACHE_LOCK exist). Cached in MATCHER_INDEX_STATUS; never repeated.
+_init_matcher()
 
 
 def cached_learned():
@@ -723,6 +792,9 @@ class Handler(BaseHTTPRequestHandler):
                 "normalised_prompts": len(NORM_TO_QUESTION),
                 "matcher_questions": len(MATCHER.questions) if MATCHER else 0,
             }
+            # Additive: which startup path produced MATCHER (loaded/missing/
+            # manifest-sha-mismatch/source-hash-mismatch/built/...).
+            perf_resp["matcher_index"] = MATCHER_INDEX_STATUS
             # Additive fields only: every pre-existing /api/perf field is kept.
             if version is not None:
                 perf_resp["version"] = version

@@ -13,6 +13,7 @@ Checks:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import sqlite3
@@ -96,6 +97,68 @@ def check_paraphrase() -> bool:
         f"(recall@1={hits[1]}/{total}, recall@3={hits[3]}/{total})"
     )
     return hits[10] == total and total >= 36
+
+
+def check_matcher_index() -> bool:
+    """A present index must be valid and byte-identical to a fresh build."""
+    path = cfg.DATA / "matcher_index.json"
+    if not path.exists():
+        print("[verify] matcher index: absent (bridge rebuilds from questions)")
+        return True
+
+    try:
+        raw = path.read_bytes()
+        expected = None
+        if cfg.MANIFEST.exists():
+            manifest = json.loads(cfg.MANIFEST.read_text(encoding="utf-8"))
+            artifacts = manifest.get("artifacts", {})
+            if isinstance(artifacts, dict):
+                expected = artifacts.get("matcher_index.json")
+        actual = hashlib.sha256(raw).hexdigest()
+        if expected != actual:
+            print(f"[verify] matcher index: manifest sha mismatch ({expected} != {actual})")
+            return False
+
+        payload = json.loads(raw.decode("utf-8"))
+        src_sha = hashlib.sha256(cfg.PARAPHRASE_SOURCE.read_bytes()).hexdigest()
+        if payload.get("matcher_source_sha256") != src_sha:
+            print("[verify] matcher index: stale matcher source hash")
+            return False
+
+        loaded = pm.Matcher.from_index(path)
+        with _ro(cfg.ONLY_DB) as c:
+            questions = [r[0] for r in c.execute(
+                "SELECT DISTINCT question FROM answers ORDER BY question"
+            )]
+        fresh = pm.Matcher(questions)
+    except Exception as e:
+        print(f"[verify] matcher index: invalid ({e})")
+        return False
+
+    # Same queries the bridge actually sends, across several (limit, threshold)
+    # combinations, over every paraphrase test case.
+    combos = (
+        (cfg.SEARCH_LIMIT, cfg.MATCH_THRESHOLD),   # general search default
+        (5, cfg.BRIDGE_THRESHOLD),                 # bridge _resolve_candidates
+        (5, 0.34),                                 # permissive relative cut-off
+    )
+    tests = json.loads(cfg.PARAPHRASE_TESTS.read_text(encoding="utf-8"))
+    comparisons = 0
+    mismatches = 0
+    for t in tests:
+        for limit, threshold in combos:
+            a = fresh.search(t["typed"], limit=limit, threshold=threshold)
+            b = loaded.search(t["typed"], limit=limit, threshold=threshold)
+            comparisons += 1
+            if a != b:
+                mismatches += 1
+                if mismatches <= 3:
+                    print(f"[verify]   mismatch: {t['typed']!r} ({limit},{threshold})")
+    print(
+        f"[verify] matcher index: {len(loaded.questions)} questions, "
+        f"{comparisons} comparisons, {mismatches} mismatches"
+    )
+    return mismatches == 0
 
 
 def check_corrections() -> bool:
@@ -220,6 +283,7 @@ def verify() -> dict:
     ok = ok_counts
     ok &= check_integrity()
     ok &= check_paraphrase()
+    ok &= check_matcher_index()
     ok &= check_corrections()
     ok &= check_groups_and_aliases()
     ok &= check_manifest(counts)

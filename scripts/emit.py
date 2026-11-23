@@ -15,6 +15,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import shutil
 import sqlite3
 from pathlib import Path
 
@@ -193,6 +194,33 @@ def _table_exists(c: sqlite3.Connection, name: str) -> bool:
     )
 
 
+MATCHER_INDEX_JSON = "matcher_index.json"
+
+
+def build_matcher_index(dest: Path | None = None) -> Path:
+    """Build the derived matcher index from the stored bank questions.
+
+    The question query and ordering are copied verbatim from
+    injection/bridge.py, so a matcher loaded from this index is
+    byte-identical to one built at bridge startup. The source hash of
+    paraphrase_match.py is stored inside the index so the bridge can reject a
+    stale artefact after the matcher algorithm changes.
+    """
+    dest = Path(dest) if dest is not None else cfg.DATA
+    dest.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(f"file:{cfg.ONLY_DB.as_posix()}?mode=ro", uri=True) as c:
+        questions = [r[0] for r in c.execute(
+            "SELECT DISTINCT question FROM answers ORDER BY question"
+        )]
+    matcher = derive.pm.Matcher(questions)
+    payload = matcher.to_index_dict(
+        matcher_source_sha256=sha256_file(cfg.PARAPHRASE_SOURCE)
+    )
+    out = dest / MATCHER_INDEX_JSON
+    _write_json(out, payload)
+    return out
+
+
 def _v2_payloads() -> dict[str, list]:
     """Array-JSON payloads from the materialisations (legacy fallback OK)."""
     nq = lambda q: derive.rewrite_query(derive.pm.normalise(q))
@@ -237,8 +265,19 @@ def emit(out_dir: Path | None = None) -> dict:
     js.parent.mkdir(parents=True, exist_ok=True)
     js.write_text(generated_norm_js(), encoding="utf-8", newline="\n")
 
+    index_path = build_matcher_index(out_dir)
+    # The bridge reads the index from data/ at startup. Publish a copy there
+    # too: publish.py only moves the four web artefacts, so without this a
+    # normal `build all` would leave the manifest pointing at an index that
+    # never reached its runtime location.
+    runtime_index = cfg.DATA / MATCHER_INDEX_JSON
+    if runtime_index.resolve() != index_path.resolve():
+        runtime_index.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(index_path, runtime_index)
+
     counts = derive.counts()
     artifacts = {
+        MATCHER_INDEX_JSON: sha256_file(index_path),
         cfg.LEGACY_SEARCH_JSON: file_digest(cfg.ROOT / cfg.LEGACY_SEARCH_JSON),
         cfg.LEGACY_KRILLION_JSON: file_digest(cfg.ROOT / cfg.LEGACY_KRILLION_JSON),
         cfg.V2_SEARCH_JSON: sha256_file(out_dir / cfg.V2_SEARCH_JSON),

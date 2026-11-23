@@ -175,6 +175,54 @@ class Matcher:
         for i, q in enumerate(self.norm):
             self.by_exact.setdefault(q, i)
 
+    # ------------------------------------------------------------------
+    # Derived-index persistence. The index is a pure function of this
+    # module plus the stored bank questions; bridge.py loads it at startup
+    # instead of paying the tokenise/normalise cost on every launch.
+    # Public __init__/search()/similarity() signatures are unchanged.
+    # ------------------------------------------------------------------
+    INDEX_FORMAT = 1
+
+    def to_index_dict(self, matcher_source_sha256: str = "") -> dict:
+        """Serialise the derived tables into a deterministic JSON-safe dict.
+
+        Sets become sorted lists so the emitted bytes are independent of
+        Python's hash randomisation; they are rebuilt as sets on load.
+        """
+        return {
+            "format": self.INDEX_FORMAT,
+            "matcher_source_sha256": matcher_source_sha256,
+            "questions": list(self.questions),
+            "norm": list(self.norm),
+            "toks": [sorted(t) for t in self.toks],
+            "tris": [sorted(t) for t in self.tris],
+            # dict order follows set iteration when df is built, which is
+            # hash-seed dependent; sort keys so emitted bytes are stable.
+            "idf": {k: self.idf[k] for k in sorted(self.idf)},
+            "default_idf": self.default_idf,
+            "by_exact": {k: self.by_exact[k] for k in sorted(self.by_exact)},
+        }
+
+    @classmethod
+    def from_index(cls, path: str | Path) -> "Matcher":
+        """Rebuild a Matcher from a precomputed index (no re-tokenising)."""
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+        if payload.get("format") != cls.INDEX_FORMAT:
+            raise ValueError(
+                f"unsupported matcher index format: {payload.get('format')!r}"
+            )
+        obj = cls.__new__(cls)
+        obj.questions = list(payload["questions"])
+        obj.norm = list(payload["norm"])
+        obj.toks = [set(t) for t in payload["toks"]]
+        obj.tris = [set(t) for t in payload["tris"]]
+        obj.idf = dict(payload["idf"])
+        obj.default_idf = float(payload["default_idf"])
+        obj.by_exact = dict(payload["by_exact"])
+        if not (len(obj.questions) == len(obj.norm) == len(obj.toks) == len(obj.tris)):
+            raise ValueError("matcher index length mismatch")
+        return obj
+
     def idf_of(self, t: str) -> float:
         return self.idf.get(t, self.default_idf)
 
