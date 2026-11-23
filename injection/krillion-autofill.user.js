@@ -279,93 +279,153 @@
   // ---- panel -------------------------------------------------------------
   GM_addStyle(`
     #ka-root{
-      --ka-surface:#1d2228; --ka-surface-2:#262d34;
-      --ka-raised:#313a43; --ka-text:#eceee9; --ka-muted:#b4bcc0;
-      --ka-accent:#e0ae6a; --ka-success:#9fc6a8; --ka-error:#e6a19a;
-      --ka-on-bg:#2c3a30; --ka-line:#343c44; --ka-line-strong:#4d5a63;
+      /* Reference skin: a white card lifted off the dark game, with a soft
+         lavender→peach accent. All values are CSS variables for easy recall. */
+      --ka-ink:#302c3c;          /* bold dark titles */
+      --ka-ink-2:#6d6979;        /* muted grey secondary */
+      --ka-ink-3:#928da0;        /* quiet metadata */
+      --ka-surface:#ffffff;      /* card surfaces */
+      --ka-surface-2:#f5f4f8;    /* light grey tracks / grouped blocks */
+      --ka-surface-3:#fbfaff;
+      --ka-line:#ebe9f1;
+      --ka-line-strong:#ddd9e8;
+      --ka-accent:#8a6cc0;       /* lavender-violet */
+      --ka-accent-deep:#6547a3;  /* text-safe accent */
+      --ka-accent-soft:#f2edfb;
+      --ka-grad-a:#cdb1e6;
+      --ka-grad-b:#f7d9c9;
+      --ka-success:#2f7d5b;
+      --ka-success-soft:#e8f6ef;
+      --ka-error:#b04a4a;
+      --ka-error-soft:#fdeeee;
+      --ka-shadow:0 12px 32px rgba(52,38,78,.18), 0 2px 8px rgba(52,38,78,.08);
+      --ka-shadow-sm:0 2px 7px rgba(52,38,78,.10);
       position:fixed; top:18px; right:18px; z-index:2147483000;
       width:min(312px, calc(100vw - 24px));
       max-height:min(74vh,640px); display:flex; flex-direction:column;
-      background:var(--ka-surface); border:1px solid var(--ka-line); border-radius:14px;
-      box-shadow:0 14px 40px rgba(0,0,0,.34), 0 2px 8px rgba(0,0,0,.16);
-      color:var(--ka-text); font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
+      background:var(--ka-surface); border:1px solid var(--ka-line); border-radius:18px;
+      box-shadow:var(--ka-shadow);
+      color:var(--ka-ink); font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
       font-variant-numeric:tabular-nums; overflow:hidden; overflow-wrap:anywhere;
-      caret-color:var(--ka-accent);
-      animation:ka-in .28s cubic-bezier(.16,1,.3,1) both;
+      caret-color:var(--ka-accent-deep);
+      animation:ka-in .24s cubic-bezier(.16,1,.3,1) both;
     }
-    @supports (color: oklch(0.24 0.012 250)){
-      #ka-root{
-        --ka-surface:oklch(0.29 0.014 250);
-        --ka-surface-2:oklch(0.35 0.016 250); --ka-raised:oklch(0.41 0.018 250);
-        --ka-text:oklch(0.94 0.01 90); --ka-muted:oklch(0.78 0.018 250);
-        --ka-accent:oklch(0.82 0.10 75); --ka-success:oklch(0.84 0.07 155);
-        --ka-on-bg:oklch(0.36 0.045 155);
-        --ka-line:oklch(0.38 0.014 250); --ka-line-strong:oklch(0.49 0.016 250);
-      }
-    }
-    @keyframes ka-in{from{opacity:0;transform:translate3d(8px,-6px,0) scale(.985)}to{opacity:1;transform:none}}
+    @keyframes ka-in{from{opacity:0;transform:translate3d(0,-6px,0) scale(.99)}to{opacity:1;transform:none}}
     @keyframes ka-in-quiet{from{opacity:0}to{opacity:1}}
     @keyframes ka-pulse{0%,100%{opacity:.35}50%{opacity:1}}
-    #ka-root::before{
-      content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      opacity:.055; mix-blend-mode:soft-light;
-    }
-    #ka-root ::selection{background:rgba(224,174,106,.30);color:var(--ka-text)}
-    #ka-root *{scrollbar-color:var(--ka-line-strong) var(--ka-surface);scrollbar-width:thin}
+    #ka-root ::selection{background:rgba(138,108,192,.22);color:var(--ka-ink)}
+    #ka-root *{scrollbar-color:var(--ka-line-strong) transparent;scrollbar-width:thin}
     #ka-root *::-webkit-scrollbar{width:8px;height:8px}
-    #ka-root *::-webkit-scrollbar-track{background:var(--ka-surface)}
+    #ka-root *::-webkit-scrollbar-track{background:transparent}
     #ka-root *::-webkit-scrollbar-thumb{background:var(--ka-line-strong);border-radius:99px;border:2px solid var(--ka-surface)}
+    /* Header: brand glyph + bold title / muted subtitle, count pill, quiet hide. */
     #ka-head{
-      display:flex; align-items:center; gap:10px; padding:12px 14px;
-      border-bottom:1px solid var(--ka-line); flex:none; min-width:0;
+      display:flex; align-items:flex-start; gap:9px; padding:14px 14px 13px;
+      flex:none; min-width:0; border-bottom:1px solid var(--ka-line);
+      background:linear-gradient(120deg, rgba(205,177,230,.20), rgba(247,217,201,.16));
     }
+    .ka-brand{
+      flex:none; width:30px; height:30px; border-radius:10px;
+      display:grid; place-items:center; color:var(--ka-accent-deep);
+      background:linear-gradient(135deg,var(--ka-grad-a),var(--ka-grad-b));
+      box-shadow:var(--ka-shadow-sm);
+    }
+    .ka-ico{width:13px;height:13px;flex:none;color:var(--ka-accent-deep)}
+    .ka-ico-brand{width:17px;height:17px}
+    .ka-heading{flex:1;min-width:0}
     #ka-title{
-      font-size:14px; font-weight:650; letter-spacing:-.01em; line-height:1.25;
-      margin:0; flex:1; min-width:0; text-wrap:balance; color:var(--ka-text);
+      margin:0; font-size:14.5px; font-weight:700; letter-spacing:-.018em;
+      line-height:1.3; color:var(--ka-ink); text-wrap:balance;
+    }
+    .ka-subtitle{
+      margin:2px 0 0; font-size:11.5px; font-weight:450; line-height:1.35;
+      color:var(--ka-ink-2); text-wrap:pretty;
     }
     #ka-count{
-      color:var(--ka-accent); background:var(--ka-surface-2);
-      border:1px solid var(--ka-line); border-radius:999px;
-      padding:3px 8px; font-size:11px; font-weight:650; line-height:1.2; flex:none;
+      flex:none; align-self:flex-start; display:inline-flex; align-items:center; gap:4px;
+      background:linear-gradient(135deg,var(--ka-grad-a),var(--ka-grad-b));
+      color:#3b2b52; border:1px solid rgba(255,255,255,.8); border-radius:999px;
+      padding:3px 8px; font-size:11px; font-weight:700; line-height:1.2;
+      box-shadow:var(--ka-shadow-sm);
+    }
+    #ka-count::before{
+      content:""; width:10px; height:10px; flex:none; border-radius:50%;
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.6 9.8 6.2 14.4 8 9.8 9.8 8 14.4 6.2 9.8 1.6 8 6.2 6.2z' fill='%233b2b52'/%3E%3C/svg%3E") center/contain no-repeat;
     }
     #ka-count[hidden]{display:none}
-    #ka-toggle,#ka-auto,#ka-bot{
-      appearance:none; background:var(--ka-surface-2); color:var(--ka-text);
-      border:1px solid var(--ka-line-strong); border-radius:8px;
-      padding:5px 10px; font:inherit; font-size:12px; line-height:1.2; cursor:pointer;
-      transition:background-color .12s ease,border-color .12s ease;
+    #ka-toggle{
+      appearance:none; flex:none; align-self:flex-start; cursor:pointer; font:inherit;
+      background:rgba(255,255,255,.85); color:var(--ka-ink-2);
+      border:1px solid var(--ka-line); border-radius:999px;
+      padding:4px 9px; font-size:11px; font-weight:600; line-height:1.3;
+      box-shadow:var(--ka-shadow-sm);
+      transition:background-color .16s ease,color .16s ease,border-color .16s ease;
     }
-    /* Hide is window chrome, not an action: keep it quiet in the header. */
-    #ka-toggle{padding:4px 8px;font-size:11px;color:var(--ka-muted)}
-    /* Both automation toggles share one group; Play for me is the primary. */
-    #ka-bot{background:var(--ka-surface);font-weight:600;flex:none;min-width:126px}
-    #ka-auto{flex:none;min-width:118px}
-    .ka-autorow{display:flex;align-items:center;gap:8px;min-width:0}
-    .ka-autolabel{flex:none;min-width:62px;color:var(--ka-muted);font-size:11px;line-height:1.3}
-    #ka-auto:disabled{opacity:.55;cursor:not-allowed}
-    #ka-auto:disabled:hover{background:var(--ka-surface-2);border-color:var(--ka-line-strong)}
-    #ka-toggle:hover,#ka-auto:hover:not(:disabled),#ka-bot:hover{background:var(--ka-raised);border-color:var(--ka-accent)}
-    #ka-toggle:active,#ka-auto:active,#ka-bot:active{background:var(--ka-surface)}
+    /* Toggles are white raised pills that sit on a light grey track. */
+    #ka-auto,#ka-bot{
+      appearance:none; cursor:pointer; font:inherit; font-size:12px; font-weight:650;
+      line-height:1.3; white-space:nowrap; color:var(--ka-ink);
+      background-color:#fff; background-repeat:no-repeat;
+      background-position:10px center; background-size:13px 13px;
+      border:1px solid var(--ka-line); border-radius:9px;
+      padding:7px 10px 7px 29px; box-shadow:var(--ka-shadow-sm);
+      transition:background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease;
+    }
+    #ka-auto{
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236d6979' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M5.5 3.5 18.3 11.6l-5.6 1.1-2.4 5.5z'/%3E%3C/svg%3E");
+      flex:none; min-width:132px;
+    }
+    #ka-bot{
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236547a3' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M8 5.5 18 12 8 18.5z'/%3E%3C/svg%3E");
+      flex:none; min-width:128px; color:var(--ka-accent-deep); border-color:#dcd0ef;
+    }
+    .ka-autorow{
+      display:flex; flex-wrap:wrap; align-items:center; gap:7px; min-width:0;
+      background:var(--ka-surface-2); border:1px solid var(--ka-line);
+      border-radius:12px; padding:5px 6px;
+    }
+    .ka-autolabel{flex:none;min-width:52px;color:var(--ka-ink-2);font-size:10.5px;font-weight:600;line-height:1.25}
+    #ka-auto:disabled{opacity:.55;cursor:not-allowed;background-color:var(--ka-surface-2)}
+    #ka-toggle:hover{background:#fff;color:var(--ka-ink)}
+    #ka-auto:hover:not(:disabled),#ka-bot:hover{background-color:var(--ka-surface-3);border-color:#cdbdea}
+    #ka-toggle:active,#ka-auto:active,#ka-bot:active{background-color:var(--ka-accent-soft)}
     #ka-toggle:focus-visible,#ka-auto:focus-visible,#ka-bot:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
     #ka-auto[aria-pressed="true"],#ka-bot[aria-pressed="true"]{
-      background:var(--ka-on-bg); border-color:var(--ka-success); color:var(--ka-success);
+      background-color:var(--ka-accent-soft); color:var(--ka-accent-deep);
+      border-color:#cdbdea; font-weight:700;
     }
-    #ka-body{padding:12px;overflow:auto;display:grid;gap:10px;min-height:0}
+    /* Body: each grouped block is a quiet, inset panel — not a nested card. */
+    #ka-body{padding:12px;overflow:auto;display:grid;gap:12px;min-height:0;background:var(--ka-surface)}
     #ka-root[data-collapsed="true"] #ka-body{display:none}
+    .ka-card{
+      background:var(--ka-surface-3); border:1px solid var(--ka-line);
+      border-radius:13px; padding:11px;
+    }
+    .ka-status-card{
+      background:linear-gradient(120deg, rgba(242,237,251,.92), rgba(252,244,238,.78));
+      border-color:#e7dff3;
+    }
+    .ka-section-head{
+      display:flex; align-items:center; gap:6px; margin:0 0 8px;
+      color:var(--ka-ink-2); font-size:11px; font-weight:650; line-height:1.3;
+      letter-spacing:.005em;
+    }
     #ka-status{
-      margin:0; color:var(--ka-muted); font-size:12.5px; line-height:1.4;
-      font-weight:500; min-height:1.4em; display:flex; gap:9px;
+      margin:0; color:var(--ka-ink-2); font-size:12px; line-height:1.45;
+      font-weight:500; min-height:1.45em; display:flex; gap:8px;
       align-items:flex-start; text-wrap:pretty;
     }
     #ka-status::before{
-      content:""; width:7px; height:7px; border-radius:50%;
-      background:currentColor; flex:none; margin-top:5px; opacity:.9;
+      content:""; width:9px; height:9px; border-radius:50%;
+      background:var(--ka-accent); flex:none; margin-top:4px;
+      box-shadow:0 0 0 3px var(--ka-accent-soft);
     }
-    #ka-status[data-kind="loading"]{color:var(--ka-accent)}
+    #ka-status[data-kind="loading"]{color:var(--ka-accent-deep)}
     #ka-status[data-kind="loading"]::before{animation:ka-pulse 1.3s ease-in-out infinite}
-    #ka-status[data-kind="ok"]{color:var(--ka-success);font-weight:600}
-    #ka-status[data-kind="error"]{color:var(--ka-error);font-weight:600}
+    #ka-status[data-kind="ok"]{color:var(--ka-success);font-weight:650}
+    #ka-status[data-kind="ok"]::before{background:var(--ka-success);box-shadow:0 0 0 3px var(--ka-success-soft)}
+    #ka-status[data-kind="error"]{color:var(--ka-error);font-weight:650}
+    #ka-status[data-kind="error"]::before{background:var(--ka-error);box-shadow:0 0 0 3px var(--ka-error-soft)}
     /* Chip field: a wrapping flex row, not a one-answer-per-line list.
        Short answers share a line; long answers claim the full row. */
     #ka-list{
@@ -377,87 +437,96 @@
       /* Bank labels span their own row and stay put while the list scrolls,
          so the user never loses which near-duplicate prompt an answer belongs to. */
       flex:0 0 100%;
-      position:sticky; top:12px; z-index:2;
-      display:flex; justify-content:space-between; gap:8px; align-items:baseline;
-      color:var(--ka-muted); font-size:11px; line-height:1.35; letter-spacing:.01em;
+      position:sticky; top:0; z-index:2;
+      display:flex; justify-content:space-between; gap:8px; align-items:center;
+      color:var(--ka-ink-2); font-size:11px; line-height:1.35; letter-spacing:.01em;
       background:var(--ka-surface); border-bottom:1px solid var(--ka-line);
-      padding:8px 2px 6px; margin-top:6px; text-wrap:balance;
+      padding:6px 2px; margin-top:4px; text-wrap:balance;
     }
     .ka-group:first-child{margin-top:0}
-    .ka-group .ka-group-name{color:var(--ka-muted);min-width:0}
-    .ka-group .ka-match{color:var(--ka-accent);font-weight:650;flex:none}
+    .ka-group .ka-group-name{color:var(--ka-ink-2);min-width:0}
+    .ka-group .ka-match{
+      color:var(--ka-accent-deep); background:var(--ka-accent-soft);
+      border-radius:999px; padding:2px 7px; font-weight:700; flex:none;
+    }
     /* Every chip takes at least half a row, so two short answers pack together. */
     #ka-list>li:not(.ka-group):not(.ka-empty){flex:1 1 auto;min-width:calc(50% - 3px)}
     /* Long answers opt out of pairing and read cleanly across the whole panel. */
     #ka-list>li.ka-wide{flex-basis:100%}
     .ka-chip{
       position:relative; appearance:none; display:flex; align-items:center;
-      width:100%; height:100%; min-width:0; min-height:38px; text-align:start; cursor:pointer;
-      background:transparent; color:var(--ka-text); border:1px solid transparent;
-      border-radius:8px; padding:8px 10px 8px 12px; font:inherit; font-size:13px;
-      line-height:1.35; overflow-wrap:anywhere;
-      transition:background-color .12s ease,color .12s ease,border-color .12s ease;
+      width:100%; height:100%; min-width:0; min-height:36px; text-align:start; cursor:pointer;
+      background-color:#fff; color:var(--ka-ink); border:1px solid var(--ka-line);
+      border-radius:10px; padding:7px 10px; font:inherit; font-size:12.5px;
+      line-height:1.35; overflow-wrap:anywhere; box-shadow:0 1px 2px rgba(52,38,78,.05);
+      transition:background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease;
     }
-    .ka-chip::before{
-      content:""; position:absolute; inset-inline-start:0; top:50%;
-      width:3px; height:18px; transform:translateY(-50%);
-      border-radius:2px; background:transparent; transition:background-color .12s ease;
+    .ka-chip::after{
+      content:""; position:absolute; inset-inline-end:8px; top:50%;
+      width:12px; height:12px; transform:translateY(-50%) scale(.6); opacity:0;
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5 6.2 11.7 13 5' fill='none' stroke='%236547a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+      transition:opacity .16s ease,transform .16s ease;
     }
-    .ka-chip:hover{background:var(--ka-surface-2);border-color:var(--ka-line)}
-    .ka-chip:active{background:var(--ka-raised)}
+    .ka-chip:hover{background-color:var(--ka-surface-3);border-color:#cdbdea;box-shadow:var(--ka-shadow-sm)}
+    .ka-chip:active{background-color:var(--ka-accent-soft)}
     .ka-chip:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
-    .ka-chip[data-filled="true"]{color:var(--ka-success);border-color:var(--ka-line-strong)}
-    .ka-chip[data-filled="true"]::before{background:var(--ka-accent)}
+    .ka-chip[data-filled="true"]{
+      background-color:var(--ka-accent-soft); color:var(--ka-accent-deep);
+      border-color:#cdbdea; font-weight:650; padding-inline-end:24px;
+    }
+    .ka-chip[data-filled="true"]::after{opacity:1;transform:translateY(-50%) scale(1)}
     .ka-empty{
       flex:0 0 100%;
-      color:var(--ka-muted); font-size:12px; line-height:1.5; text-align:center;
+      color:var(--ka-ink-2); font-size:12px; line-height:1.5; text-align:center;
       padding:20px 14px; margin:0; text-wrap:pretty;
       background:var(--ka-surface-2); border:1px dashed var(--ka-line-strong);
-      border-radius:10px;
+      border-radius:12px;
     }
-    #ka-foot{
-      border-top:1px solid var(--ka-line); padding:9px 14px; color:var(--ka-muted);
-      font-size:11px; line-height:1.4; flex:none; text-wrap:pretty;
-    }
-    #ka-foot a{color:var(--ka-accent);text-decoration:none}
-    #ka-foot a:hover,#ka-foot a:focus-visible{text-decoration:underline}
-    #ka-foot a:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px}
     #ka-botbar{
-      border-top:1px solid var(--ka-line); padding:10px 14px 12px; flex:none;
-      display:grid; gap:8px; background:var(--ka-surface-2);
+      flex:none; margin:0 12px 8px; padding:11px; display:grid; gap:10px;
+      background:linear-gradient(180deg, #f7f6fa, #fbfaff);
+      border:1px solid var(--ka-line); border-radius:13px;
     }
     #ka-botbar[hidden]{display:none}
-    #ka-botdeps{
-      display:grid; gap:6px; border-top:1px solid var(--ka-line);
-      padding-top:8px; margin-top:2px;
-    }
+    #ka-botdeps{display:grid;gap:8px;border-top:1px solid var(--ka-line);padding-top:9px;margin-top:1px}
     #ka-botdeps[hidden]{display:none}
-    .ka-botnote{
-      margin:0; color:var(--ka-muted); font-size:11px; line-height:1.4;
-      text-wrap:pretty;
-    }
+    .ka-botnote{margin:0;color:var(--ka-ink-2);font-size:10.5px;line-height:1.4;text-wrap:pretty}
     .ka-botrow{display:flex;align-items:center;gap:8px}
-    .ka-botrow label{color:var(--ka-muted);font-size:11px;flex:none}
+    .ka-botrow label{
+      display:inline-flex; align-items:center; gap:5px; flex:none; min-width:56px;
+      color:var(--ka-ink-2); font-size:11px; font-weight:600;
+    }
     .ka-botrow select{
       flex:1; min-width:0; appearance:none; cursor:pointer;
-      /* appearance:none removes the native arrow — draw a brass-free chevron
-         so the control still reads as a dropdown. */
-      background:var(--ka-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23b4bcc0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 9px center;
-      color:var(--ka-text); border:1px solid var(--ka-line-strong);
-      border-radius:7px; padding:5px 26px 5px 9px; font:inherit; font-size:12px;
+      /* appearance:none removes the native arrow — draw a quiet chevron. */
+      background-color:#fff;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.6 6 6.4 11 1.6' fill='none' stroke='%238a8496' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 9px center; background-size:12px 8px;
+      color:var(--ka-ink); border:1px solid var(--ka-line-strong); border-radius:9px;
+      padding:7px 26px 7px 9px; font:inherit; font-size:11.5px; line-height:1.3;
+      box-shadow:0 1px 2px rgba(52,38,78,.05);
     }
-    .ka-botrow select:hover{border-color:var(--ka-accent)}
+    .ka-botrow select:hover{border-color:#cdbdea}
     .ka-botrow select:focus-visible{outline:2px solid var(--ka-accent);outline-offset:1px}
     #ka-botstate{
-      flex:1; min-width:0; display:inline-flex; align-items:center; gap:6px;
-      color:var(--ka-muted); font-size:11.5px; line-height:1.3;
-      overflow-wrap:anywhere; text-wrap:pretty;
+      flex:1 1 100%; min-width:0; display:inline-flex; align-items:center; gap:6px;
+      color:var(--ka-ink-2); font-size:11px; line-height:1.35;
+      padding:2px 2px 0; overflow-wrap:anywhere; text-wrap:pretty;
     }
     #ka-botstate::before{
       content:""; width:6px; height:6px; border-radius:50%;
-      background:var(--ka-line-strong); flex:none;
+      background:var(--ka-ink-3); flex:none;
     }
-    #ka-bot[aria-pressed="true"] ~ #ka-botstate::before{background:var(--ka-success)}
+    #ka-bot[aria-pressed="true"] ~ #ka-botstate::before{
+      background:var(--ka-success); box-shadow:0 0 0 3px var(--ka-success-soft);
+    }
+    #ka-foot{
+      flex:none; padding:2px 14px 12px; color:var(--ka-ink-3);
+      font-size:10.5px; line-height:1.4; text-align:center; text-wrap:pretty;
+    }
+    #ka-foot a{color:var(--ka-accent-deep);text-decoration:none;font-weight:650}
+    #ka-foot a:hover,#ka-foot a:focus-visible{text-decoration:underline}
+    #ka-foot a:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px;border-radius:3px}
     @media (pointer: coarse){
       .ka-botrow select{min-height:44px}
       .ka-chip,#ka-toggle,#ka-auto,#ka-bot{min-height:44px}
@@ -472,8 +541,8 @@
       }
     }
     @media (forced-colors: active){
-      #ka-root,#ka-toggle,#ka-auto,#ka-bot,.ka-chip{border:1px solid CanvasText}
-      .ka-chip[data-filled="true"]::before,
+      #ka-root,#ka-toggle,#ka-auto,#ka-bot,.ka-chip,.ka-autorow,.ka-botrow select{border:1px solid CanvasText}
+      #ka-status::before,
       #ka-bot[aria-pressed="true"] ~ #ka-botstate::before{background:Highlight}
       #ka-toggle:focus-visible,#ka-auto:focus-visible,#ka-bot:focus-visible,.ka-chip:focus-visible{outline:2px solid Highlight}
     }
@@ -481,42 +550,64 @@
       #ka-root{animation:ka-in-quiet .12s ease-out both}
       #ka-status[data-kind="loading"]::before{animation:none;opacity:1}
       /* Keep all color feedback instant; drop every scripted transition. */
-      #ka-toggle,#ka-auto,#ka-bot,.ka-chip,.ka-chip::before,.ka-botrow select{transition:none}
+      #ka-toggle,#ka-auto,#ka-bot,.ka-chip,.ka-chip::after,.ka-botrow select{transition:none}
     }
   `);
 
   const root = document.createElement('div');
   root.id = 'ka-root';
   root.dataset.collapsed = 'false';
+  // Small monochrome icons, drawn once and reused. They inherit currentColor
+  // so they recolor with state (no images, no CDN, no extra dependencies).
+  const ICON = {
+    brand: '<svg class="ka-ico ka-ico-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2z"/><path d="M19 2.5v3M17.5 4h3"/></svg>',
+    list: '<svg class="ka-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 14h8M8 17h5"/></svg>',
+    sliders: '<svg class="ka-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>',
+    cursor: '<svg class="ka-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 3.5 18.3 11.6l-5.6 1.1-2.4 5.5z"/></svg>',
+    play: '<svg class="ka-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5z"/></svg>',
+    pick: '<svg class="ka-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h7"/></svg>',
+    mode: '<svg class="ka-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
+  };
+
   root.innerHTML =
     '<div id="ka-head">' +
-      '<h2 id="ka-title">Krillion rare answers</h2>' +
+      '<span class="ka-brand" aria-hidden="true">' + ICON.brand + '</span>' +
+      '<div class="ka-heading">' +
+        '<h2 id="ka-title">Krillion rare answers</h2>' +
+        '<p class="ka-subtitle">100-point answers</p>' +
+      '</div>' +
       '<span id="ka-count" hidden></span>' +
       '<button id="ka-toggle" type="button" aria-controls="ka-body" aria-expanded="true">Hide</button>' +
     '</div>' +
     '<div id="ka-body">' +
-      '<p id="ka-status" role="status" aria-live="polite" aria-atomic="true" data-kind="loading">Connecting to local bridge…</p>' +
-      '<ul id="ka-list"></ul>' +
+      '<div class="ka-card ka-status-card">' +
+        '<p id="ka-status" role="status" aria-live="polite" aria-atomic="true" data-kind="loading">Connecting to local bridge…</p>' +
+      '</div>' +
+      '<div class="ka-answers">' +
+        '<div class="ka-section-head">' + ICON.list + '<span>Known answers</span></div>' +
+        '<ul id="ka-list"></ul>' +
+      '</div>' +
     '</div>' +
     '<div id="ka-botbar">' +
-      '<div class="ka-autorow">' +
+      '<div class="ka-section-head">' + ICON.sliders + '<span>Playback</span></div>' +
+      '<div class="ka-autorow">' + ICON.cursor +
         '<span class="ka-autolabel">Manual</span>' +
         '<button id="ka-auto" type="button" aria-pressed="false" title="When on, clicking an answer also submits it — no Enter needed.">Dive on click: Off</button>' +
       '</div>' +
-      '<div class="ka-autorow">' +
+      '<div class="ka-autorow">' + ICON.play +
         '<span class="ka-autolabel">Auto-play</span>' +
         '<button id="ka-bot" type="button" aria-pressed="false" aria-describedby="ka-botnote" title="Plays whole dives for you: picks an answer, fills it and submits it. Use Pick and Mode to choose how.">Play for me: Off</button>' +
         '<span id="ka-botstate" title="Play for me is off — you answer prompts yourself.">Off · you are playing</span>' +
       '</div>' +
       '<p class="ka-botnote" id="ka-botnote">While Play for me is on, it drives the dive and pauses Dive on click.</p>' +
       '<div id="ka-botdeps" hidden>' +
-        '<div class="ka-botrow"><label for="ka-pick">Pick</label>' +
+        '<div class="ka-botrow"><label for="ka-pick">' + ICON.pick + 'Pick</label>' +
           '<select id="ka-pick">' +
             '<option value="random">Random 100-point answer</option>' +
             '<option value="top">Top of list</option>' +
             '<option value="god">God player · Gaussian mix, peak at 85</option>' +
           '</select></div>' +
-        '<div class="ka-botrow"><label for="ka-mode">Mode</label>' +
+        '<div class="ka-botrow"><label for="ka-mode">' + ICON.mode + 'Mode</label>' +
           '<select id="ka-mode">' +
             '<option value="classic">Classic</option>' +
             '<option value="krillocity">Krillocity · daily race</option>' +
