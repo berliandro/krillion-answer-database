@@ -1369,6 +1369,16 @@
     bot.answeredPrompt = '';
     bot.submittedForPrompt.clear();
     bot.roundClosed = !!closed;
+    // Race helpers are lazily initialised, but safe to reset for every mode.
+    raceCancel();
+    bot.racePrompt = '';
+    bot.raceInput = null;
+    bot.racePool = null;
+    bot.racePoolIdx = 0;
+    bot.raceTierReady = false;
+    // A race-local dedupe set survives a same-prompt input remount (which
+    // botTick treats as a round boundary and clears submittedForPrompt for).
+    if (closed) bot.raceSubmitted = new Set();
   }
 
   function botStatus(text) {
@@ -1526,15 +1536,149 @@
     return list && list.length ? pickAnswer(list) : '';
   }
 
+  // ---- Krillocity race helpers -------------------------------------------
+  // Krillocity is rapid-fire: one prompt at a time, type as many correct
+  // answers as you can before the timer expires. The burst loop below is
+  // self-scheduled from here so botTick's 500ms timer stays untouched.
+  function raceCancel() {
+    if (bot.raceTimer) { clearTimeout(bot.raceTimer); bot.raceTimer = null; }
+    if (bot.raceSubmitTimer) { clearTimeout(bot.raceSubmitTimer); bot.raceSubmitTimer = null; }
+  }
+
+  function raceSchedule(delay) {
+    raceCancel();
+    if (!bot.on || bot.roundClosed) return;
+    bot.raceTimer = setTimeout(() => {
+      bot.raceTimer = null;
+      raceBurst();
+    }, delay);
+  }
+
+  // Per-prompt pool: rare 100pt answers first, then the lower-point tiers
+  // (Deep Cut 85 and below) from the full DB. Near-duplicate banks stay
+  // separate — only groups[0] is used, and aliases are never applied.
+  function raceBuildPool(prompt) {
+    const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
+    const rareList = groups[0].answers || [];
+    const seen = new Set();
+    const pool = [];
+    rareList.forEach((value) => {
+      const a = String(value == null ? '' : value).trim();
+      if (!a || seen.has(a)) return;
+      if (state.refusedAnswers.has(prompt + '\u0000' + a)) return;
+      seen.add(a);
+      pool.push(a);
+    });
+    const bank = state.answerQuestion[rareList[0]] || groups[0].question || prompt;
+    const tier = state.tierPremap && (
+      state.tierPremap.get(keyFor(prompt)) || state.tierPremap.get(keyFor(bank))
+    );
+    if (tier && tier.length) {
+      parseTierAnswers(tier)
+        .sort((x, y) => y.points - x.points) // 85 before 60/30/15/10
+        .forEach((entry) => {
+          const a = String(entry.answer == null ? '' : entry.answer).trim();
+          if (!a || seen.has(a)) return;
+          if (state.refusedAnswers.has(prompt + '\u0000' + a)) return;
+          seen.add(a);
+          pool.push(a);
+        });
+    }
+    return pool;
+  }
+
+  function raceNextAnswer(prompt) {
+    const tierReady = state.tierPremap !== null;
+    if (!bot.racePool || (tierReady && !bot.raceTierReady)) {
+      bot.racePool = raceBuildPool(prompt);
+      bot.racePoolIdx = 0;
+      bot.raceTierReady = tierReady;
+    }
+    while (bot.racePoolIdx < bot.racePool.length) {
+      const a = bot.racePool[bot.racePoolIdx++];
+      const key = prompt + '\u0000' + a;
+      if (state.refusedAnswers.has(key)) continue;
+      if (bot.submittedForPrompt.has(key)) continue;
+      if (bot.raceSubmitted && bot.raceSubmitted.has(key)) continue;
+      return a;
+    }
+    return '';
+  }
+
+  function raceBurst() {
+    if (!bot.on || bot.roundClosed) { raceCancel(); return false; }
+    const prompt = promptText();
+    const input = document.querySelector(SEL.input);
+    if (!prompt || !input) { raceCancel(); return false; }
+    // Prompt boundary: text change OR a freshly mounted input element. Either
+    // restarts the burst at once. Only a TEXT change is a genuinely new prompt,
+    // so keep the no-repeat set across a same-prompt React input remount.
+    const textChanged = prompt !== bot.racePrompt;
+    if (textChanged || input !== bot.raceInput) {
+      raceCancel();
+      if (textChanged) {
+        bot.raceSubmitted = new Set();
+        bot.submittedForPrompt.clear();
+        bot.answeredPrompt = prompt;
+      }
+      bot.racePrompt = prompt;
+      bot.raceInput = input;
+      bot.racePool = null;
+      bot.racePoolIdx = 0;
+      bot.raceTierReady = false;
+      bot.answeredInput = input;
+    }
+    // botTick also calls answerCurrentPrompt every 500ms — never submit twice
+    // for the same slot while a self-scheduled step is already armed.
+    if (bot.raceTimer) return false;
+    if (state.loadedPrompt !== prompt
+        || (!state.groups.length && !(state.answers && state.answers.length))) {
+      botStatus('loading answers');
+      raceSchedule(80);
+      return false;
+    }
+    const answer = raceNextAnswer(prompt);
+    if (!answer) {
+      // Pool drained (or tier premap still loading): wait briefly, then
+      // re-check. raceNextAnswer rebuilds once the premap becomes ready.
+      botStatus('race: no more answers');
+      raceSchedule(150);
+      return false;
+    }
+    const SUBMIT_GAP = 50; // fill -> submit, so React registers each input
+    const STEP_GAP = 90;   // submit -> next fill (rapid, but still registered)
+    bot.submittedForPrompt.add(prompt + '\u0000' + answer);
+    if (!bot.raceSubmitted) bot.raceSubmitted = new Set();
+    bot.raceSubmitted.add(prompt + '\u0000' + answer);
+    bot.lastSubmitAt = Date.now();
+    bot.answerCount++;
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, answer);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    state.lastFilled = answer;
+    state.refusalActive = false;
+    state.answerQuestion[answer] = state.groups.length
+      ? (state.groups[0].question || prompt) : prompt;
+    botStatus('race answer sent');
+    raceSchedule(STEP_GAP);
+    bot.raceSubmitTimer = setTimeout(() => {
+      bot.raceSubmitTimer = null;
+      submitAnswer();
+    }, SUBMIT_GAP);
+    return true;
+  }
+
   function answerCurrentPrompt() {
     const prompt = promptText();
     const input = document.querySelector(SEL.input);
     const isRace = mode() === 'krillocity';
-    if (!prompt || !input) return false;
+    if (!prompt || !input) { if (isRace) raceCancel(); return false; }
     // A verdict/results screen is open for this round — never re-answer it.
-    if (bot.roundClosed) return false;
+    if (bot.roundClosed) { if (isRace) raceCancel(); return false; }
+    // Race mode is fully handled by the self-scheduled burst helpers above.
+    if (isRace) return raceBurst();
     if (!isRace && bot.answeredPrompt === prompt) return false;
-    if (isRace && Date.now() - bot.lastSubmitAt < 700) return false;
     if (state.loadedPrompt !== prompt) { botStatus('loading answers'); return false; }
     const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
     const rareList = groups[0].answers || [];
@@ -1677,6 +1821,10 @@
       if (begin && begin.offsetParent !== null) {
         reportBot('krillocity-start', { note: 'START DAILY' });
         begin.click();
+        // Drop any race state left over from the previous daily run.
+        raceCancel();
+        resetBotRound(false);
+        bot.raceSubmitted = new Set();
         botStatus('starting daily race');
         return true;
       }
