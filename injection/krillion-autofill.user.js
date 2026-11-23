@@ -1283,16 +1283,28 @@
   }
 
   // ---- end-of-dive bank capture ------------------------------------------
+  // Stable per-dive signature shared with the classic restart gate so both
+  // agree on which dive's banks a capture run belongs to.
+  function classicBankSignature(rows) {
+    return rows.length + ':' + rows.map((r) => r.querySelector(SEL.rowPrompt)?.textContent || '').join('|');
+  }
+
   async function captureBanks() {
     // The observer is debounced to 50ms, so a second tick can land while this
     // one is mid-await. Without a guard the two passes click each other's row
     // heads and leave the bank collapsed/expanded in an inconsistent state.
-    if (state.bankCapturing) return;
+    if (state.bankCapturing) return state.bankCapturePromise;
     state.bankCapturing = true;
+    state.bankCaptureSettled = false;
+    // Expose an in-flight promise so the classic results gate can tell when
+    // the POST (or its queued fallback) has fully settled for this dive.
+    let settle;
+    state.bankCapturePromise = new Promise((r) => { settle = r; });
     try {
       const rows = [...document.querySelectorAll(SEL.row)];
       if (!rows.length) return;
-      const signature = rows.length + ':' + rows.map((r) => r.querySelector(SEL.rowPrompt)?.textContent || '').join('|');
+      const signature = classicBankSignature(rows);
+      state.bankCaptureSignature = signature;
       if (state.bankSent === signature) return;
 
       // The site hides the answer section behind a toggle; open it first.
@@ -1335,6 +1347,10 @@
         });
       });
 
+      // Remember counts for the classic restart-gate report before any early
+      // return drops an empty capture.
+      state.bankCaptureRows = rows.length;
+      state.bankCaptureAnswers = learned.length;
       if (!learned.length) return;
       state.bankSent = signature;
       try {
@@ -1346,7 +1362,96 @@
       }
     } finally {
       state.bankCapturing = false;
+      state.bankCaptureSettled = true;
+      settle();
     }
+  }
+
+  // ---- classic end-of-dive: capture all banks, THEN restart --------------
+  const CLASSIC_CAPTURE_TIMEOUT_MS = 2200; // hard safety net: never hang the bot
+  const CLASSIC_NO_ROWS_DELAY_MS = 400;    // no rows => nothing to capture
+
+  function classicRows() {
+    return [...document.querySelectorAll(SEL.row)];
+  }
+
+  function classicExpandRows(rows) {
+    rows.forEach((row) => {
+      const head = row.querySelector('.kr-row-head');
+      if (!head || head.getAttribute('aria-expanded') === 'true') return;
+      // Only re-click heads not already clicked for this dive; avoids a
+      // React-lag double-toggle collapsing a row that is still expanding.
+      if (!state.classicExpandedHeads) state.classicExpandedHeads = new WeakSet();
+      if (state.classicExpandedHeads.has(head)) return;
+      state.classicExpandedHeads.add(head);
+      head.click();
+    });
+  }
+
+  function finalizeClassicResults() {
+    const rows = classicRows();
+    const signature = classicBankSignature(rows);
+    const now = Date.now();
+    const noRows = rows.length === 0;
+
+    // A changed signature means a fresh dive's results: start a new gate so a
+    // stale capture from the previous dive can never block this restart.
+    if (!state.classicFinalize || state.classicFinalize.key !== signature) {
+      state.classicFinalize = {
+        key: signature, startedAt: now, reported: false, gated: false, kickoff: true,
+      };
+      state.classicExpandedHeads = new WeakSet();
+    }
+    const fin = state.classicFinalize;
+    const elapsed = now - fin.startedAt;
+
+    // Make sure a capture for this dive is actually in flight. The observer
+    // normally triggers it; this is a safety net for debounce/mount timing.
+    if (fin.kickoff) {
+      fin.kickoff = false;
+      if (!noRows && !state.bankCapturing && state.bankCaptureSignature !== signature) {
+        captureBanks();
+      }
+    }
+
+    const captureSettled = !!state.bankCapturePromise
+      && state.bankCaptureSettled
+      && state.bankCaptureSignature === signature;
+
+    // (a) verify every visible row head is expanded. Re-click only after the
+    //     capture has settled, so we never toggle a head it still works on.
+    const heads = rows.map((r) => r.querySelector('.kr-row-head')).filter(Boolean);
+    let allExpanded = heads.length === 0 || heads.every((h) => h.getAttribute('aria-expanded') === 'true');
+    if (!allExpanded && captureSettled) {
+      classicExpandRows(rows);
+      allExpanded = heads.every((h) => h.getAttribute('aria-expanded') === 'true');
+    }
+
+    // (b)+(c) capture settled + rows expanded, bounded by a hard timeout.
+    const timeoutHit = elapsed >= CLASSIC_CAPTURE_TIMEOUT_MS;
+    const ready = noRows
+      ? elapsed >= CLASSIC_NO_ROWS_DELAY_MS
+      : ((allExpanded && captureSettled) || timeoutHit);
+
+    if (!ready) {
+      fin.gated = true;
+      botStatus('classic: saving dive banks before restart');
+      return false;
+    }
+
+    if (!fin.reported) {
+      fin.reported = true;
+      reportBot('classic-bank-capture', {
+        rows: state.bankCaptureRows != null ? state.bankCaptureRows : rows.length,
+        answers: state.bankCaptureAnswers || 0,
+        gated: fin.gated,
+        all_expanded: allExpanded,
+        timed_out: timeoutHit && !captureSettled && !noRows,
+      });
+    }
+    const did = restartFromResults();
+    if (did) botStatus('classic: banks captured, restarting');
+    return did;
   }
 
   // ---- auto-play engine --------------------------------------------------
@@ -1752,7 +1857,11 @@
       if (roundClosed && !bot.roundClosed) resetBotRound(true);
       bot.roundClosed = roundClosed;
       if (roundClosed) {
-        if (visible('.kr-over') || visible('.kr-over-next')) restartFromResults();
+        if (visible('.kr-over') || visible('.kr-over-next')) {
+          // Classic must save every expanded bank BEFORE starting a new dive.
+          if (bot.mode === 'classic') finalizeClassicResults();
+          else restartFromResults();
+        }
         else if (bot.mode === 'duel') duelTick();
         else botStatus('waiting for the next round');
       } else if (p && visible(SEL.prompt) && visible(SEL.input)) {
