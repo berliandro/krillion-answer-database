@@ -366,12 +366,18 @@
     #ka-status[data-kind="loading"]::before{animation:ka-pulse 1.3s ease-in-out infinite}
     #ka-status[data-kind="ok"]{color:var(--ka-success);font-weight:600}
     #ka-status[data-kind="error"]{color:var(--ka-error);font-weight:600}
-    #ka-list{display:grid;gap:2px;margin:0;padding:0;list-style:none;min-width:0}
-    #ka-list>li{min-width:0}
+    /* Chip field: a wrapping flex row, not a one-answer-per-line list.
+       Short answers share a line; long answers claim the full row. */
+    #ka-list{
+      display:flex; flex-wrap:wrap; align-items:stretch; gap:6px;
+      margin:0; padding:0; list-style:none; min-width:0;
+    }
+    #ka-list>li{min-width:0;max-width:100%}
     .ka-group{
-      /* Bank labels stay put while a long list scrolls, so the user never
-         loses which near-duplicate prompt an answer belongs to. */
-      position:sticky; top:12px; z-index:1;
+      /* Bank labels span their own row and stay put while the list scrolls,
+         so the user never loses which near-duplicate prompt an answer belongs to. */
+      flex:0 0 100%;
+      position:sticky; top:12px; z-index:2;
       display:flex; justify-content:space-between; gap:8px; align-items:baseline;
       color:var(--ka-muted); font-size:11px; line-height:1.35; letter-spacing:.01em;
       background:var(--ka-surface); border-bottom:1px solid var(--ka-line);
@@ -380,12 +386,17 @@
     .ka-group:first-child{margin-top:0}
     .ka-group .ka-group-name{color:var(--ka-muted);min-width:0}
     .ka-group .ka-match{color:var(--ka-accent);font-weight:650;flex:none}
+    /* Every chip takes at least half a row, so two short answers pack together. */
+    #ka-list>li:not(.ka-group):not(.ka-empty){flex:1 1 auto;min-width:calc(50% - 3px)}
+    /* Long answers opt out of pairing and read cleanly across the whole panel. */
+    #ka-list>li.ka-wide{flex-basis:100%}
     .ka-chip{
       position:relative; appearance:none; display:flex; align-items:center;
-      width:100%; min-height:38px; text-align:start; cursor:pointer;
+      width:100%; height:100%; min-width:0; min-height:38px; text-align:start; cursor:pointer;
       background:transparent; color:var(--ka-text); border:1px solid transparent;
       border-radius:8px; padding:8px 10px 8px 12px; font:inherit; font-size:13px;
-      line-height:1.35; transition:background-color .12s ease,color .12s ease,border-color .12s ease;
+      line-height:1.35; overflow-wrap:anywhere;
+      transition:background-color .12s ease,color .12s ease,border-color .12s ease;
     }
     .ka-chip::before{
       content:""; position:absolute; inset-inline-start:0; top:50%;
@@ -398,6 +409,7 @@
     .ka-chip[data-filled="true"]{color:var(--ka-success);border-color:var(--ka-line-strong)}
     .ka-chip[data-filled="true"]::before{background:var(--ka-accent)}
     .ka-empty{
+      flex:0 0 100%;
       color:var(--ka-muted); font-size:12px; line-height:1.5; text-align:center;
       padding:20px 14px; margin:0; text-wrap:pretty;
       background:var(--ka-surface-2); border:1px dashed var(--ka-line-strong);
@@ -566,7 +578,10 @@
                 `<span class="ka-match">${pct}%</span></li>`;
       }
       g.answers.forEach((a) => {
-        html += `<li><button class="ka-chip" type="button" data-a="${escapeHtml(a)}" data-q="${escapeHtml(g.question)}">${escapeHtml(a)}</button></li>`;
+        // Short answers pair up in the wrapping chip field; long ones get a
+        // full row so the text reads without cramped wrapping.
+        const wide = String(a).length > 18 ? ' class="ka-wide"' : '';
+        html += `<li${wide}><button class="ka-chip" type="button" data-a="${escapeHtml(a)}" data-q="${escapeHtml(g.question)}">${escapeHtml(a)}</button></li>`;
       });
     });
     listEl.innerHTML = html;
