@@ -1,0 +1,69 @@
+{
+  "generated_at": "2026-11-27T15:45:10.862312+00:00",
+  "prompt_dedupe": {
+    "lines": 6480,
+    "exact_unique": 6477,
+    "clusters": 1620,
+    "multi_variant_clusters": 1252,
+    "variants_collapsed": 4857
+  },
+  "logs": {
+    "evidence": {
+      "lines": 3866,
+      "outcomes": {
+        "": 46,
+        "ok": 3794,
+        "below-100": 21,
+        "refused": 5
+      },
+      "modes": {
+        "classic": 3663,
+        "multiplayer": 201,
+        "krillocity": 2
+      },
+      "below_100": 21
+    },
+    "prompt_review": {
+      "lines": 4209,
+      "kinds": {
+        "ambiguous": 4110,
+        "no-match": 45,
+        "low-score": 21,
+        "refused": 5,
+        "krillocity-race-prompt": 28
+      },
+      "zero_match": 45
+    },
+    "bot_log": {
+      "lines": 187,
+      "events": {
+        "bot-start": 79,
+        "krillocity-open": 41,
+        "duel-start": 20,
+        "duel-requeue": 15,
+        "mode-change": 9,
+        "krillocity-start": 9,
+        "duel-queue": 5,
+        "room-select": 4,
+        "classic-bank-capture": 4,
+        "krillocity-multi-open": 1
+      }
+    },
+    "failed_prompts": {
+      "lines": 70
+    },
+    "corrections": {
+      "lines": 0
+    },
+    "learned": {
+      "lines": 6270
+    },
+    "krillocity_answers": {
+      "lines": 3249,
+      "matched": 3249,
+      "zero_match": 0,
+      "unique_answers": 3226
+    }
+  },
+  "policy": "aliases logged only; banks never merged; other-player answers never imported"
+}
