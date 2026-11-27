@@ -68,3 +68,4 @@
 {"at": "2026-11-23T03:01:37Z", "prompt": "Name an example of a card game with numbers", "reason": "unreachable: bridge timeout"}
 {"at": "2026-11-27T12:23:30Z", "prompt": "(preload)", "reason": "unreachable: bridge offline after 3 attempts"}
 {"at": "2026-11-27T12:24:34Z", "prompt": "Name a vegetable eaten raw", "reason": "unreachable: bridge offline after 3 attempts"}
+{"at": "2026-11-27T15:58:09Z", "prompt": "Name any television doctor", "reason": "no-match"}
