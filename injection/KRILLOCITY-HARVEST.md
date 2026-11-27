@@ -102,6 +102,7 @@ I probed the backend for a bulk shortcut. Findings, with command evidence in the
 | Room enumeration 1..1000, race 105779 | `data/krillocity_prompt_harvest.json`: `roomOk=1991`, `promptLines=13937` | 290 after pass 0, saturated on pass 1 |
 | Same range, race 105780 | `promptsAfter=425` | +135 |
 | Race 105781, repeated passes as room cooldowns expired | `ok` 5 → 151 → … per pass | 633 total |
+| Races 105782 / 105783 / 105784, 2 passes each as they went live | `promptsAfter` 810 → 990 → 1129 | **1129 total** |
 
 The growth per pass drops as rooms hit HTTP 425 cooldowns; every pass still
 appends only new prompt text, so the file is the exact coverage record.
