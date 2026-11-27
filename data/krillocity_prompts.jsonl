@@ -12202,3 +12202,4 @@
 {"at":"2026-11-27T17:40:52.186Z","prompt_id":"race2-108:105834:0","prompt":"What's an example of a computer brand?","level":1,"source":"krillocity-lineup-enum","room":"race2-108","race":105834,"source_url":"https://playdaily.org/krillocity"}
 {"at":"2026-11-27T17:40:52.188Z","prompt_id":"race2-108:105834:1","prompt":"What's something people ask for a sample of?","level":1,"source":"krillocity-lineup-enum","room":"race2-108","race":105834,"source_url":"https://playdaily.org/krillocity"}
 {"at":"2026-11-27T17:40:54.922Z","prompt_id":"race2-181:105834:5","prompt":"Name one fermented dairy food","level":3,"source":"krillocity-lineup-enum","room":"race2-181","race":105834,"source_url":"https://playdaily.org/krillocity"}
+{"at": "2026-11-27T17:41:09Z", "prompt": "Name an example of a US state with no coastline", "source": "userscript", "prompt_id": "", "source_url": "https://playdaily.org/krillocity"}
