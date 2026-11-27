@@ -1746,6 +1746,12 @@
   // Krillocity is rapid-fire: one prompt at a time, type as many correct
   // answers as you can before the timer expires. The burst loop below is
   // self-scheduled from here so botTick's 500ms timer stays untouched.
+  //
+  // REJECTED — do-not-wire (STRATEGY-VERIFIED.md / Phase 4 input):
+  //   S4 submit to buzzer + claim 2.5s verdict grace — verdicts are
+  //     server-authoritative and unobservable without a live scored daily.
+  //   S5 protect AI-judge allowance: prefer bank-known answers — allowance
+  //     size/refill are server-side; bank-only vs speculative is a proxy only.
   function raceCancel() {
     if (bot.raceTimer) { clearTimeout(bot.raceTimer); bot.raceTimer = null; }
     if (bot.raceSubmitTimer) { clearTimeout(bot.raceSubmitTimer); bot.raceSubmitTimer = null; }
@@ -1760,9 +1766,14 @@
     }, delay);
   }
 
-  // Per-prompt pool: rare 100pt answers first, then the lower-point tiers
-  // (Deep Cut 85 and below) from the full DB. Near-duplicate banks stay
-  // separate — only groups[0] is used, and aliases are never applied.
+  // PROVEN S1 supply expansion (bank-backed answers per prompt): the pool
+  // draws rare 100pt answers from /api/all (state.groups) AND low-tier answers
+  // from /api/all-tier (state.tierPremap). Both sources are bank-backed only —
+  // no play-score demotion and no near-duplicate bank merge.
+  // PROVEN S2 rare-100 first then 85/60/30/15/10 with strict dedupe: the rare
+  // list is pushed first, tiers sorted high->low, and `seen` enforces strict
+  // per-prompt uniqueness. Near-duplicate banks stay separate — only groups[0]
+  // is used, and aliases are never applied.
   function raceBuildPool(prompt) {
     const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
     const rareList = groups[0].answers || [];
@@ -1816,9 +1827,11 @@
     const prompt = promptText();
     const input = document.querySelector(SEL.input);
     if (!prompt || !input) { raceCancel(); return false; }
+    // PROVEN S2 rare-100 first then 85/60/30/15/10 with strict dedupe:
     // Prompt boundary: text change OR a freshly mounted input element. Either
     // restarts the burst at once. Only a TEXT change is a genuinely new prompt,
-    // so keep the no-repeat set across a same-prompt React input remount.
+    // so keep the no-repeat set across a same-prompt React input remount;
+    // a text change clears it so answers never leak to the next prompt.
     const textChanged = prompt !== bot.racePrompt;
     if (textChanged || input !== bot.raceInput) {
       raceCancel();
@@ -1851,6 +1864,8 @@
       raceSchedule(150);
       return false;
     }
+    // PROVEN S3 hold 50ms fill / 90ms step safe cadence: bounded gaps that let
+    // React register each input (harness model, not an exact live minimum).
     const SUBMIT_GAP = 50; // fill -> submit, so React registers each input
     const STEP_GAP = 90;   // submit -> next fill (rapid, but still registered)
     bot.submittedForPrompt.add(prompt + '\u0000' + answer);
