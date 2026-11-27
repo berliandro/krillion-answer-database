@@ -1,29 +1,29 @@
 {
-  "started": "2026-11-27T13:52:48.991Z",
+  "started": "2026-11-27T14:04:11.640Z",
   "maxRoom": 1000,
-  "race": 105784,
-  "roomOk": 830,
-  "room425": 1170,
+  "race": 105786,
+  "roomOk": 1904,
+  "room425": 96,
   "roomFail": 0,
-  "promptLines": 5810,
-  "newPrompts": 139,
-  "promptsBefore": 990,
+  "promptLines": 13328,
+  "newPrompts": 57,
+  "promptsBefore": 1565,
   "passes": [
     {
       "pass": 0,
-      "ok": 351,
-      "throttled": 649,
+      "ok": 904,
+      "throttled": 96,
       "fail": 0,
-      "uniquePrompts": 1116
+      "uniquePrompts": 1622
     },
     {
       "pass": 1,
-      "ok": 479,
-      "throttled": 521,
+      "ok": 1000,
+      "throttled": 0,
       "fail": 0,
-      "uniquePrompts": 1129
+      "uniquePrompts": 1622
     }
   ],
-  "promptsAfter": 1129,
-  "finished": "2026-11-27T13:53:51.075Z"
+  "promptsAfter": 1622,
+  "finished": "2026-11-27T14:05:20.853Z"
 }
