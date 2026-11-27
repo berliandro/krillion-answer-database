@@ -1,0 +1,32 @@
+[2026-11-27T13:19:51.963Z] watcher start poll=8000ms minPlayers=2 maxMinutes=1
+[2026-11-27T13:19:52.970Z] poll rooms=4 active=4 race2-1:11,race2-2:15,race2-3:13,race2-4:12
+[2026-11-27T13:20:06.597Z] collected race2-1:105776: prompts=7 rows=101 unique=443 written=443 zero=0 matchErr=0
+[2026-11-27T13:20:19.990Z] collected race2-2:105776: prompts=7 rows=98 unique=423 written=423 zero=0 matchErr=0
+[2026-11-27T13:20:33.805Z] collected race2-3:105777: prompts=7 rows=67 unique=195 written=195 zero=0 matchErr=0
+[2026-11-27T13:20:35.852Z] collected race2-4:105777: prompts=7 rows=64 unique=285 written=285 zero=0 matchErr=0
+[2026-11-27T13:20:44.169Z] poll rooms=4 active=4 race2-1:13,race2-2:15,race2-3:12,race2-4:11
+[2026-11-27T13:21:18.715Z] watcher stopped. stats={}
+[2026-11-27T13:22:00.970Z] watcher start poll=15000ms minPlayers=2 maxMinutes=12
+[2026-11-27T13:22:01.612Z] poll rooms=4 active=4 race2-1:10,race2-2:13,race2-3:13,race2-4:11
+[2026-11-27T13:22:13.755Z] collected race2-1:105777: prompts=7 rows=77 unique=226 written=226 zero=0 matchErr=0
+[2026-11-27T13:22:54.622Z] poll rooms=4 active=4 race2-1:9,race2-2:15,race2-3:11,race2-4:12
+[2026-11-27T13:23:07.081Z] collected race2-2:105777: prompts=7 rows=91 unique=306 written=306 zero=0 matchErr=0
+[2026-11-27T13:23:29.336Z] watcher start poll=10000ms minPlayers=2 maxMinutes=6
+[2026-11-27T13:23:29.798Z] poll rooms=4 active=4 race2-1:9,race2-2:14,race2-3:12,race2-4:12
+[2026-11-27T13:24:05.045Z] collected race2-3:105778: prompts=7 rows=69 unique=183 written=183 zero=0 matchErr=0
+[2026-11-27T13:24:16.763Z] poll rooms=4 active=4 race2-1:12,race2-2:16,race2-3:13,race2-4:8
+[2026-11-27T13:24:52.118Z] poll rooms=4 active=4 race2-1:11,race2-2:16,race2-3:16,race2-4:7
+[2026-11-27T13:25:28.658Z] collected race2-4:105778: prompts=7 rows=63 unique=281 written=281 zero=0 matchErr=0
+[2026-11-27T13:25:39.011Z] poll rooms=4 active=4 race2-1:12,race2-2:16,race2-3:16,race2-4:7
+[2026-11-27T13:25:39.710Z] collected race2-1:105778: prompts=7 rows=53 unique=169 written=169 zero=0 matchErr=0
+[2026-11-27T13:26:03.379Z] poll rooms=4 active=4 race2-1:11,race2-2:16,race2-3:16,race2-4:8
+[2026-11-27T13:26:26.084Z] poll rooms=4 active=4 race2-1:12,race2-2:15,race2-3:15,race2-4:9
+[2026-11-27T13:27:12.278Z] poll rooms=4 active=4 race2-1:15,race2-2:16,race2-3:14,race2-4:12
+[2026-11-27T13:27:24.242Z] collected race2-2:105778: prompts=7 rows=87 unique=212 written=212 zero=0 matchErr=0
+[2026-11-27T13:27:35.550Z] poll rooms=4 active=4 race2-1:16,race2-2:16,race2-3:15,race2-4:13
+[2026-11-27T13:27:58.149Z] poll rooms=4 active=4 race2-1:15,race2-2:16,race2-3:14,race2-4:15
+[2026-11-27T13:28:32.977Z] collected race2-3:105779: prompts=7 rows=82 unique=280 written=280 zero=0 matchErr=0
+[2026-11-27T13:28:43.793Z] poll rooms=4 active=4 race2-1:15,race2-2:16,race2-3:14,race2-4:13
+[2026-11-27T13:29:17.585Z] poll rooms=4 active=4 race2-1:16,race2-2:14,race2-3:14,race2-4:12
+[2026-11-27T13:29:51.924Z] collected race2-4:105779: prompts=7 rows=66 unique=246 written=246 zero=0 matchErr=0
+[2026-11-27T13:30:01.940Z] watcher stopped. stats={}

@@ -1,0 +1,22 @@
+{
+  "started": "2026-11-27T13:42:13.346Z",
+  "maxRoom": 1000,
+  "race": 105781,
+  "roomOk": 988,
+  "room425": 11,
+  "roomFail": 1,
+  "promptLines": 6916,
+  "newPrompts": 38,
+  "promptsBefore": 595,
+  "passes": [
+    {
+      "pass": 0,
+      "ok": 988,
+      "throttled": 11,
+      "fail": 1,
+      "uniquePrompts": 633
+    }
+  ],
+  "promptsAfter": 633,
+  "finished": "2026-11-27T13:42:58.509Z"
+}
