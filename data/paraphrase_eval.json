@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-11-27T16:01:57.380103+00:00",
+  "clusters": 1252,
+  "stats": {
+    "total": 4857,
+    "rank1": 4817,
+    "rank2to5": 29,
+    "miss": 11
+  },
+  "rank1_rate": 0.9918,
+  "miss_rate": 0.0023,
+  "misses": [
+    {
+      "variant": "Name an example of a fruit or vegetable that starts with P",
+      "expected": "Name any fruit",
+      "got": [
+        "Name any animal starting with P"
+      ],
+      "top_score": 0.5605
+    },
+    {
+      "variant": "Name any one fruit or vegetable that starts with P",
+      "expected": "Name any fruit",
+      "got": [
+        "Name any animal starting with P"
+      ],
+      "top_score": 0.5704
+    },
+    {
+      "variant": "Name one fruit or vegetable that starts with P",
+      "expected": "Name any fruit",
+      "got": [
+        "Name any animal starting with P"
+      ],
+      "top_score": 0.5606
+    },
+    {
+      "variant": "What's an example of a fruit or vegetable that starts with P?",
+      "expected": "Name any fruit",
+      "got": [
+        "Name any animal starting with P"
+      ],
+      "top_score": 0.5464
+    },
+    {
+      "variant": "What's an example of a religion that has a holy book?",
+      "expected": "Name any religion",
+      "got": [
+        "Name any holy book"
+      ],
+      "top_score": 0.7144
+    },
+    {
+      "variant": "What's an example of a religion with a holy book?",
+      "expected": "Name any religion",
+      "got": [
+        "Name any holy book"
+      ],
+      "top_score": 0.7149
+    },
+    {
+      "variant": "Name an example of a band from the United States",
+      "expected": "Name any band",
+      "got": [
+        "Name any island in the United States"
+      ],
+      "top_score": 0.6812
+    },
+    {
+      "variant": "Name any band from the United States",
+      "expected": "Name any band",
+      "got": [
+        "Name any island in the United States"
+      ],
+      "top_score": 0.6998
+    },
+    {
+      "variant": "Name any one band from the United States",
+      "expected": "Name any band",
+      "got": [
+        "Name any island in the United States"
+      ],
+      "top_score": 0.6951
+    },
+    {
+      "variant": "Name one band from the United States",
+      "expected": "Name any band",
+      "got": [
+        "Name any island in the United States"
+      ],
+      "top_score": 0.6865
+    },
+    {
+      "variant": "What's an example of a band from the United States?",
+      "expected": "Name any band",
+      "got": [
+        "Name any island in the United States"
+      ],
+      "top_score": 0.6677
+    }
+  ],
+  "note": "A 'miss' can also be a false-merge cluster where the canonical is a genuinely different prompt."
+}
