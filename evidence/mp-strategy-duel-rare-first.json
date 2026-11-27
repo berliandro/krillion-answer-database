@@ -1,0 +1,82 @@
+{
+  "strategy": "duel-rare-first",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompts": 7,
+        "answerSec": 15,
+        "countInSec": 3,
+        "style": "rare-first"
+      },
+      "output": {
+        "prompts": 7,
+        "firstSubmitTier": 100,
+        "refusals": 0,
+        "retries": 0,
+        "ownPoints": 700,
+        "answeredPrompts": 7,
+        "zeroRounds": 0,
+        "fallbackAtMs": null,
+        "foeRowsRead": 0,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=rare-first"
+      },
+      "ms": 7.746,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompts": 7,
+        "answerSec": 15,
+        "countInSec": 3,
+        "style": "refuse-retry"
+      },
+      "output": {
+        "prompts": 7,
+        "firstSubmitTier": 100,
+        "refusals": 7,
+        "retries": 7,
+        "ownPoints": 700,
+        "answeredPrompts": 7,
+        "zeroRounds": 0,
+        "fallbackAtMs": null,
+        "foeRowsRead": 0,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=refuse-retry"
+      },
+      "ms": 6.526,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompts": 7,
+        "answerSec": 15,
+        "countInSec": 3,
+        "style": "buzzer-fallback"
+      },
+      "output": {
+        "prompts": 7,
+        "firstSubmitTier": 100,
+        "refusals": 7,
+        "retries": 7,
+        "ownPoints": 700,
+        "answeredPrompts": 7,
+        "zeroRounds": 0,
+        "fallbackAtMs": 14000,
+        "foeRowsRead": 0,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=buzzer-fallback"
+      },
+      "ms": 5.666,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "Seven-prompt duels with 3 s count-in: rare-first scored 100 per prompt, a refused long shot was retried to 100, and a buzzer fallback still submitted a 100. Zero foe rows read and zero demotions in every run."
+}

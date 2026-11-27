@@ -1,0 +1,82 @@
+{
+  "strategy": "most-populated-trap",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "roomCounts": [
+          2,
+          7
+        ],
+        "boardNoteSettleSec": 2
+      },
+      "output": {
+        "joined": true,
+        "selectedRoom": "Room 2",
+        "selectedCount": 7,
+        "waitState": "waiting for the next round",
+        "settleMs": 2000,
+        "answeredAfterSettle": true,
+        "ownDepthPerPrompt": 1000,
+        "ownGradeIndependentOfPopulation": true,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=showoff/counts=2,7"
+      },
+      "ms": 10.613,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 2,
+      "input": {
+        "roomCounts": [
+          30,
+          7
+        ],
+        "boardNoteSettleSec": 8
+      },
+      "output": {
+        "joined": true,
+        "selectedRoom": "Room 1",
+        "selectedCount": 30,
+        "waitState": "waiting for the next round",
+        "settleMs": 8000,
+        "answeredAfterSettle": true,
+        "ownDepthPerPrompt": 1000,
+        "ownGradeIndependentOfPopulation": true,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=showoff/counts=30,7"
+      },
+      "ms": 7.434,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 3,
+      "input": {
+        "roomCounts": [
+          39,
+          7
+        ],
+        "boardNoteSettleSec": 10
+      },
+      "output": {
+        "joined": true,
+        "selectedRoom": "Room 1",
+        "selectedCount": 39,
+        "waitState": "waiting for the next round",
+        "settleMs": 10000,
+        "answeredAfterSettle": true,
+        "ownDepthPerPrompt": 1000,
+        "ownGradeIndependentOfPopulation": true,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=showoff/counts=39,7"
+      },
+      "ms": 3.745,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "showoff selected the argmax-count room (including a nearly-full 39-seat room), inter-round settle grew with population, and own depth/prompt stayed at the same 100-point grade. Population affects waiting, not our score."
+}

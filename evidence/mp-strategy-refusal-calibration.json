@@ -1,0 +1,70 @@
+{
+  "strategy": "refusal-calibration",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "clockSec": 5,
+        "refusalAtMs": 4900,
+        "minRetryMs": 120,
+        "mode": "multiplayer"
+      },
+      "output": {
+        "refused": true,
+        "refusalLogs": 1,
+        "remainingMs": 100,
+        "retryAccepted": false,
+        "points": 0,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=clock=5/refusalAt=4900"
+      },
+      "ms": 5.811,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 2,
+      "input": {
+        "clockSec": 15,
+        "refusalAtMs": 3000,
+        "minRetryMs": 120,
+        "mode": "duel"
+      },
+      "output": {
+        "refused": true,
+        "refusalLogs": 1,
+        "remainingMs": 12000,
+        "retryAccepted": true,
+        "points": 100,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=clock=15/refusalAt=3000"
+      },
+      "ms": 3.366,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 3,
+      "input": {
+        "clockSec": 30,
+        "refusalAtMs": 10000,
+        "minRetryMs": 120,
+        "mode": "multiplayer"
+      },
+      "output": {
+        "refused": true,
+        "refusalLogs": 1,
+        "remainingMs": 20000,
+        "retryAccepted": true,
+        "points": 100,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=clock=30/refusalAt=10000"
+      },
+      "ms": 4.626,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "Refusal->retry measured against the clock: a 5s room with 100 ms left could not retry (0 points), while 15s and 30s windows left 12,000 ms / 20,000 ms and retried to 100. Refusals logged as evidence only; zero demotions and zero other-player rows."
+}
