@@ -107,6 +107,23 @@ I probed the backend for a bulk shortcut. Findings, with command evidence in the
 The growth per pass drops as rooms hit HTTP 425 cooldowns; every pass still
 appends only new prompt text, so the file is the exact coverage record.
 
+## Userscript integration (v1.1.8)
+
+- **Mode dropdown** now includes `Krillocity · multiplayer race` (`value="krillomulti"`).
+  It enters through the `/krillocity` lobby, picks the most-populated room with the
+  proven `most-populated-trap` path, and uses the rapid-fire race strategy set.
+  Pick and Mode controls are now always visible, even when `Play for me` is off.
+- The userscript fetches `/api/krillo-prompts` from the bridge at page start and uses
+  the harvested wordings as a fallback lookup query when the on-screen phrasing has
+  no local index hit (logged as `krillocity-bank-match`). This targets the reported
+  "misses a lot" problem without inventing aliases.
+- Live race prompts are appended to the separate archive via `/api/krillo-prompt`;
+  zero-match prompts are mirrored to `/api/krillo-zero` with review flags. Matched
+  wordings are logged as `krillocity-race-prompt`. None of this demotes a graded
+  answer or merges other-player data into the 100-point bank.
+- Bridge endpoints: `GET /api/krillo-prompts`, `POST /api/krillo-prompt`,
+  `POST /api/krillo-answer`, `POST /api/krillo-zero`. All append-only and deduped.
+
 ## Continuous follower
 
 `scripts/krillocity_continuous.js` discovers the newest race that has actually
