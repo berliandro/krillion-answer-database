@@ -1,0 +1,140 @@
+{
+  "strategy": "marathon-5s-50",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "kind": "fast",
+        "clockSec": 5,
+        "prompts": 50,
+        "cache": "net",
+        "rooms": [
+          {
+            "name": "The Marathon · 5 sec",
+            "detail": "50 prompts, 5s each",
+            "count": "3 of 40"
+          },
+          {
+            "name": "The Marathon · 30 sec",
+            "detail": "50 prompts, 30s each",
+            "count": "7 of 40"
+          },
+          {
+            "name": "Quick chat",
+            "detail": "15 prompts, 15s each",
+            "count": "Be first"
+          }
+        ],
+        "revealLagMs": 2900,
+        "lookupTimeoutMs": 2500
+      },
+      "output": {
+        "joined": true,
+        "selectedRoom": "The Marathon · 5 sec",
+        "joinReason": "matched 5-second room",
+        "parsedSeconds": 5,
+        "parsedPrompts": 50,
+        "selectionNote": "marathon5 selector joined the parsed 5s/50 row",
+        "answered": 50,
+        "promptsShown": 50,
+        "depthMetres": 50000,
+        "depthPerMinute": 12000,
+        "elapsedMs": 250000,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=fast"
+      },
+      "ms": 15.91,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 2,
+      "input": {
+        "kind": "slow",
+        "clockSec": 30,
+        "prompts": 50,
+        "cache": "net",
+        "rooms": [
+          {
+            "name": "The Marathon · 30 sec",
+            "detail": "50 prompts, 30s each",
+            "count": "7 of 40"
+          },
+          {
+            "name": "Quick chat",
+            "detail": "15 prompts, 15s each",
+            "count": "Be first"
+          }
+        ],
+        "revealLagMs": 2900,
+        "lookupTimeoutMs": 2500
+      },
+      "output": {
+        "joined": false,
+        "selectedRoom": "",
+        "joinReason": "no 5-second room available",
+        "parsedSeconds": 30,
+        "parsedPrompts": 50,
+        "selectionNote": "counterfactual 30s room: marathon5 selector waits for a 5s room and joined nothing",
+        "answered": 50,
+        "promptsShown": 50,
+        "depthMetres": 50000,
+        "depthPerMinute": 2000,
+        "elapsedMs": 1500000,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=slow"
+      },
+      "ms": 8.502,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 3,
+      "input": {
+        "kind": "cold",
+        "clockSec": 5,
+        "prompts": 50,
+        "cache": "none",
+        "rooms": [
+          {
+            "name": "The Marathon · 5 sec",
+            "detail": "50 prompts, 5s each",
+            "count": "3 of 40"
+          },
+          {
+            "name": "The Marathon · 30 sec",
+            "detail": "50 prompts, 30s each",
+            "count": "7 of 40"
+          },
+          {
+            "name": "Quick chat",
+            "detail": "15 prompts, 15s each",
+            "count": "Be first"
+          }
+        ],
+        "revealLagMs": 2900,
+        "lookupTimeoutMs": 2500
+      },
+      "output": {
+        "joined": true,
+        "selectedRoom": "The Marathon · 5 sec",
+        "joinReason": "matched 5-second room",
+        "parsedSeconds": 5,
+        "parsedPrompts": 50,
+        "selectionNote": "marathon5 selector joined the parsed 5s/50 row",
+        "answered": 0,
+        "promptsShown": 50,
+        "depthMetres": 0,
+        "depthPerMinute": 0,
+        "elapsedMs": 250000,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=cold"
+      },
+      "ms": 2.782,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "Room selector parsed 5s/50 from the live-readonly Marathon row and joined it; depth/minute measured higher in the 5s room, while a cold cache left the 5s prompt unanswered. The doc ceiling figure is a 10x typo (50x100x10 = 50,000 m)."
+}

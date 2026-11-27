@@ -1,0 +1,132 @@
+{
+  "strategy": "requeue-stop-loss",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "kind": "edge",
+        "outcomes": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ],
+        "foeRatings": [
+          1000,
+          1010,
+          1020,
+          1030,
+          1040
+        ],
+        "K": 50,
+        "startRating": 1000,
+        "stopLossAfter": 2,
+        "capPerFoe24h": 3
+      },
+      "output": {
+        "matches": 5,
+        "deltas": [
+          25,
+          -26,
+          27,
+          25,
+          -26
+        ],
+        "finalRating": 1025,
+        "requeues": 5,
+        "stopLossAt": null,
+        "capBlockedAt": null,
+        "events": 5,
+        "foeRowsArchived": 0,
+        "demotions": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=edge (Elo arithmetic, foe rating in-memory only)"
+      },
+      "ms": 7.916,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 2,
+      "input": {
+        "kind": "stop",
+        "outcomes": [
+          0,
+          0,
+          1
+        ],
+        "foeRatings": [
+          1000,
+          1010,
+          1020,
+          1030,
+          1040
+        ],
+        "K": 50,
+        "startRating": 1000,
+        "stopLossAfter": 2,
+        "capPerFoe24h": 3
+      },
+      "output": {
+        "matches": 3,
+        "deltas": [
+          -25,
+          -22,
+          30
+        ],
+        "finalRating": 983,
+        "requeues": 2,
+        "stopLossAt": 2,
+        "capBlockedAt": null,
+        "events": 2,
+        "foeRowsArchived": 0,
+        "demotions": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=stop (Elo arithmetic, foe rating in-memory only)"
+      },
+      "ms": 2.1,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 3,
+      "input": {
+        "kind": "cap",
+        "outcomes": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "foeRatings": [
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "K": 50,
+        "startRating": 1000,
+        "stopLossAfter": 2,
+        "capPerFoe24h": 3
+      },
+      "output": {
+        "matches": 4,
+        "deltas": [
+          25,
+          23,
+          22,
+          20
+        ],
+        "finalRating": 1090,
+        "requeues": 3,
+        "stopLossAt": null,
+        "capBlockedAt": 4,
+        "events": 3,
+        "foeRowsArchived": 0,
+        "demotions": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=cap (Elo arithmetic, foe rating in-memory only)"
+      },
+      "ms": 1.68,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "Requeue after results was measured at the 3/day same-foe cap and with a 2-consecutive-loss stop-loss; K=50 deltas were computed from the bundle formula. Foe rating/identity was used only as in-memory harness input and never archived."
+}

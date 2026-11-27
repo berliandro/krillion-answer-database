@@ -1,0 +1,136 @@
+{
+  "strategy": "long-private-rooms",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompts": 50,
+        "mode": "top",
+        "tierCycle": [
+          100
+        ],
+        "rooms": [
+          {
+            "name": "Private 50 room",
+            "detail": "50 prompts, 30s each",
+            "count": "2 of 40"
+          },
+          {
+            "name": "The Marathon · 5 sec",
+            "detail": "50 prompts, 5s each",
+            "count": "1 of 40"
+          }
+        ],
+        "joinSelected": true
+      },
+      "output": {
+        "selectedRoom": "Private 50 room",
+        "joined": true,
+        "selectionNote": "showoff argmax selected the 50-prompt private row; room entered via count path (M07/M05 is manual for private codes)",
+        "cumulativeDepth": {
+          "prompt7": 7000,
+          "prompt25": 25000,
+          "prompt50": 50000
+        },
+        "finalDepthMetres": 50000,
+        "lowScoreLogged": false,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "place": null,
+        "placeNote": "own row only: a numeric room place is not measurable without reading other players (policy forbids)",
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=top/50-prompts"
+      },
+      "ms": 12.759,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompts": 50,
+        "mode": "god",
+        "tierCycle": [
+          85,
+          60,
+          30,
+          10
+        ],
+        "rooms": [
+          {
+            "name": "Private 50 room",
+            "detail": "50 prompts, 30s each",
+            "count": "2 of 40"
+          },
+          {
+            "name": "The Marathon · 5 sec",
+            "detail": "50 prompts, 5s each",
+            "count": "1 of 40"
+          }
+        ],
+        "joinSelected": true
+      },
+      "output": {
+        "selectedRoom": "Private 50 room",
+        "joined": true,
+        "selectionNote": "showoff argmax selected the 50-prompt private row; room entered via count path (M07/M05 is manual for private codes)",
+        "cumulativeDepth": {
+          "prompt7": 3600,
+          "prompt25": 11950,
+          "prompt50": 23650
+        },
+        "finalDepthMetres": 23650,
+        "lowScoreLogged": true,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "place": null,
+        "placeNote": "own row only: a numeric room place is not measurable without reading other players (policy forbids)",
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=god/50-prompts"
+      },
+      "ms": 33.104,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompts": 50,
+        "mode": "god",
+        "tierCycle": [
+          85
+        ],
+        "rooms": [
+          {
+            "name": "Private 50 room",
+            "detail": "50 prompts, 30s each",
+            "count": "2 of 40"
+          },
+          {
+            "name": "The Marathon · 5 sec",
+            "detail": "50 prompts, 5s each",
+            "count": "1 of 40"
+          }
+        ],
+        "joinSelected": true
+      },
+      "output": {
+        "selectedRoom": "Private 50 room",
+        "joined": true,
+        "selectionNote": "showoff argmax selected the 50-prompt private row; room entered via count path (M07/M05 is manual for private codes)",
+        "cumulativeDepth": {
+          "prompt7": 5950,
+          "prompt25": 21250,
+          "prompt50": 42500
+        },
+        "finalDepthMetres": 42500,
+        "lowScoreLogged": true,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "place": null,
+        "placeNote": "own row only: a numeric room place is not measurable without reading other players (policy forbids)",
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=god/50-prompts"
+      },
+      "ms": 22.271,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "Cumulative own depth measured at prompts 7/25/50 in a 50-prompt room; monotonic in every run and an order of magnitude above a 7-prompt duel ceiling. A low play score produced evidence only (zero demotions). Numeric room place is deliberately not measured because reading other players is prohibited."
+}

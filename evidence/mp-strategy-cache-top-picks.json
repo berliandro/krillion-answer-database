@@ -1,0 +1,96 @@
+{
+  "strategy": "cache-top-picks",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompt": "Name any one famous park",
+        "pick": "top",
+        "cache": "net",
+        "groups": [
+          "Name any one famous park",
+          "Name a famous park (near-duplicate bank)"
+        ],
+        "tierRows": 9
+      },
+      "output": {
+        "answered": true,
+        "picked": "Central Park",
+        "tierPoints": 100,
+        "pointsPerPrompt": 100,
+        "groupsLoaded": 2,
+        "bankLabelsRendered": 2,
+        "banksSeparate": true,
+        "banksSeparateNote": "each near-duplicate bank rendered as its own labelled ka-group",
+        "submitted": 1,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "godExpectedPoints": 77.538,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=top/net/banks=2"
+      },
+      "ms": 29.518,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompt": "Name any one famous park",
+        "pick": "top",
+        "cache": "premap",
+        "groups": [
+          "Name any one famous park"
+        ],
+        "tierRows": 9
+      },
+      "output": {
+        "answered": true,
+        "picked": "Central Park",
+        "tierPoints": 100,
+        "pointsPerPrompt": 100,
+        "groupsLoaded": 1,
+        "bankLabelsRendered": 0,
+        "banksSeparate": true,
+        "banksSeparateNote": "single bank: nothing to merge",
+        "submitted": 1,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "godExpectedPoints": 77.538,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=top/premap/banks=1"
+      },
+      "ms": 2.15,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompt": "Name any one famous park",
+        "pick": "god",
+        "cache": "net",
+        "groups": [
+          "Name any one famous park",
+          "Name a famous park (near-duplicate bank)"
+        ],
+        "tierRows": 9
+      },
+      "output": {
+        "answered": true,
+        "picked": "nice tree",
+        "tierPoints": 60,
+        "pointsPerPrompt": 60,
+        "groupsLoaded": 2,
+        "bankLabelsRendered": 2,
+        "banksSeparate": true,
+        "banksSeparateNote": "each near-duplicate bank rendered as its own labelled ka-group",
+        "submitted": 1,
+        "demotions": 0,
+        "otherPlayerRowsLogged": 0,
+        "godExpectedPoints": 77.538,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=god/net/banks=2"
+      },
+      "ms": 1.933,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "Warm cache + top picks scored a banked 100 on every measured prompt; God draws a measured lower tier at the same prompt. Zero play-score demotions, zero other-player rows, near-duplicate banks rendered as separate labelled banks."
+}

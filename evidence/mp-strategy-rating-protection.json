@@ -1,0 +1,93 @@
+{
+  "strategy": "rating-protection",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "kind": "tab-rule",
+        "taboutMs": 1250,
+        "abandonMs": 45000,
+        "K": 50,
+        "startRating": 1000
+      },
+      "output": {
+        "clicks": {
+          "ruleKey": 1,
+          "leave": 0
+        },
+        "events": [
+          "duel-rule"
+        ],
+        "status": "accepted tab rule",
+        "equalRatingLossElo": -25,
+        "equalRatingWinElo": 25,
+        "pearlTabOutLossElo": -25,
+        "leaveBeforeStartRatingChange": 0,
+        "liveForfeitTested": false,
+        "demotions": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=tab-rule (Elo arithmetic from bundle constants)"
+      },
+      "ms": 6.895,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 2,
+      "input": {
+        "kind": "elsewhere-versus",
+        "taboutMs": 1250,
+        "abandonMs": 45000,
+        "K": 50,
+        "startRating": 1000
+      },
+      "output": {
+        "clicks": {
+          "claim": 1,
+          "versusLeave": 0,
+          "versusOther": 0
+        },
+        "events": [
+          "duel-claim"
+        ],
+        "status": "match found — waiting for first prompt",
+        "equalRatingLossElo": -25,
+        "equalRatingWinElo": 25,
+        "pearlTabOutLossElo": -25,
+        "leaveBeforeStartRatingChange": 0,
+        "liveForfeitTested": false,
+        "demotions": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=elsewhere-versus (Elo arithmetic from bundle constants)"
+      },
+      "ms": 2.099,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    },
+    {
+      "n": 3,
+      "input": {
+        "kind": "leave-before-start",
+        "taboutMs": 1250,
+        "abandonMs": 45000,
+        "K": 50,
+        "startRating": 1000
+      },
+      "output": {
+        "clicks": {
+          "versusLeave": 0,
+          "home": 0
+        },
+        "events": [],
+        "status": "no leave before start, no rating change",
+        "equalRatingLossElo": -25,
+        "equalRatingWinElo": 25,
+        "pearlTabOutLossElo": -25,
+        "leaveBeforeStartRatingChange": 0,
+        "liveForfeitTested": false,
+        "demotions": 0,
+        "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture; case=leave-before-start (Elo arithmetic from bundle constants)"
+      },
+      "ms": 1.665,
+      "source": "harness stub (vm, seeded RNG + fake timers); room/prompt inputs = live-readonly LIVE-NOTE (injection/STATES.md, STATES-MP-DUEL.md) + FAQ 2026-11-27 + bundle constants; bridge answers = injected fixture"
+    }
+  ],
+  "verdict": "REJECTED",
+  "reason": "The core claim (avoiding a tab-out/leave forfeit loss) cannot be proven without deliberately forfeiting a real match, which is unsafe and prohibited. Three safe harness runs measured tab-rule acceptance, elsewhere claim, versus wait and leave-before-start, plus Elo arithmetic from bundle constants; none of these is a live rating observation."
+}
