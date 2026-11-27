@@ -64,6 +64,7 @@
     deepcutExact: false,
     deepcutPrompt: '',
     premap: null,
+    premapText: null,     // exact stored wording -> authoritative nq key
     tierPremap: null,     // null until /api/all-tier resolves; Map afterwards
     netCache: new Map(),
     bankCapturing: false, // guards the 50ms-debounced end-of-dive capture
@@ -848,9 +849,14 @@
 
   function buildPremap(data) {
     const map = new Map();
+    const textKeys = new Map();
     (data || []).forEach((item) => {
       if (!item || !item.q) return;
       const key = keyFor(item);
+      // The bridge's nq strips punctuation/contractions that normLocal keeps
+      // (e.g. "Dr. Seuss" -> "dr seuss"). Remember the exact stored wording so
+      // a verbatim on-screen prompt resolves to the authoritative nq key.
+      textKeys.set(item.q, key);
       const bank = { q: item.q, answers: item.answers || [], score: item.score || 1 };
       if (!map.has(key)) {
         map.set(key, bank);
@@ -872,7 +878,18 @@
       // dropped when two prompts share an nq.
       map.set(item.q, bank);
     });
+    state.premapText = textKeys;
     return map;
+  }
+
+  // Fast-path lookup: a verbatim prompt uses the bridge's authoritative nq
+  // key; reworded prompts fall back to normLocal as before. Resolving through
+  // the key (not through a bank alias) keeps near-duplicate banks aggregated,
+  // and netCache / tierPremap keep their own unchanged key source.
+  function premapItem(question) {
+    if (!state.premap) return null;
+    const textKey = state.premapText && state.premapText.get(question);
+    return state.premap.get(textKey || keyFor(question)) || null;
   }
 
   // Single-key lookups stay instant: a plain record yields one group exactly
@@ -949,14 +966,14 @@
 
     // PROVEN classic "exact-100 preload fast path": the whole rare-answer
     // archive is loaded once at page start, so an exact premap hit resolves
-    // with zero /api/answers calls. Same key source as premap/prefetch/netCache
-    // (nq when the bridge supplies one, normLocal otherwise).
-    const key = keyFor(question);
-    if (state.premap && state.premap.has(key)) {
-      const item = state.premap.get(key);
+    // with zero /api/answers calls. Verbatim prompts use the bridge's nq key;
+    // netCache/prefetch keep their normLocal key source unchanged.
+    const item = premapItem(question);
+    if (item) {
       applyResult({ exact: true, groups: premapGroups(item, question) }, question);
       return;
     }
+    const key = keyFor(question);
     if (state.netCache.has(key)) {
       applyResult(state.netCache.get(key), question);
       return;
@@ -1074,9 +1091,8 @@
       const map = buildPremap(source || []);
       state.premap = map;
       if (state.question) {
-        const key = keyFor(state.question);
-        if (map.has(key)) {
-          const item = map.get(key);
+        const item = premapItem(state.question);
+        if (item) {
           applyResult({ exact: true, groups: premapGroups(item, state.question) }, state.question);
         }
       }
