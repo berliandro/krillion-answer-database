@@ -130,7 +130,7 @@ Verified probes (see transcript for raw output):
 | `/api/krillion/blitz/{prompts,bank,deal,all}` | 404 HTML |
 | `/api/krillion/prompts`, `/api/prompts`, `/prompts.json`, … | all 404 |
 | Supabase `krillion_blitz_results`, `krillion_prompt_stats`, `krillion_answers` with anon key | `42501 permission denied` |
-| All downloaded Next.js chunks scanned for `Name a/an/any/...` prompt strings | only 2 UI placeholders, no bank |
+| All 32 Next.js chunks from `/krillocity` scanned for API paths and prompt-bank strings (plus build manifest) | only UI prompt selectors/`"prompts"`; no bank or bulk endpoint |
 
 There is no authoritative full-prompt endpoint or readable table exposed to an
 anonymous client. The only obtainable source is the live lineup of current and
