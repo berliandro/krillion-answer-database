@@ -3,7 +3,7 @@
 // @namespace    https://github.com/berliandro/krillion-answer-database
 // @author       berliandro — https://github.com/berliandro
 // @homepage     https://github.com/berliandro/krillion-answer-database
-// @version      1.1.4
+// @version      1.1.5
 // @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running. By berliandro — https://github.com/berliandro/krillion-answer-database
 // @downloadURL https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @updateURL  https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js

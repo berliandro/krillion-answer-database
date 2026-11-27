@@ -67,3 +67,10 @@ command output is not accepted. Do not delete rows; correct them with a dated no
 **P5 fixes:** (1) Gaussian weights sum exactly 100.00 (85→39.38); (2) refusal lines scoped to filled answer/current prompt, lingering line not re-attributed; (3) colliding nq banks retained as separate labelled groups (no merge); (4) authoritative bank score ≥100 clears refusedAnswers for that pair. P-W03 test premise corrected (nq collisions are expected; retention is the invariant) with proof it still fails against pre-fix code.
 
 **P5 gate verdict:** PASS — zero FAIL across fault suites, state matrix 100% coverage, full suite 9/9. Ready for Phase 6.
+
+| Phase | Hypothesis | Command | Result | Pass threshold | Commit | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| P6-gate | All numeric perf targets met with 0 missed prompts/timeouts | `node tests/perf.js` after W6-A fix | visible→chips p50/p95 1.09/4.14 ms (<100, stretch <50); exact 0.07/0.18 ms + 0 /api/answers; fuzzy 2.93/5.65 ms (<150); bridge HTTP 2.53/3.50 ms (<5); parse+map 10.29/17.87 ms (<20); MISSED 0, TIMEOUTS 0; TARGETS_MET true | all targets PASS | `3dde7b9` + version bump | PASS |
+| P6-harden | Optimisation did not regress behaviour | `python tests/run_all.py`, faults, matrix, harnesses | 9/9; faults 23/23 + 13/13; matrix 58 PASS/0 FAIL/3 N/A; mode/scaffold harnesses pass; node --check pass | zero FAIL everywhere | `pending` | PASS |
+
+**P6 changes:** W6-A fixed 1,008/5,801 verbatim-nq mismatches via a `premapText` map (GET lookups 106→0 on mismatched prompts, file +0.75%, DOM nodes 64→64); W6-B UX audit 7→7 controls net-zero, detector clean; W6-C perf harness 50-prompt replay. **P6 gate verdict:** PASS — all targets met. Ready for Phase 7.
