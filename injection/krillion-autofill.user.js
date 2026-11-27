@@ -3,7 +3,7 @@
 // @namespace    https://github.com/berliandro/krillion-answer-database
 // @author       berliandro — https://github.com/berliandro
 // @homepage     https://github.com/berliandro/krillion-answer-database
-// @version      1.1.5
+// @version      1.1.6
 // @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running. By berliandro — https://github.com/berliandro/krillion-answer-database
 // @downloadURL https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @updateURL  https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
@@ -1101,8 +1101,26 @@
     }
   }
 
+  // Krillocity keeps a hidden "wait" card with an empty p.kr-prompt AHEAD of
+  // the live card. document.querySelector() returns that stale node, so the
+  // panel never sees a prompt and the bot never answers. Pick the first
+  // genuinely visible prompt, preferring one with text. A visible-but-empty
+  // node is kept as a fallback so gameState() still sees the prompt reveal.
+  function promptEl() {
+    const all = document.querySelectorAll(SEL.prompt);
+    let fallback = null;
+    for (const el of all) {
+      const cs = getComputedStyle(el);
+      if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+      if (!(el.offsetParent !== null || el.getClientRects().length > 0)) continue;
+      if (!fallback) fallback = el;
+      if ((el.textContent || '').trim()) return el;
+    }
+    return fallback;
+  }
+
   function isVisible(sel) {
-    const el = document.querySelector(sel);
+    const el = sel === SEL.prompt ? promptEl() : document.querySelector(sel);
     return !!(el && (el.offsetParent !== null || el.getClientRects().length > 0));
   }
 
@@ -1110,7 +1128,7 @@
     // The intro stays in the DOM after a dive begins, just hidden. Only a
     // visible intro means we are still on the start screen.
     if (isVisible(SEL.intro)) return '';
-    const el = document.querySelector(SEL.prompt);
+    const el = promptEl();
     return el ? (el.textContent || '').trim().replace(/\s+/g, ' ') : '';
   }
 
@@ -1698,7 +1716,7 @@
   }
 
   function visible(sel) {
-    const el = document.querySelector(sel);
+    const el = sel === SEL.prompt ? promptEl() : document.querySelector(sel);
     return !!(el && (el.offsetParent !== null || el.getClientRects().length > 0));
   }
 
