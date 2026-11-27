@@ -68,8 +68,17 @@
     netCache: new Map(),
     bankCapturing: false, // guards the 50ms-debounced end-of-dive capture
     refusedAnswers: new Set(),
+    // Set only when the graded bank confirms an answer that play-time grading
+    // refused; that answer is authoritative and wins the next submission.
+    bankConfirmed: null,
     refusalKey: '',
     refusalActive: false,
+    // Identity of the refusal line currently on screen. A site can leave the
+    // same .kr-refusal text up after the prompt/answer change; without this the
+    // stale line gets re-attributed to the new answer and blocks it.
+    refusalLine: '',
+    refusalQuestion: '',
+    refusalAnswer: '',
     prefetchQueue: [],   // prompts captured from /deal, waiting to warm netCache
     prefetchActive: 0,   // in-flight prefetches (never exceeds PREFETCH_CONCURRENCY)
     prefetchCount: 0,    // total issued prefetches (never exceeds PREFETCH_MAX)
@@ -840,9 +849,41 @@
   function buildPremap(data) {
     const map = new Map();
     (data || []).forEach((item) => {
-      if (item && item.q) map.set(keyFor(item), { q: item.q, answers: item.answers || [] });
+      if (!item || !item.q) return;
+      const key = keyFor(item);
+      const bank = { q: item.q, answers: item.answers || [], score: item.score || 1 };
+      if (!map.has(key)) {
+        map.set(key, bank);
+        return;
+      }
+      // Near-duplicate prompts can normalise to the same nq key. Policy: keep
+      // them as separate labelled banks, never merge their answers into one.
+      // The shared-key record keeps the complete flat answers view for legacy
+      // consumers, plus `banks` for the fast paths that must show each label.
+      const prev = map.get(key);
+      if (!prev.banks) {
+        // Keep a pristine copy of the first bank: the flat answers view below
+        // is aggregated for legacy consumers, but groups must stay separate.
+        prev.banks = [{ q: prev.q, answers: prev.answers.slice(), score: prev.score }];
+      }
+      prev.banks.push(bank);
+      prev.answers = prev.answers.concat(bank.answers);
+      // Also address the colliding bank by its exact label so neither bank is
+      // dropped when two prompts share an nq.
+      map.set(item.q, bank);
     });
     return map;
+  }
+
+  // Single-key lookups stay instant: a plain record yields one group exactly
+  // as before; only collision records carry multiple labelled banks.
+  function premapGroups(item, question) {
+    const banks = item && item.banks ? item.banks : [item];
+    return banks.map((b) => ({
+      question: b.q || question,
+      score: Number(b.score || 1),
+      answers: b.answers || [],
+    }));
   }
 
   function applyResult(data, question) {
@@ -886,6 +927,9 @@
     state.answers = [];
     state.groups = [];
     state.lastFilled = '';
+    // A new prompt drops any stale refusal tag; refusalLine/Question/Answer are
+    // deliberately kept so a lingering .kr-refusal line is recognised as stale
+    // instead of being re-logged against the next filled answer.
     state.refusalActive = false;
     render();
 
@@ -910,10 +954,7 @@
     const key = keyFor(question);
     if (state.premap && state.premap.has(key)) {
       const item = state.premap.get(key);
-      applyResult({
-        exact: true,
-        groups: [{ question: item.q, score: 1, answers: item.answers }],
-      }, question);
+      applyResult({ exact: true, groups: premapGroups(item, question) }, question);
       return;
     }
     if (state.netCache.has(key)) {
@@ -1036,10 +1077,7 @@
         const key = keyFor(state.question);
         if (map.has(key)) {
           const item = map.get(key);
-          applyResult({
-            exact: true,
-            groups: [{ question: item.q, score: 1, answers: item.answers }],
-          }, state.question);
+          applyResult({ exact: true, groups: premapGroups(item, state.question) }, state.question);
         }
       }
     } catch (e) {
@@ -1112,6 +1150,20 @@
   }
 
   async function reportScore(question, answer, points, tier) {
+    if (points >= 100) {
+      // The dive-end graded bank is authoritative: a play-time refusal for the
+      // same (question, answer) is evidence only. Once the bank confirms the
+      // answer at 100, unblock exactly that key so the bot can submit it again.
+      const confirmed = question + '\u0000' + answer;
+      if (state.refusedAnswers.has(confirmed)) {
+        const kept = Array.from(state.refusedAnswers).filter((k) => k !== confirmed);
+        state.refusedAnswers.clear();
+        kept.forEach((k) => state.refusedAnswers.add(k));
+        // The bank-confirmed answer is now the authoritative choice for this
+        // prompt; prefer it over alternatives that play-time never proved.
+        state.bankConfirmed = { question, answer };
+      }
+    }
     const key = question + '\u0000' + answer + '\u0000' + points;
     if (state.scored.has(key)) return;
     state.scored.add(key);
@@ -1159,10 +1211,24 @@
     const line = el ? (el.textContent || '').trim() : '';
     if (!line) return false;
     const answer = state.lastFilled;
+    // A site can leave the previous round's .kr-refusal line on screen after
+    // the prompt changed. If this exact line was already attributed to a
+    // different (prompt, answer), it is stale: never re-attribute it and never
+    // add a refusedAnswers entry for an answer that was not actually refused.
+    if (state.refusalLine === line &&
+        (state.refusalQuestion !== state.question || state.refusalAnswer !== answer)) {
+      state.refusalActive = false;
+      state.lastFilled = '';
+      bot.answeredPrompt = '';
+      return false;
+    }
     const bank = state.answerQuestion[answer] || state.question;
     const key = state.question + '\u0000' + answer + '\u0000' + line;
     if (state.refusalKey !== key) {
       state.refusalKey = key;
+      state.refusalLine = line;
+      state.refusalQuestion = state.question;
+      state.refusalAnswer = answer;
       state.refusalActive = true;
       state.refusedAnswers.add(state.question + '\u0000' + answer);
       reportPrompt('refused', state.question, {
@@ -1622,9 +1688,11 @@
 
   // God mode draws a point GROUP, not a fixed cadence. Gaussian w(i) =
   // exp(-(i-4)^2 / (2*1.1^2)) over tier indices 4..9 (10..100), normalised to
-  // 100%: 10=0.05%, 15=0.95%, 30=7.54%, 60=26.04%, 85=39.37%, 100=26.04%.
+  // 100.00% exactly: 10=0.05%, 15=0.95%, 30=7.54%, 60=26.04%, 85=39.38%, 100=26.04%.
+  // The peak stays at 85pt; the former 0.01 shortfall went to 100pt via the
+  // rounding guard below, skewing the declared distribution.
   const GOD_TIER_POINTS = [10, 15, 30, 60, 85, 100];
-  const GOD_TIER_CHANCE = { 10: 0.05, 15: 0.95, 30: 7.54, 60: 26.04, 85: 39.37, 100: 26.04 };
+  const GOD_TIER_CHANCE = { 10: 0.05, 15: 0.95, 30: 7.54, 60: 26.04, 85: 39.38, 100: 26.04 };
   const GOD_TIER_TEXT_POINTS = {
     PLANKTON: 10, 'TOO CLEVER': 15, SCHOOLER: 30, RARE: 60,
     'DEEP CUT': 85, 'ONE IN A KRILLION': 100,
@@ -1951,7 +2019,12 @@
         (a) => !state.refusedAnswers.has(prompt + '\u0000' + a)
           && !(isRace && bot.submittedForPrompt.has(prompt + '\u0000' + a))
       );
-      answer = pickAnswer(list);
+      const confirmed = state.bankConfirmed;
+      const bankQ = groups[0] && groups[0].question ? groups[0].question : prompt;
+      const preferred = confirmed
+        && (confirmed.question === prompt || confirmed.question === bankQ)
+        && list.indexOf(confirmed.answer) !== -1 ? confirmed.answer : '';
+      answer = preferred || pickAnswer(list);
     }
     if (!answer) return false;
     if (bot.pick === 'god') bot.answerCount++;
