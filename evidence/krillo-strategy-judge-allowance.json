@@ -1,0 +1,152 @@
+{
+  "strategy": "S5 protect AI-judge allowance: prefer bank-known answers",
+  "meta": {
+    "capturedAt": "2026-11-27T07:48:46.273Z",
+    "bridge": {
+      "all": 5801,
+      "allTier": 2879,
+      "version": 5,
+      "etag": "8404c08835db2dfc3fe4eb96291928421e103192fe2d9048a70b9f107e95519f"
+    },
+    "fullDB": {
+      "rows": 121094,
+      "prompts": 2469
+    },
+    "prompts": [
+      "Name a 3D shape",
+      "Name a Batman character",
+      "Name a Beatles song",
+      "Name a CEO"
+    ],
+    "harness": "C:\\Users\\nberl\\AppData\\Local\\Temp\\opencode\\krillo-strategy-harness.js",
+    "model": "Fake timers drive the real raceBurst/raceNextAnswer/raceSchedule code. An answer is modelled ACCEPTED iff it is bank-backed in the supplied rare/tier pool; the game server judge is not contacted.",
+    "domNote": "Static read-only fetch of https://playdaily.org/krillocity confirmed the game rules (7 prompts/30s, tiers 10/15/30/60/85/100, same answer counts once, AI judge, Start daily). The interactive React DOM (START DAILY / kr-input / kr-prompt) is client-rendered and was not available to this subagent (no in-app browser tool exposed; browse profile offline); selectors come from injection/krillion-autofill.user.js SEL."
+  },
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompt": "Name a 3D shape",
+        "bankOnly": true,
+        "speculativeControlRows": 10
+      },
+      "output": {
+        "banked": {
+          "submitted": 30,
+          "unique": 30,
+          "duplicates": 0,
+          "bankKnownSubmitted": 30,
+          "speculativeSubmitted": 0,
+          "modeledJudgeCalls": 30,
+          "modeledRefused": 0,
+          "drainMs": 2660,
+          "idleMs": 27340,
+          "drained": true
+        },
+        "speculativeControl": {
+          "submitted": 40,
+          "unique": 40,
+          "duplicates": 0,
+          "bankKnownSubmitted": 30,
+          "speculativeSubmitted": 10,
+          "modeledJudgeCalls": 40,
+          "modeledRefused": 10,
+          "drainMs": 3560,
+          "idleMs": 26440,
+          "drained": true
+        },
+        "bankedSpendsNoSpeculativeCalls": true,
+        "speculativeWastesCalls": true
+      },
+      "ms": {
+        "bankedDrain": 2660,
+        "speculativeDrain": 3560
+      },
+      "source": "fake timers + real pool code; bank rows from bridge /api/all + /api/all-tier; speculative control injected only as a control"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompt": "Name a Batman character",
+        "bankOnly": true,
+        "speculativeControlRows": 10
+      },
+      "output": {
+        "banked": {
+          "submitted": 29,
+          "unique": 29,
+          "duplicates": 0,
+          "bankKnownSubmitted": 29,
+          "speculativeSubmitted": 0,
+          "modeledJudgeCalls": 29,
+          "modeledRefused": 0,
+          "drainMs": 2570,
+          "idleMs": 27430,
+          "drained": true
+        },
+        "speculativeControl": {
+          "submitted": 38,
+          "unique": 38,
+          "duplicates": 0,
+          "bankKnownSubmitted": 29,
+          "speculativeSubmitted": 9,
+          "modeledJudgeCalls": 38,
+          "modeledRefused": 9,
+          "drainMs": 3380,
+          "idleMs": 26620,
+          "drained": true
+        },
+        "bankedSpendsNoSpeculativeCalls": true,
+        "speculativeWastesCalls": true
+      },
+      "ms": {
+        "bankedDrain": 2570,
+        "speculativeDrain": 3380
+      },
+      "source": "fake timers + real pool code; bank rows from bridge /api/all + /api/all-tier; speculative control injected only as a control"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompt": "Name a Beatles song",
+        "bankOnly": true,
+        "speculativeControlRows": 10
+      },
+      "output": {
+        "banked": {
+          "submitted": 30,
+          "unique": 30,
+          "duplicates": 0,
+          "bankKnownSubmitted": 30,
+          "speculativeSubmitted": 0,
+          "modeledJudgeCalls": 30,
+          "modeledRefused": 0,
+          "drainMs": 2660,
+          "idleMs": 27340,
+          "drained": true
+        },
+        "speculativeControl": {
+          "submitted": 40,
+          "unique": 40,
+          "duplicates": 0,
+          "bankKnownSubmitted": 30,
+          "speculativeSubmitted": 10,
+          "modeledJudgeCalls": 40,
+          "modeledRefused": 10,
+          "drainMs": 3560,
+          "idleMs": 26440,
+          "drained": true
+        },
+        "bankedSpendsNoSpeculativeCalls": true,
+        "speculativeWastesCalls": true
+      },
+      "ms": {
+        "bankedDrain": 2660,
+        "speculativeDrain": 3560
+      },
+      "source": "fake timers + real pool code; bank rows from bridge /api/all + /api/all-tier; speculative control injected only as a control"
+    }
+  ],
+  "verdict": "REJECTED",
+  "reason": "Not provable in this harness: allowance size, refill rate, and whether bank-known answers consume the allowance are server-side and unobservable without a live scored daily (forbidden by account risk; H5 unproven). Three measured runs confirm only the client-side half: bank-only pools submit N bank-known answers with 0 speculative/refused submissions, while a speculative control adds N wasted judge calls. This is a proxy, not proof of allowance preservation."
+}

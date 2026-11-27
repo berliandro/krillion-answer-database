@@ -1,0 +1,263 @@
+{
+  "strategy": "S3 hold 50ms fill / 90ms step safe cadence",
+  "meta": {
+    "capturedAt": "2026-11-27T07:48:46.273Z",
+    "bridge": {
+      "all": 5801,
+      "allTier": 2879,
+      "version": 5,
+      "etag": "8404c08835db2dfc3fe4eb96291928421e103192fe2d9048a70b9f107e95519f"
+    },
+    "fullDB": {
+      "rows": 121094,
+      "prompts": 2469
+    },
+    "prompts": [
+      "Name a 3D shape",
+      "Name a Batman character",
+      "Name a Beatles song",
+      "Name a CEO"
+    ],
+    "harness": "C:\\Users\\nberl\\AppData\\Local\\Temp\\opencode\\krillo-strategy-harness.js",
+    "model": "Fake timers drive the real raceBurst/raceNextAnswer/raceSchedule code. An answer is modelled ACCEPTED iff it is bank-backed in the supplied rare/tier pool; the game server judge is not contacted.",
+    "domNote": "Static read-only fetch of https://playdaily.org/krillocity confirmed the game rules (7 prompts/30s, tiers 10/15/30/60/85/100, same answer counts once, AI judge, Start daily). The interactive React DOM (START DAILY / kr-input / kr-prompt) is client-rendered and was not available to this subagent (no in-app browser tool exposed; browse profile offline); selectors come from injection/krillion-autofill.user.js SEL."
+  },
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompt": "Name a 3D shape",
+        "cadence": {
+          "fill": 50,
+          "step": 90
+        },
+        "variants": {
+          "slowStep": 700,
+          "fastStep": 18
+        }
+      },
+      "output": {
+        "current": {
+          "submitted": 30,
+          "unique": 30,
+          "duplicates": 0,
+          "fillGaps": [
+            50
+          ],
+          "stepGaps": [
+            90
+          ],
+          "drainMs": 2660,
+          "within30s": true,
+          "drained": true,
+          "modeledUnregistered": 0,
+          "stranded": 0
+        },
+        "slowA_B": {
+          "submitted": 30,
+          "unique": 30,
+          "duplicates": 0,
+          "fillGaps": [
+            388.8888888888887,
+            388.88888888888886,
+            388.8888888888889,
+            388.8888888888905
+          ],
+          "stepGaps": [
+            700
+          ],
+          "drainMs": 20688.88888888889,
+          "within30s": true,
+          "drained": true,
+          "modeledUnregistered": 0,
+          "stranded": 0
+        },
+        "fastA_B": {
+          "submitted": 30,
+          "unique": 30,
+          "duplicates": 0,
+          "fillGaps": [
+            10
+          ],
+          "stepGaps": [
+            18
+          ],
+          "drainMs": 532,
+          "within30s": true,
+          "drained": true,
+          "modeledUnregistered": 30,
+          "stranded": 0
+        },
+        "allFillGaps50": true,
+        "allStepGaps90": true,
+        "noDuplicates": true
+      },
+      "ms": {
+        "fill": 50,
+        "step": 90,
+        "drain": 2660,
+        "slowDrain": 20688.88888888889,
+        "fastDrain": 532
+      },
+      "source": "fake timers over real raceSchedule/raceBurst setTimeout calls; bridge /api/all + /api/all-tier rows"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompt": "Name a Batman character",
+        "cadence": {
+          "fill": 50,
+          "step": 90
+        },
+        "variants": {
+          "slowStep": 700,
+          "fastStep": 18
+        }
+      },
+      "output": {
+        "current": {
+          "submitted": 29,
+          "unique": 29,
+          "duplicates": 0,
+          "fillGaps": [
+            50
+          ],
+          "stepGaps": [
+            90
+          ],
+          "drainMs": 2570,
+          "within30s": true,
+          "drained": true,
+          "modeledUnregistered": 0,
+          "stranded": 0
+        },
+        "slowA_B": {
+          "submitted": 29,
+          "unique": 29,
+          "duplicates": 0,
+          "fillGaps": [
+            388.8888888888887,
+            388.88888888888886,
+            388.8888888888889,
+            388.8888888888905
+          ],
+          "stepGaps": [
+            700
+          ],
+          "drainMs": 19988.88888888889,
+          "within30s": true,
+          "drained": true,
+          "modeledUnregistered": 0,
+          "stranded": 0
+        },
+        "fastA_B": {
+          "submitted": 29,
+          "unique": 29,
+          "duplicates": 0,
+          "fillGaps": [
+            10
+          ],
+          "stepGaps": [
+            18
+          ],
+          "drainMs": 514,
+          "within30s": true,
+          "drained": true,
+          "modeledUnregistered": 29,
+          "stranded": 0
+        },
+        "allFillGaps50": true,
+        "allStepGaps90": true,
+        "noDuplicates": true
+      },
+      "ms": {
+        "fill": 50,
+        "step": 90,
+        "drain": 2570,
+        "slowDrain": 19988.88888888889,
+        "fastDrain": 514
+      },
+      "source": "fake timers over real raceSchedule/raceBurst setTimeout calls; bridge /api/all + /api/all-tier rows"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompt": "Name a Beatles song",
+        "cadence": {
+          "fill": 50,
+          "step": 90
+        },
+        "variants": {
+          "slowStep": 700,
+          "fastStep": 18
+        }
+      },
+      "output": {
+        "current": {
+          "submitted": 30,
+          "unique": 30,
+          "duplicates": 0,
+          "fillGaps": [
+            50
+          ],
+          "stepGaps": [
+            90
+          ],
+          "drainMs": 2660,
+          "within30s": true,
+          "drained": true,
+          "modeledUnregistered": 0,
+          "stranded": 0
+        },
+        "slowA_B": {
+          "submitted": 30,
+          "unique": 30,
+          "duplicates": 0,
+          "fillGaps": [
+            388.8888888888887,
+            388.88888888888886,
+            388.8888888888889,
+            388.8888888888905
+          ],
+          "stepGaps": [
+            700
+          ],
+          "drainMs": 20688.88888888889,
+          "within30s": true,
+          "drained": true,
+          "modeledUnregistered": 0,
+          "stranded": 0
+        },
+        "fastA_B": {
+          "submitted": 30,
+          "unique": 30,
+          "duplicates": 0,
+          "fillGaps": [
+            10
+          ],
+          "stepGaps": [
+            18
+          ],
+          "drainMs": 532,
+          "within30s": true,
+          "drained": true,
+          "modeledUnregistered": 30,
+          "stranded": 0
+        },
+        "allFillGaps50": true,
+        "allStepGaps90": true,
+        "noDuplicates": true
+      },
+      "ms": {
+        "fill": 50,
+        "step": 90,
+        "drain": 2660,
+        "slowDrain": 20688.88888888889,
+        "fastDrain": 532
+      },
+      "source": "fake timers over real raceSchedule/raceBurst setTimeout calls; bridge /api/all + /api/all-tier rows"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "Measured via fake timers on the real setTimeout calls: every fill->submit gap = 50ms and every step = 90ms, zero duplicate submits, pool drained well inside the 30s window. A/B: the 700ms throttle strands the same answers far longer; a 10/18ms setting falls below the modelled 30ms React registration gap and produces unregistered inputs. The \"50ms is the exact minimum\" threshold is a harness model, not a live measurement."
+}

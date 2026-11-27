@@ -1,0 +1,324 @@
+{
+  "strategy": "S2 rare-100 first then 85/60/30/15/10 with strict dedupe",
+  "meta": {
+    "capturedAt": "2026-11-27T07:48:46.273Z",
+    "bridge": {
+      "all": 5801,
+      "allTier": 2879,
+      "version": 5,
+      "etag": "8404c08835db2dfc3fe4eb96291928421e103192fe2d9048a70b9f107e95519f"
+    },
+    "fullDB": {
+      "rows": 121094,
+      "prompts": 2469
+    },
+    "prompts": [
+      "Name a 3D shape",
+      "Name a Batman character",
+      "Name a Beatles song",
+      "Name a CEO"
+    ],
+    "harness": "C:\\Users\\nberl\\AppData\\Local\\Temp\\opencode\\krillo-strategy-harness.js",
+    "model": "Fake timers drive the real raceBurst/raceNextAnswer/raceSchedule code. An answer is modelled ACCEPTED iff it is bank-backed in the supplied rare/tier pool; the game server judge is not contacted.",
+    "domNote": "Static read-only fetch of https://playdaily.org/krillocity confirmed the game rules (7 prompts/30s, tiers 10/15/30/60/85/100, same answer counts once, AI judge, Start daily). The interactive React DOM (START DAILY / kr-input / kr-prompt) is client-rendered and was not available to this subagent (no in-app browser tool exposed; browse profile offline); selectors come from injection/krillion-autofill.user.js SEL."
+  },
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompt": "Name a 3D shape",
+        "pool": 57,
+        "nextPrompt": "Name a Batman character"
+      },
+      "output": {
+        "submittedOrderTiers": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85
+        ],
+        "rareFirstN": 10,
+        "firstTierAnswers": [
+          85,
+          85,
+          85,
+          85,
+          85,
+          85
+        ],
+        "tierOrderMonotonic": true,
+        "submitted": 57,
+        "unique": 57,
+        "duplicates": 0,
+        "poolDrained": true,
+        "onPromptChange": {
+          "newPromptSubmissions": 29,
+          "leakedOldPromptAnswers": 0,
+          "dedupeSetCleared": true
+        },
+        "onInputRemount": {
+          "newSubmissions": 0,
+          "dedupeSetSize": 29,
+          "duplicateSubmissions": 0
+        },
+        "remountControlWithoutGuard": {
+          "newSubmissions": 29
+        }
+      },
+      "ms": {
+        "drain": 5130
+      },
+      "source": "bridge /api/all + /api/all-tier + data/answers_gameplay.jsonl (stress); real raceBuildPool/raceBurst/raceNextAnswer code"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompt": "Name a Batman character",
+        "pool": 54,
+        "nextPrompt": "Name a Beatles song"
+      },
+      "output": {
+        "submittedOrderTiers": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85
+        ],
+        "rareFirstN": 9,
+        "firstTierAnswers": [
+          85,
+          85,
+          85,
+          85,
+          85,
+          85
+        ],
+        "tierOrderMonotonic": true,
+        "submitted": 54,
+        "unique": 54,
+        "duplicates": 0,
+        "poolDrained": true,
+        "onPromptChange": {
+          "newPromptSubmissions": 30,
+          "leakedOldPromptAnswers": 0,
+          "dedupeSetCleared": true
+        },
+        "onInputRemount": {
+          "newSubmissions": 0,
+          "dedupeSetSize": 30,
+          "duplicateSubmissions": 0
+        },
+        "remountControlWithoutGuard": {
+          "newSubmissions": 30
+        }
+      },
+      "ms": {
+        "drain": 4860
+      },
+      "source": "bridge /api/all + /api/all-tier + data/answers_gameplay.jsonl (stress); real raceBuildPool/raceBurst/raceNextAnswer code"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompt": "Name a Beatles song",
+        "pool": 55,
+        "nextPrompt": "Name a CEO"
+      },
+      "output": {
+        "submittedOrderTiers": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85,
+          85
+        ],
+        "rareFirstN": 10,
+        "firstTierAnswers": [
+          85,
+          85,
+          85,
+          85,
+          85,
+          85
+        ],
+        "tierOrderMonotonic": true,
+        "submitted": 55,
+        "unique": 55,
+        "duplicates": 0,
+        "poolDrained": true,
+        "onPromptChange": {
+          "newPromptSubmissions": 30,
+          "leakedOldPromptAnswers": 0,
+          "dedupeSetCleared": true
+        },
+        "onInputRemount": {
+          "newSubmissions": 0,
+          "dedupeSetSize": 30,
+          "duplicateSubmissions": 0
+        },
+        "remountControlWithoutGuard": {
+          "newSubmissions": 30
+        }
+      },
+      "ms": {
+        "drain": 4950
+      },
+      "source": "bridge /api/all + /api/all-tier + data/answers_gameplay.jsonl (stress); real raceBuildPool/raceBurst/raceNextAnswer code"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "Measured submitted tier order (all 100-pt first, then non-increasing), zero duplicate answers, dedupe sets cleared on real prompt change, and no-repeat set surviving an input remount (control without the guard re-submits). Real pool/burst code, real bridge rows; no aliases applied and no banks merged."
+}
