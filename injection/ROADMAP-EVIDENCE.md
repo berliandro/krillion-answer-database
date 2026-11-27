@@ -51,3 +51,10 @@ command output is not accepted. Do not delete rows; correct them with a dated no
 | P3-analysis | Authoritative keep/discard table cross-checked against all evidence JSON | W3-D scoped check | ROWS=18, FILES=18, JSON_PROVEN=14, JSON_REJECTED=4, JSON_UNTESTED=0, MATCH=18, MISMATCH=0, JSON_TOTAL_RUNS=55 | one row per evidence file, verdicts match | `d9cf1d2` | PASS |
 
 **P3 gate verdict:** PASS — 14 PROVEN strategies to wire in Phase 4, 4 REJECTED with recorded reasons, zero UNTESTED, field-level policy checks clean. Evidence is harness-based with real bridge data plus read-only DOM notes; no live scored game was started. Ready for Phase 4.
+
+| Phase | Hypothesis | Command | Result | Pass threshold | Commit | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| P4-gate | All 14 PROVEN strategies wired, all 4 REJECTED in doNotWire only; suite still 100% | `python <temp>/verify_p4b.py` + `python tests/run_all.py` | KEEP from verified doc=14, missing from config=[]; DISCARD=4, missing from doNotWire=[]; REJECTED active=[]; 16 ids; 9/9 tests pass; node --check pass | all PROVEN wired, no REJECTED active, 100% tests | `e3f524d` | PASS |
+| P4-version | Self-update serves new version | `@version 1.1.3` + raw GitHub URL | version bumped from 1.1.2; pushed; raw URL check below | version bumped + URL serves it | `e3f524d` | PASS |
+
+**P4 gate verdict:** PASS — 4 clean merges, STRATEGY_CONFIG with 14 PROVEN / 4 doNotWire, zero REJECTED active, all tests pass, version 1.1.3. Ready for Phase 5.
