@@ -1094,7 +1094,9 @@
           variants.forEach((variant) => {
             if (!variant || variant.exact_bank !== true || variant.log_only === true) return;
             const text = variant.text;
-            if (!text || text !== target && !bankQuestions.includes(text)) return;
+            // Only the variant that IS the target bank may be a key. A real
+            // bank in the same cluster can have different graded answers.
+            if (!text || text !== target) return;
             const key = normLocal(text);
             if (!map.has(key)) map.set(key, { target, canonical, bank_questions: bankQuestions });
           });
