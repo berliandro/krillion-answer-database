@@ -44,3 +44,10 @@ command output is not accepted. Do not delete rows; correct them with a dated no
 | P2-gate | Four strategy docs give >=3 ranked strategies per mode with evidence/risk/testable flags and no policy violations | `python -c "<count markers>"` | Scoring 245 lines / 33 evidence / 7 testable; Classic 278 / 59 / 6; Krillo 285 / 39 / 5; MP-Duel 285 / 12 testable; 61 no-demotion + 13 other-player prohibition mentions across all docs; 4 clean merges | >=3 strategies/mode, evidence+risk+testable flags, zero policy violations | `d012870` | PASS |
 
 **P2 gate verdict:** PASS — 5/5/5/8 ranked strategies across scoring/Classic/Krillocity/MP-Duel, one-page summary written; ready for Phase 3 proof runs.
+
+| Phase | Hypothesis | Command | Result | Pass threshold | Commit | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| P3-gate | Every strategy is PROVEN (>=3 measured runs) or REJECTED with reason; zero UNTESTED; no policy violation | `python <temp>/verify_p3b.py` | FILES=18 RUNS=55 PROVEN=14 REJECTED=4 UNTESTED=0 BAD_SHAPE=0 POLICY_VIOLATIONS=0; 3 proof-run branches + analysis merged cleanly | every strategy has verdict, >=3 runs, zero UNTESTED, zero policy violations | `d9cf1d2` | PASS |
+| P3-analysis | Authoritative keep/discard table cross-checked against all evidence JSON | W3-D scoped check | ROWS=18, FILES=18, JSON_PROVEN=14, JSON_REJECTED=4, JSON_UNTESTED=0, MATCH=18, MISMATCH=0, JSON_TOTAL_RUNS=55 | one row per evidence file, verdicts match | `d9cf1d2` | PASS |
+
+**P3 gate verdict:** PASS — 14 PROVEN strategies to wire in Phase 4, 4 REJECTED with recorded reasons, zero UNTESTED, field-level policy checks clean. Evidence is harness-based with real bridge data plus read-only DOM notes; no live scored game was started. Ready for Phase 4.
