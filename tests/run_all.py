@@ -26,6 +26,7 @@ MODULES = (
     ("site-js", "test_site_js"),
     ("policy", "test_policy"),
     ("modes", "test_modes"),
+    ("krillocity-canonical", "test_krillocity_canonical"),
 )
 
 
