@@ -540,7 +540,7 @@
     }
     #ka-foot{padding:9px 13px;color:var(--ka-muted);font-size:11px;line-height:1.4;flex:none;text-wrap:pretty}
     #ka-foot a{color:var(--ka-accent-deep);text-decoration:none;font-weight:600}
-    #ka-foot a:hover,#ka-foot a:focus-visible{text-decoration:underline}
+    #ka-foot a:hover,#ka-foot a:focus-visible{text-decoration:underline;text-underline-offset:2px}
     #ka-foot a:focus-visible{outline:2px solid var(--ka-accent);outline-offset:2px;border-radius:3px}
     /* ---- motion lane: balanced, light feedback --------------------------
        One authored arrival (the panel) plus short acknowledgements. Only
