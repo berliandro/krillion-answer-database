@@ -1110,8 +1110,8 @@
     const all = document.querySelectorAll(SEL.prompt);
     let fallback = null;
     for (const el of all) {
-      const cs = getComputedStyle(el);
-      if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+      const cs = typeof getComputedStyle === 'function' ? getComputedStyle(el) : null;
+      if (cs && (cs.visibility === 'hidden' || cs.display === 'none')) continue;
       if (!(el.offsetParent !== null || el.getClientRects().length > 0)) continue;
       if (!fallback) fallback = el;
       if ((el.textContent || '').trim()) return el;
