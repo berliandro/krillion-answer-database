@@ -511,6 +511,7 @@ const SYN_GROUPS = [
   ['team','club','squad'], ['brand','company','maker','manufacturer'],
   ['large','big','huge'], ['small','tiny','little'],
   ['old','ancient','historic'], ['new','modern','recent'],
+  ['characterfrom','character'],
 ];
 const SYN = {};
 for (const g of SYN_GROUPS) for (const w of g) SYN[w] = g[0];
@@ -563,7 +564,8 @@ function tokenize(s) {
   return out;
 }
 function trigrams(s) {
-  const t = '  ' + normalise(s).replace(/[^a-z0-9]+/g, ' ') + '  ';
+  // Single-space padding must match scripts/paraphrase_match.py exactly.
+  const t = ' ' + normalise(s).replace(/[^a-z0-9]+/g, ' ') + ' ';
   const g = new Set();
   for (let i = 0; i + 2 < t.length; i++) g.add(t.slice(i, i + 3));
   return g;
