@@ -133,22 +133,71 @@ def alias_never_applied():
             f"derive reads aliases={not derive_no_alias}, all removals bank-authoritative={all_bank}")
 
 
-def bank_label_collision_real_data():
+def bank_label_collision_real_data(source: str = USERSCRIPT) -> tuple[bool, str]:
+    """nq collisions are EXPECTED; colliding banks must survive as separate labels.
+
+    The old assertion demanded one nq key per distinct bank label. That premise
+    contradicts the design: config.py:95-96 says every prompt-key kind is
+    multi-valued ("a key may map to many banks; the build never picks a winner
+    when real banks collide"), derive.py:140 says prompt_keys() "Never picks a
+    winning spelling", and rewrite_query() (derive.py:128-136) deliberately maps
+    rewrites onto the same key. The invariant is therefore retention, not
+    uniqueness: RESTRUCTURE-CONTRACT.md:12 / CONTRACT-P4.md:14 / CONTRACT-MODES.md:12
+    require near-duplicate banks to stay SEPARATE labelled groups, never merged.
+    `source` is injectable so the regression check can be replayed against a
+    pre-fix buildPremap without touching the shipped userscript.
+    """
+    # (a) Real data must genuinely exercise the collision path.
     seen: dict[str, str] = {}
-    pairs = []
+    pairs: list[tuple[str, str, str]] = []
     for row in TIER_ROWS:
-        if not isinstance(row, (list, tuple)) or not row[0]:
+        if not isinstance(row, (list, tuple)) or len(row) < 2 or not row[0] or not row[1]:
             continue
         key = derive.prompt_keys(str(row[0]))[cfg.KEY_REWRITE]
         if key in seen and seen[key] != row[0]:
             pairs.append((seen[key], row[0], key))
         seen.setdefault(key, row[0])
-    return (not pairs,
-            f"REPRO: derive.prompt_keys() over real tier-data.json gives {len(pairs)} nq "
-            f"collisions; first={json.dumps(pairs[0], ensure_ascii=False) if pairs else 'none'}. "
-            f"EXPECTED one nq key per distinct bank label. ACTUAL distinct prompts share a key, "
-            f"so buildPremap()'s Map.set() keeps only the later bank and drops the earlier "
-            f"bank's answers (cross-confirms Node missed-wording/bank-label-collision).")
+
+    # (b) The shipped source must keep MULTIPLE labelled banks per colliding key
+    # and pass them to applyResult as separate groups.
+    multi_valued = (
+        "prev.banks = [{ q: prev.q, answers: prev.answers.slice(), score: prev.score }];",
+        "prev.banks.push(bank);",
+        "map.set(item.q, bank);",
+    )
+    separate_groups = (
+        "const banks = item && item.banks ? item.banks : [item];",
+        "banks.map((b) => ({",
+        "answers: b.answers || [],",
+    )
+    exact_hit = "applyResult({ exact: true, groups: premapGroups(item, question) }, question);"
+    state_groups = "state.groups = data.groups || [{ question, score: 1, answers: data.answers || [] }];"
+    missing = [n for n in multi_valued + separate_groups + (exact_hit, state_groups) if n not in source]
+
+    # (c) premapGroups() must emit one group per bank — no flat concat into one.
+    body_match = re.search(r"function premapGroups\(item, question\) \{(.*?)\n  \}", source, re.S)
+    body = body_match.group(1) if body_match else ""
+    no_merge = (
+        "item.banks ? item.banks : [item]" in body
+        and "banks.map((b) => ({" in body
+        and ".concat(" not in body
+    )
+
+    ok = bool(pairs) and not missing and no_merge
+    return (ok,
+            f"real tier rows={len(TIER_ROWS)}, nq collisions={len(pairs)} (expected > 0), "
+            f"first={json.dumps(pairs[0], ensure_ascii=False) if pairs else 'none'}; "
+            f"multi-valued banks per key={not any(n in missing for n in multi_valued)} "
+            f"({source_line(source, 'prev.banks.push(bank);')}); "
+            f"exact hit passes separate groups={exact_hit in source} "
+            f"({source_line(source, 'groups: premapGroups(item, question)')}); "
+            f"applyResult preserves data.groups={state_groups in source}; "
+            f"premapGroups one-group-per-bank, no concat={no_merge}; "
+            f"missing={json.dumps(missing)}. "
+            f"EXPECTED nq collisions to be RETAINED as separate labelled banks "
+            f"(config.py:95-96, derive.py:140, RESTRUCTURE-CONTRACT.md:12); "
+            f"a single-valued Map.set(key, bank) that drops the earlier bank FAILS "
+            f"(cross-confirms Node missed-wording/bank-label-collision).")
 
 
 # ---------------------------------------------------------------------------
