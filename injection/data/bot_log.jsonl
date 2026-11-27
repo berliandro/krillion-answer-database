@@ -213,3 +213,4 @@
 {"at": "2026-11-27T17:11:44Z", "event": "bot-start", "mode": "duel", "note": "duel / random", "game_state": "answering", "input_state": {"present": true, "visible": true, "disabled": false, "readOnly": false, "placeholder": "Name as many as you can…"}}
 {"at": "2026-11-27T17:29:38Z", "event": "bot-start", "mode": "duel", "note": "duel / random", "game_state": "answering", "input_state": {"present": true, "visible": true, "disabled": false, "readOnly": false, "placeholder": "Name as many as you can…"}}
 {"at": "2026-11-27T17:40:46Z", "event": "bot-start", "mode": "duel", "note": "duel / random", "game_state": "loading-shell", "input_state": {"present": false, "visible": false, "disabled": null, "readOnly": null, "placeholder": ""}}
+{"at": "2026-11-27T18:12:58Z", "event": "bot-start", "mode": "duel", "note": "duel / random", "game_state": "arena-wait", "input_state": {"present": false, "visible": false, "disabled": null, "readOnly": null, "placeholder": ""}}

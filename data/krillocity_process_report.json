@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-11-27T16:17:28.216123+00:00",
+  "generated_at": "2026-11-27T18:15:38.165780+00:00",
   "prompt_dedupe": {
-    "lines": 7981,
-    "exact_unique": 7978,
-    "clusters": 2153,
-    "multi_variant_clusters": 1704,
-    "variants_collapsed": 5825
+    "lines": 12975,
+    "exact_unique": 12972,
+    "clusters": 2752,
+    "multi_variant_clusters": 2715,
+    "variants_collapsed": 10220
   },
   "logs": {
     "evidence": {
@@ -24,21 +24,21 @@
       "below_100": 21
     },
     "prompt_review": {
-      "lines": 4262,
+      "lines": 4396,
       "kinds": {
-        "ambiguous": 4146,
+        "ambiguous": 4225,
         "no-match": 46,
         "low-score": 21,
         "refused": 5,
-        "krillocity-race-prompt": 42,
+        "krillocity-race-prompt": 97,
         "krillocity-bank-match": 2
       },
       "zero_match": 46
     },
     "bot_log": {
-      "lines": 208,
+      "lines": 216,
       "events": {
-        "bot-start": 85,
+        "bot-start": 93,
         "krillocity-open": 49,
         "duel-start": 20,
         "duel-requeue": 16,
@@ -57,7 +57,7 @@
       "lines": 0
     },
     "learned": {
-      "lines": 6275
+      "lines": 6279
     },
     "krillocity_answers": {
       "lines": 3249,
