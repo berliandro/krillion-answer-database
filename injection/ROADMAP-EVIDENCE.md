@@ -31,3 +31,10 @@ command output is not accepted. Do not delete rows; correct them with a dated no
 | P0-gate | Harness loads the real userscript with stubbed GM/DOM and generates a selector/state registry | `node tests/roadmap_helpers.js --json <temp>/roadmap-registry.json` | 6/6 PASS: 38 selectors, 10 states (duel/results/create-room/lobby/refusal/answering/prompt-reveal/arena-wait/intro/loading-shell), 4 log sites, 5 modes, 16 markup ids; registry JSON written; version 1.1.2 | harness loads + >=1 assertion + registry generated | pending | PASS |
 
 **P0 gate verdict:** PASS — evidence ledger created, harness scaffold loads the script with 6 passing assertions, source registry generated, baseline row recorded. Ready for Phase 1.
+
+| Phase | Hypothesis | Command | Result | Pass threshold | Commit | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| P1-gate | Four disjoint inventories cover all modes, exclude shop, and map every registry selector | `python <temp>/verify_p1.py` + row-ID regex check | Classic 19 rows (C1–C19), Krillocity 14 (K-01…), MP+Duel 33 (S/D…), Interactions 102 (P/T/X…); registry selectors 38/38 present, states 10/10, modes 5/5, log sites 4/4; shop rows 0; all four branch merges clean | >=1 row per state per mode; zero shop rows; every selector mapped | `045e4b5` | PASS |
+| P1-merge | Four Phase 1 branches merged without conflict | `git merge feat/p1-classic/p1-krillo/p1-mp-duel/p1-interactions --no-edit` | 4 fast-forwards, zero conflicts; `STATES.md` +3 new docs present | clean merge | `045e4b5` | PASS |
+
+**P1 gate verdict:** PASS — complete inventory for Classic, Krillocity, Multiplayer and Duel; shop excluded; all 38 registry selectors, 10 states, 5 modes and 4 log sites mapped. Ready for Phase 2.
