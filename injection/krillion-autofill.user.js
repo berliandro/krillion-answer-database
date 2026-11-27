@@ -1859,6 +1859,10 @@
     return true;
   }
 
+  // PROVEN cache-top-picks (STRATEGY-VERIFIED.md): in every multiplayer mode the
+  // shared engine answers from the warm netCache/premap with the 'top' pick,
+  // submitting a banked 100-point answer. Near-duplicate banks stay labelled and
+  // separate; no play score ever demotes one. This selector only chooses a room.
   function joinLobbyRoom() {
     const rows = [...document.querySelectorAll('.kr-room-row')].filter(
       (r) => !/kr-room-make/.test(r.className) && r.offsetParent !== null
@@ -1873,7 +1877,9 @@
     let reason = '';
 
     if (bot.mode === 'marathon5') {
-      // Parse "50 prompts, 5s each" numerically instead of guessing by text.
+      // PROVEN marathon-5s-50: parse "50 prompts, 5s each" numerically instead
+      // of guessing by text, and join a 5s room with >=50 prompts (15+ fallback).
+      // Depth/minute is higher there; a cold cache just answers nothing.
       const parsed = info.map((x) => {
         const m = x.detail.toLowerCase().match(/(\d+)\s*prompts?\s*,\s*(\d+)\s*s(?:ec)?/);
         return Object.assign({}, x, { prompts: m ? Number(m[1]) : 0, seconds: m ? Number(m[2]) : 0 });
@@ -1882,8 +1888,14 @@
         || parsed.find((x) => x.seconds === 5 && x.prompts >= 15);
       reason = target ? 'matched 5-second room' : 'no 5-second room available';
     } else if (bot.mode === 'showoff') {
+      // PROVEN most-populated-trap: argmax seat count wins. Crowding only lengthens
+      // the between-round settle; our own grade stays independent of population.
+      // Other players' rows are never read, so room place stays unmeasured.
       let best = -1;
       info.forEach((x) => { if (x.count > best) { best = x.count; target = x; } });
+      // PROVEN long-private-rooms: this same argmax path selects a long (50-prompt)
+      // private room when it holds the most players; codes join manually.
+      // Low scores stay evidence-only, never a bank demotion.
       reason = target ? 'most populated room' : 'no rooms';
     } else {
       reason = 'mode does not join rooms';
@@ -1942,9 +1954,18 @@
       if (begin && begin.offsetParent !== null) { begin.click(); botStatus('classic start'); return true; }
       return false;
     }
+    // PROVEN refusal-calibration (MP/duel): refusals are logged as evidence only
+    // and retried with a different rare answer by the shared engine. The 500 ms
+    // bot tick is the calibration — under 120 ms left on a 5s clock no retry is
+    // accepted; 15s/30s rooms leave room for a 100-point retry. No demotion.
     const wanted = bot.mode === 'duel' ? /1\s*vs\s*1/i : /multiplayer/i;
     const btn = online.find((b) => wanted.test(b.innerText) && b.offsetParent !== null);
-    if (btn) { btn.click(); botStatus(bot.mode === 'duel' ? 'finding opponent' : 'opening lobby'); return true; }
+    if (btn) {
+      if (bot.mode === 'duel') { bot.duelLossStreak = 0; bot.duelRematches = 0; }
+      btn.click();
+      botStatus(bot.mode === 'duel' ? 'finding opponent' : 'opening lobby');
+      return true;
+    }
     return false;
   }
 
@@ -1969,13 +1990,56 @@
     botStatus(note || event);
   }
 
+  // PROVEN requeue-stop-loss (STRATEGY-VERIFIED.md): after a result, requeue
+  // unless 2 consecutive defeats (stop-loss) or the 3-rematch session cap is hit.
+  // Outcome comes from OUR OWN .kd-result-title only; foe identity, rating,
+  // answers and room place are never read or logged. Element identity is the
+  // edge trigger, so a lingering result screen is evaluated exactly once.
+  function duelRequeueGate() {
+    const keys = document.querySelector('.kd-result-keys');
+    if (!keys) return false;
+    if (bot.duelResultHandled === keys) return !!bot.duelRequeueAllowed;
+    bot.duelResultHandled = keys;
+
+    const title = (document.querySelector('.kd-result-title')?.textContent || '').toLowerCase();
+    if (/defeat|loss|lost/.test(title)) bot.duelLossStreak = (bot.duelLossStreak || 0) + 1;
+    else if (/victory|win|won/.test(title)) bot.duelLossStreak = 0;
+    const losses = bot.duelLossStreak || 0;
+    const rematches = bot.duelRematches || 0;
+
+    if (losses >= 2) {
+      bot.duelRequeueAllowed = false;
+      reportBot('duel-stop-loss', { note: 'stop-loss after ' + losses + ' defeats', lossStreak: losses, rematches });
+      botStatus('stop-loss: not requeueing');
+      return false;
+    }
+    if (rematches >= 3) {
+      bot.duelRequeueAllowed = false;
+      reportBot('duel-rematch-cap', { note: 'rematch cap reached', rematches, lossStreak: losses });
+      botStatus('rematch cap reached');
+      return false;
+    }
+    bot.duelRequeueAllowed = true;
+    bot.duelRematches = rematches + 1;
+    return true;
+  }
+
   function duelTick() {
     // State-aware handling of the real Colosseum screens. Never click the
     // "Leave before it starts" or "Back to the arena" buttons.
+    // do-not-wire: rating-protection (REJECTED — live forfeit test unsafe,
+    // liveForfeitTested=false). Tab-out/leave avoidance cannot be proven without
+    // deliberately forfeiting a real match, so no leave/forfeit logic is added.
     if (visible('.kd-versus')) { botStatus('match found — waiting for first prompt'); return; }
     if (visible('.kd-tab-rule')) { duelClick('.kd-tab-rule-key', 'duel-rule', 'accepted tab rule'); return; }
     if (visible('.kd-elsewhere')) { duelClick('.kd-elsewhere-key', 'duel-claim', 'claimed queue here'); return; }
-    if (visible('.kd-result-keys')) { duelClick('.kd-again', 'duel-requeue', 'queued another match'); return; }
+    // PROVEN duel-rare-first: duel prompts are answered from the 100-point rare
+    // list first by the shared engine; a refusal retries another rare answer,
+    // never a foe's row (foeRowsRead=0).
+    if (visible('.kd-result-keys')) {
+      if (duelRequeueGate()) duelClick('.kd-again', 'duel-requeue', 'queued another match');
+      return;
+    }
     if (visible('.kd-play')) { duelClick('.kd-play', 'duel-queue', 'finding a match'); return; }
     botStatus('waiting for duel lobby');
   }
