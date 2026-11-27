@@ -1,0 +1,29 @@
+{
+  "captured_at": "2026-11-27T12:33:00Z",
+  "mode": "krillocity",
+  "browser": "edge-this-computer-2",
+  "url": "https://playdaily.org/krillocity",
+  "finding": "v1.1.5 reads document.querySelector('p.kr-prompt'), which returns a hidden duplicate in the Krillocity wait card; the real visible prompt is the second p.kr-prompt. Result: panel stays 'Waiting for the next prompt…' and the bot never answers.",
+  "evidence": [
+    {
+      "index": 0,
+      "text": "",
+      "visibility": "hidden",
+      "parent": "kr-card kb-card-wait",
+      "width": 526.667,
+      "height": 73.4375
+    },
+    {
+      "index": 1,
+      "text": "Name an animal native to North America",
+      "visibility": "visible",
+      "parent": "kr-card",
+      "width": 526.667,
+      "height": 73.4375
+    }
+  ],
+  "observed_states": [
+    "PROMPT 4 OF 7 / 23s clock ticking, panel status 'Waiting for the next prompt…', botState 'waiting', zero /api/answers lookups queued"
+  ],
+  "fix": "promptEl() selects the first visible non-empty p.kr-prompt; isVisible()/visible()/promptText() use it."
+}

@@ -1,0 +1,675 @@
+{
+  "captured_at": "2026-11-27T12:30:38Z",
+  "label": "krillo-before",
+  "health": {
+    "ok": true,
+    "service": "krillion-bridge",
+    "base_answers": 21384,
+    "corrections": 0,
+    "learned": 6253,
+    "misses": 70,
+    "log_lines": {
+      "evidence": 3854,
+      "prompt_review": 4111,
+      "bot_log": 132
+    }
+  },
+  "log_lines": {
+    "evidence.jsonl": 3854,
+    "prompt_review.jsonl": 4111,
+    "bot_log.jsonl": 132,
+    "failed_prompts.jsonl": 70,
+    "learned.jsonl": 6253,
+    "corrections.jsonl": 0
+  },
+  "tails": {
+    "evidence.jsonl": [
+      {
+        "at": "2026-11-27T12:26:47Z",
+        "screen_prompt": "Name a band from the United States",
+        "chosen_bank": "Name a band from the United States",
+        "answer": "29th Street Saxophone Quartet",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 1,
+        "group_scores": [
+          1
+        ],
+        "auto": false,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:26:47Z",
+        "screen_prompt": "Name something you take to the gym",
+        "chosen_bank": "Name something you take to the gym",
+        "answer": "Exercise Band Loop",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 1,
+        "group_scores": [
+          1
+        ],
+        "auto": false,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:26:47Z",
+        "screen_prompt": "Name a job in a restaurant",
+        "chosen_bank": "Name a job in a restaurant",
+        "answer": "Chef De Froid",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 2,
+        "group_scores": [
+          1,
+          1
+        ],
+        "auto": false,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:27:01Z",
+        "screen_prompt": "Name a country whose name starts with C",
+        "chosen_bank": "Name a country whose name starts with C",
+        "answer": "Ciskei",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 2,
+        "group_scores": [
+          1,
+          1
+        ],
+        "auto": false,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:27:01Z",
+        "screen_prompt": "Name something people glue back together",
+        "chosen_bank": "Name something people glue back together",
+        "answer": "Luggage Lining",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 1,
+        "group_scores": [
+          1
+        ],
+        "auto": false,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:27:01Z",
+        "screen_prompt": "Name a video game from the 2000s",
+        "chosen_bank": "Name a video game from the 2000s",
+        "answer": "Zack & Wiki: Quest for Barbaros' Treasure",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 2,
+        "group_scores": [
+          1,
+          1
+        ],
+        "auto": false,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:27:01Z",
+        "screen_prompt": "Name something that makes your eyes water",
+        "chosen_bank": "Name something that makes your eyes water",
+        "answer": "Stage Fog Fluid",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 1,
+        "group_scores": [
+          1
+        ],
+        "auto": false,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:27:01Z",
+        "screen_prompt": "Name a mammal that lives in trees",
+        "chosen_bank": "Name a mammal that lives in trees",
+        "answer": "Monito del Monte",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 2,
+        "group_scores": [
+          1,
+          1
+        ],
+        "auto": false,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      }
+    ],
+    "prompt_review.jsonl": [
+      {
+        "at": "2026-11-27T12:25:24Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a fruit with seeds",
+        "candidates": [
+          {
+            "question": "Name a fruit with seeds",
+            "score": 1,
+            "answer_count": 10
+          },
+          {
+            "question": "Name one fruit with seeds",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": false,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:26:47Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a thing that can be transparent",
+        "candidates": [
+          {
+            "question": "Name a thing that can be transparent",
+            "score": 1,
+            "answer_count": 8
+          },
+          {
+            "question": "Name any one thing that can be transparent",
+            "score": 1,
+            "answer_count": 1
+          },
+          {
+            "question": "What's an example of a thing that can be transparent?",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": false,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:26:47Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a country whose name starts with C",
+        "candidates": [
+          {
+            "question": "Name a country whose name starts with C",
+            "score": 1,
+            "answer_count": 2
+          },
+          {
+            "question": "Name one country whose name starts with C",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": false,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:26:47Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a job in a restaurant",
+        "candidates": [
+          {
+            "question": "Name a job in a restaurant",
+            "score": 1,
+            "answer_count": 10
+          },
+          {
+            "question": "Name any one job in a restaurant",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": false,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:27:01Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a children's book author",
+        "candidates": [
+          {
+            "question": "Name a children's book author",
+            "score": 1,
+            "answer_count": 10
+          },
+          {
+            "question": "Name any children's book author",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": false,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:27:01Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a video game from the 2000s",
+        "candidates": [
+          {
+            "question": "Name a video game from the 2000s",
+            "score": 1,
+            "answer_count": 2
+          },
+          {
+            "question": "What's an example of a video game from the 2000s?",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": false,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:27:01Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a mammal that lives in trees",
+        "candidates": [
+          {
+            "question": "Name a mammal that lives in trees",
+            "score": 1,
+            "answer_count": 10
+          },
+          {
+            "question": "Name any one mammal that lives in trees",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": false,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:27:01Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a type of underwear",
+        "candidates": [
+          {
+            "question": "Name a type of underwear",
+            "score": 1,
+            "answer_count": 9
+          },
+          {
+            "question": "Name any one type of underwear",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": false,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      }
+    ],
+    "bot_log.jsonl": [
+      {
+        "at": "2026-11-27T09:54:42Z",
+        "event": "duel-queue",
+        "mode": "duel",
+        "note": "finding a match",
+        "game_state": "duel",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:07Z",
+        "event": "classic-bank-capture",
+        "mode": "classic",
+        "game_state": "results",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:22Z",
+        "event": "bot-start",
+        "mode": "classic",
+        "note": "classic / random",
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:23:30Z",
+        "event": "bot-start",
+        "mode": "classic",
+        "note": "classic / random",
+        "game_state": "intro",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:24:34Z",
+        "event": "classic-bank-capture",
+        "mode": "classic",
+        "game_state": "results",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:25:23Z",
+        "event": "bot-start",
+        "mode": "classic",
+        "note": "classic / random",
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:25:24Z",
+        "event": "classic-bank-capture",
+        "mode": "classic",
+        "game_state": "results",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T12:26:47Z",
+        "event": "classic-bank-capture",
+        "mode": "classic",
+        "game_state": "results",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      }
+    ],
+    "failed_prompts.jsonl": [
+      {
+        "at": "2026-11-23T02:44:03Z",
+        "prompt": "What's one thing people paint to make it visible?",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:46:01Z",
+        "prompt": "What's one thing you find in a school classroom?",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:46:44Z",
+        "prompt": "Name a thing people pick up with tongs",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:55:50Z",
+        "prompt": "Name a thing people put in a machine",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:58:28Z",
+        "prompt": "Name one thing people do on their lunch break",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T03:01:37Z",
+        "prompt": "Name an example of a card game with numbers",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-27T12:23:30Z",
+        "prompt": "(preload)",
+        "reason": "unreachable: bridge offline after 3 attempts"
+      },
+      {
+        "at": "2026-11-27T12:24:34Z",
+        "prompt": "Name a vegetable eaten raw",
+        "reason": "unreachable: bridge offline after 3 attempts"
+      }
+    ],
+    "learned.jsonl": [
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Giveon",
+        "tier": "",
+        "points": 0,
+        "source": "api",
+        "tierIndex": 4
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Maxwell",
+        "tier": "",
+        "points": 0,
+        "source": "api",
+        "tierIndex": 4
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Ginuwine",
+        "tier": "",
+        "points": 0,
+        "source": "api",
+        "tierIndex": 4
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Cantinflas",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Divine",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Buckethead",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Limahl",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Xuxa",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      }
+    ],
+    "corrections.jsonl": []
+  }
+}

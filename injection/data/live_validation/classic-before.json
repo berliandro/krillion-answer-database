@@ -1,0 +1,684 @@
+{
+  "captured_at": "2026-11-27T12:16:24Z",
+  "label": "classic-before",
+  "health": {
+    "ok": true,
+    "service": "krillion-bridge",
+    "base_answers": 21384,
+    "corrections": 0,
+    "learned": 6253,
+    "misses": 68,
+    "log_lines": {
+      "evidence": 3829,
+      "prompt_review": 4096,
+      "bot_log": 127
+    }
+  },
+  "log_lines": {
+    "evidence.jsonl": 3829,
+    "prompt_review.jsonl": 4096,
+    "bot_log.jsonl": 127,
+    "failed_prompts.jsonl": 68,
+    "learned.jsonl": 6253,
+    "corrections.jsonl": 0
+  },
+  "tails": {
+    "evidence.jsonl": [
+      {
+        "at": "2026-11-27T09:54:04Z",
+        "screen_prompt": "Name something you can sign",
+        "chosen_bank": "Name something you can sign",
+        "answer": "Firman",
+        "outcome": "refused",
+        "mode": "krillocity",
+        "exact": true,
+        "group_count": 1,
+        "auto": true,
+        "refusal": "You said that one already",
+        "game_state": "refusal",
+        "input_state": {
+          "present": true,
+          "visible": true,
+          "disabled": false,
+          "readOnly": false,
+          "placeholder": "Name as many as you can…"
+        }
+      },
+      {
+        "at": "2026-11-27T09:55:03Z",
+        "screen_prompt": "What's something people put in their mouth without eating it?",
+        "chosen_bank": "Name something people put in their mouth without eating it",
+        "answer": "Shawm",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": false,
+        "group_count": 3,
+        "group_scores": [
+          0.9869,
+          0.9191,
+          0.9079
+        ],
+        "auto": true,
+        "game_state": "arena-wait",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:50:00Z",
+        "screen_prompt": "Name a love song",
+        "chosen_bank": "Name a love song",
+        "answer": "Beyond",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 3,
+        "group_scores": [
+          1,
+          1,
+          1
+        ],
+        "auto": true,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:53:08Z",
+        "screen_prompt": "Name a celebrity known by one name",
+        "chosen_bank": "Name a celebrity known by one name",
+        "answer": "Xuxa",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 2,
+        "group_scores": [
+          1,
+          1
+        ],
+        "auto": true,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:55:07Z",
+        "screen_prompt": "Name a human hormone",
+        "chosen_bank": "Name a human hormone",
+        "answer": "Lipocalin 2",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 2,
+        "group_scores": [
+          1,
+          1
+        ],
+        "auto": true,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:04Z",
+        "screen_prompt": "Name a pancake or flatbread from any cuisine",
+        "chosen_bank": "Name a pancake or flatbread from any cuisine",
+        "answer": "Lefse",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 2,
+        "group_scores": [
+          1,
+          1
+        ],
+        "auto": true,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:28Z",
+        "screen_prompt": "Name a weapon",
+        "chosen_bank": "Name a weapon",
+        "answer": "Nulla Nulla",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 3,
+        "group_scores": [
+          1,
+          1,
+          1
+        ],
+        "auto": true,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:40Z",
+        "screen_prompt": "Name an Emmy-winning show",
+        "chosen_bank": "Name an Emmy-winning show",
+        "answer": "Northern Exposure",
+        "points": 100,
+        "outcome": "ok",
+        "tier": "ONE IN A KRILLION",
+        "mode": "classic",
+        "exact": true,
+        "group_count": 1,
+        "group_scores": [
+          1
+        ],
+        "auto": true,
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      }
+    ],
+    "prompt_review.jsonl": [
+      {
+        "at": "2026-11-27T09:54:56Z",
+        "kind": "ambiguous",
+        "screen_prompt": "What's something people put in their mouth without eating it?",
+        "candidates": [
+          {
+            "question": "Name something people put in their mouth without eating it",
+            "score": 0.9869,
+            "answer_count": 9
+          },
+          {
+            "question": "What's one thing people put in their mouth without eating it?",
+            "score": 0.9191,
+            "answer_count": 1
+          },
+          {
+            "question": "Name one thing people put in their mouth without eating it",
+            "score": 0.9079,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": true,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T09:55:18Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name any one medieval weapon",
+        "candidates": [
+          {
+            "question": "Name a medieval weapon",
+            "score": 1,
+            "answer_count": 10
+          },
+          {
+            "question": "Name one medieval weapon",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": true,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:50:05Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a celebrity known by one name",
+        "candidates": [
+          {
+            "question": "Name a celebrity known by one name",
+            "score": 1,
+            "answer_count": 5
+          },
+          {
+            "question": "Name any one celebrity known by one name",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": true,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:53:11Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a human hormone",
+        "candidates": [
+          {
+            "question": "Name a human hormone",
+            "score": 1,
+            "answer_count": 5
+          },
+          {
+            "question": "Name one human hormone",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": true,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:55:10Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a pancake or flatbread from any cuisine",
+        "candidates": [
+          {
+            "question": "Name a pancake or flatbread from any cuisine",
+            "score": 1,
+            "answer_count": 4
+          },
+          {
+            "question": "Name one pancake or flatbread from any cuisine",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": true,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:08Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a body part with two vowels",
+        "candidates": [
+          {
+            "question": "Name a body part with two vowels",
+            "score": 1,
+            "answer_count": 4
+          },
+          {
+            "question": "Name any body part with two vowels",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": true,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:19Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a weapon",
+        "candidates": [
+          {
+            "question": "Name a weapon",
+            "score": 1,
+            "answer_count": 10
+          },
+          {
+            "question": "Name any weapon",
+            "score": 1,
+            "answer_count": 1
+          },
+          {
+            "question": "Name one weapon",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": true,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:43Z",
+        "kind": "ambiguous",
+        "screen_prompt": "Name a yellow fruit or vegetable",
+        "candidates": [
+          {
+            "question": "Name a yellow fruit or vegetable",
+            "score": 1,
+            "answer_count": 2
+          },
+          {
+            "question": "What's an example of a yellow fruit or vegetable?",
+            "score": 1,
+            "answer_count": 1
+          }
+        ],
+        "mode": "classic",
+        "auto": true,
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      }
+    ],
+    "bot_log.jsonl": [
+      {
+        "at": "2026-11-27T09:53:47Z",
+        "event": "krillocity-open",
+        "mode": "krillocity",
+        "note": "Play Krillocity",
+        "game_state": "intro",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T09:53:47Z",
+        "event": "krillocity-start",
+        "mode": "krillocity",
+        "note": "START DAILY",
+        "game_state": "intro",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T09:53:48Z",
+        "event": "mode-change",
+        "mode": "duel",
+        "note": "duel",
+        "game_state": "loading-shell",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T09:54:14Z",
+        "event": "bot-start",
+        "mode": "duel",
+        "note": "duel / random",
+        "game_state": "answering",
+        "input_state": {
+          "present": true,
+          "visible": true,
+          "disabled": false,
+          "readOnly": false,
+          "placeholder": "Name as many as you can…"
+        }
+      },
+      {
+        "at": "2026-11-27T09:54:41Z",
+        "event": "bot-start",
+        "mode": "duel",
+        "note": "duel / random",
+        "game_state": "intro",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T09:54:42Z",
+        "event": "duel-queue",
+        "mode": "duel",
+        "note": "finding a match",
+        "game_state": "duel",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:07Z",
+        "event": "classic-bank-capture",
+        "mode": "classic",
+        "game_state": "results",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      },
+      {
+        "at": "2026-11-27T11:58:22Z",
+        "event": "bot-start",
+        "mode": "classic",
+        "note": "classic / random",
+        "game_state": "prompt-reveal",
+        "input_state": {
+          "present": false,
+          "visible": false,
+          "disabled": null,
+          "readOnly": null,
+          "placeholder": ""
+        }
+      }
+    ],
+    "failed_prompts.jsonl": [
+      {
+        "at": "2026-11-23T02:42:54Z",
+        "prompt": "Name an example of a flavor",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:43:41Z",
+        "prompt": "Name a thing people operate without electricity",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:44:03Z",
+        "prompt": "What's one thing people paint to make it visible?",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:46:01Z",
+        "prompt": "What's one thing you find in a school classroom?",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:46:44Z",
+        "prompt": "Name a thing people pick up with tongs",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:55:50Z",
+        "prompt": "Name a thing people put in a machine",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T02:58:28Z",
+        "prompt": "Name one thing people do on their lunch break",
+        "reason": "unreachable: bridge timeout"
+      },
+      {
+        "at": "2026-11-23T03:01:37Z",
+        "prompt": "Name an example of a card game with numbers",
+        "reason": "unreachable: bridge timeout"
+      }
+    ],
+    "learned.jsonl": [
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Giveon",
+        "tier": "",
+        "points": 0,
+        "source": "api",
+        "tierIndex": 4
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Maxwell",
+        "tier": "",
+        "points": 0,
+        "source": "api",
+        "tierIndex": 4
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Ginuwine",
+        "tier": "",
+        "points": 0,
+        "source": "api",
+        "tierIndex": 4
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Cantinflas",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Divine",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Buckethead",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Limahl",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      },
+      {
+        "at": "2026-11-27T11:58:06Z",
+        "question": "Name a celebrity known by one name",
+        "answer": "Xuxa",
+        "tier": "",
+        "points": 100,
+        "source": "api",
+        "tierIndex": 5
+      }
+    ],
+    "corrections.jsonl": []
+  }
+}

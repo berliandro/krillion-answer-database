@@ -71,6 +71,22 @@ Total KEEP = 14. No PROVEN strategy is "untested": each has at least 3 measured 
 Total DISCARD = 4. All four are rejected for unobservability or out-of-scope implementation, not
 for a measured regression.
 
+## LIVE validation verdict (2026-11-27, Edge automation profile)
+
+Real scored play was run in the dedicated Edge profile with the shipped userscript source; see
+`injection/LIVE-VALIDATION.md` and `injection/data/live_validation/*`. None of the four REJECTED
+claims could be promoted; all four are **formally discarded**, now with live-backed reasons:
+
+| Strategy | Live outcome | Verdict |
+| --- | --- | --- |
+| classic / tier-greedy fallback | Live Classic dives reached 7,000 m with every prompt answered 100 (`ONE IN A KRILLION`); no no-100 prompt occurred, so the fallback was never applicable. The Classic path still does not read `tierPremap`. | DISCARD (not applicable live; harness proof unchanged) |
+| krillo / submit-to-buzzer + 2.5 s grace | Live race confirmed client-side rapid sends (`race answer sent`, `race: no more answers`) but no server verdict attribution or grace telemetry is exposed to the page. | DISCARD (server-authoritative, unobservable) |
+| krillo / protect AI-judge allowance | Live race logged bank-known sends only; allowance size/refill/consumption are server-side and invisible. | DISCARD (server-authoritative, unobservable) |
+| mp / rating-protection | Real multiplayer room `Riptide` was joined and left untouched (no forfeit, no tab-out); Elo deltas remain unobservable and a live forfeit is unsafe. | DISCARD (unsafe to test) |
+
+Live play also found and fixed a real v1.1.5 bug: Krillocity's hidden duplicate `p.kr-prompt` made the
+script miss the visible prompt; v1.1.6 selects the visible prompt and the live race then answered.
+
 ## Policy statement — field-level verification
 
 No PROVEN strategy relies on play-score demotion, other-player logging, or alias application.

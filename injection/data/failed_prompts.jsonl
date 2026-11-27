@@ -55,3 +55,16 @@
 {"at": "2026-11-22T09:35:42Z", "prompt": "Name one type of berry", "reason": "no-match"}
 {"at": "2026-11-22T09:38:28Z", "prompt": "Name any kind of paper", "reason": "no-match"}
 {"at": "2026-11-22T09:55:26Z", "prompt": "Name an example of a musical instrument used in jazz", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:30:10Z", "prompt": "Name a thing you wear in the rain", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:33:44Z", "prompt": "Name an example of a plant people grow for shade", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:34:35Z", "prompt": "Name an example of a thing with a hook", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:42:54Z", "prompt": "Name an example of a flavor", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:43:41Z", "prompt": "Name a thing people operate without electricity", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:44:03Z", "prompt": "What's one thing people paint to make it visible?", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:46:01Z", "prompt": "What's one thing you find in a school classroom?", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:46:44Z", "prompt": "Name a thing people pick up with tongs", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:55:50Z", "prompt": "Name a thing people put in a machine", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T02:58:28Z", "prompt": "Name one thing people do on their lunch break", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-23T03:01:37Z", "prompt": "Name an example of a card game with numbers", "reason": "unreachable: bridge timeout"}
+{"at": "2026-11-27T12:23:30Z", "prompt": "(preload)", "reason": "unreachable: bridge offline after 3 attempts"}
+{"at": "2026-11-27T12:24:34Z", "prompt": "Name a vegetable eaten raw", "reason": "unreachable: bridge offline after 3 attempts"}
