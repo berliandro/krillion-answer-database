@@ -49,6 +49,10 @@ BOT_LOG = INJ / "data" / "bot_log.jsonl"
 KRILLO_PROMPTS = DATA_DIR / "krillocity_prompts.jsonl"
 KRILLO_ANSWERS = DATA_DIR / "krillocity_answers.jsonl"
 KRILLO_ZERO = DATA_DIR / "krillocity_zero_match.jsonl"
+# Canonical merge of REAL observed wordings -> labelled bank questions, built by
+# scripts/build_krillocity_canonical.py. Optional: a missing/corrupt file yields
+# an empty payload rather than an error, so old clones work unchanged.
+KRILLO_CANONICAL = DATA_DIR / "krillocity_canonical.json"
 FETCH_QUEUE = INJ / "data" / "fetch_queue.jsonl"
 CORRECTIONS = DATA / "corrections.jsonl"
 LEARNED = DATA / "learned.jsonl"
@@ -760,6 +764,49 @@ def krillo_prompt_bank():
     return out
 
 
+_CANONICAL_CACHE = None
+
+
+def krillo_canonical_payload():
+    """Read-only serving of the canonical merge, with a short version string.
+
+    The build worker writes data/krillocity_canonical.json in parallel, so it may
+    be absent, partially written or malformed. Treat all of those as an EMPTY
+    payload (never an HTTP error): clients simply keep their existing lookups.
+    Cached by mtime_ns + size, like the other read caches.
+    """
+    global _CANONICAL_CACHE
+    empty = {"ok": True, "version": "0", "generated_at": "", "counts": {}, "data": []}
+    try:
+        st = KRILLO_CANONICAL.stat()
+        key = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        key = None
+    with CACHE_LOCK:
+        if _CANONICAL_CACHE is not None and _CANONICAL_CACHE[0] == key:
+            return _CANONICAL_CACHE[1]
+        result = empty
+        if key is not None:
+            try:
+                raw = KRILLO_CANONICAL.read_bytes()
+                payload = json.loads(raw.decode("utf-8"))
+                groups = payload.get("groups") if isinstance(payload, dict) else None
+                if (isinstance(payload, dict) and isinstance(groups, list)
+                        and all(isinstance(g, dict) for g in groups)):
+                    counts = payload.get("counts")
+                    result = {
+                        "ok": True,
+                        "version": hashlib.sha256(raw).hexdigest()[:12],
+                        "generated_at": payload.get("generated_at", ""),
+                        "counts": counts if isinstance(counts, dict) else {},
+                        "data": groups,
+                    }
+            except (OSError, ValueError, TypeError, UnicodeDecodeError):
+                result = empty
+        _CANONICAL_CACHE = (key, result)
+        return result
+
+
 # Backwards compatibility for any older userscript copy still posting here.
 add_correction = add_evidence
 
@@ -1074,6 +1121,11 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/krillo-prompts":
             bank = krillo_prompt_bank()
             self._send(200, {"ok": True, "version": len(bank), "data": bank})
+            return
+        if parsed.path == "/api/krillo-canonical":
+            # Read-only, token-enforced by the common GET check above. The merge
+            # is advisory lookup data only: it never writes to the graded bank.
+            self._send(200, krillo_canonical_payload())
             return
         if parsed.path == "/api/answers-tier":
             q = (parse_qs(parsed.query).get("q") or [""])[0]

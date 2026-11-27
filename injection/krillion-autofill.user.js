@@ -3,7 +3,7 @@
 // @namespace    https://github.com/berliandro/krillion-answer-database
 // @author       berliandro — https://github.com/berliandro
 // @homepage     https://github.com/berliandro/krillion-answer-database
-// @version      1.1.8
+// @version      1.1.9
 // @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running. By berliandro — https://github.com/berliandro/krillion-answer-database
 // @downloadURL https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @updateURL  https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
@@ -67,6 +67,9 @@
     premapText: null,     // exact stored wording -> authoritative nq key
     tierPremap: null,     // null until /api/all-tier resolves; Map afterwards
     krilloPrompts: null,  // harvested Krillocity wordings: normLocal -> exact text
+    // Canonical merge: normLocal(real observed variant) -> {canonical, bank_questions}.
+    // Advisory lookup only — never changes which labelled banks are displayed.
+    krilloCanonical: null,
     netCache: new Map(),
     bankCapturing: false, // guards the 50ms-debounced end-of-dive capture
     refusedAnswers: new Set(),
@@ -982,18 +985,12 @@
     }
 
     status('Loading 100-point answers…', 'loading');
-    // Krillocity fallback: retry the lookup with a wording actually seen in a
-    // live race when the on-screen phrasing has no local index hit. This uses
-    // the harvested prompt bank instead of guessing an alias.
-    const wording = krilloWording(question);
-    const lookup = wording && wording !== question ? wording : question;
-    if (lookup !== question) {
-      reportPrompt('krillocity-bank-match', question, {
-        candidates: [], chosen_bank: lookup, mode: mode(), auto: state.autoEnter,
-      });
-    }
+    // Primary lookup is ALWAYS the exact wording the game showed. Krillocity
+    // wordings are retried only when this yields zero answer groups, so a
+    // matching labelled bank is never replaced or merged by a guess.
+    let data;
     try {
-      const data = await request('/api/answers?q=' + encodeURIComponent(lookup), {
+      data = await request('/api/answers?q=' + encodeURIComponent(question), {
         timeout: LOOKUP_TIMEOUT,
         forever: true,
         isStale,
@@ -1001,10 +998,6 @@
       });
       if (isStale()) return; // a newer prompt won while we were retrying
       clearLookupFailure();
-      state.netCache.set(key, data); // only successful lookups are cached
-      applyResult(data, question);
-      // Archive this race prompt and any other-player answers already visible.
-      archiveKrillocityRace(question, data);
     } catch (e) {
       // Stale requests are cancelled on purpose — never log them as misses.
       if (isStale()) return;
@@ -1012,7 +1005,48 @@
       status(e && /timeout/.test(e.message)
         ? 'The local archive took too long to answer — retrying on the next prompt.'
         : 'Can’t reach the local archive. Start injection/bridge.py.', 'error');
+      return;
     }
+
+    // Fallback: only a VERBATIM bank question is ever used as the retry query.
+    // The merge canonical is review metadata only — it may be a generic wording
+    // that is not a bank, and must never redirect a constrained prompt. Log-only
+    // variants are never lookup keys (no alias application, no bank merging).
+    const wording = krilloWording(question);
+    if (wording && wording !== question && answerCount(data) === 0) {
+      const canonical = krilloCanonicalMatch(question);
+      try {
+        const fallback = await request('/api/answers?q=' + encodeURIComponent(wording), {
+          timeout: LOOKUP_TIMEOUT,
+          retries: 1, // bounded: never block on a dead bridge after a valid reply
+          isStale,
+        });
+        if (isStale()) return;
+        if (answerCount(fallback) > 0) {
+          data = fallback; // banks come back as-is, each label preserved
+          if (canonical) {
+            reportPrompt('krillocity-canonical-match', question, {
+              candidates: [], chosen_bank: canonical.target,
+              matched_canonical: canonical.target,
+              merge_canonical: canonical.canonical,
+              bank_questions: canonical.bank_questions || [],
+              mode: mode(), auto: state.autoEnter,
+            });
+          } else {
+            reportPrompt('krillocity-bank-match', question, {
+              candidates: [], chosen_bank: wording, mode: mode(), auto: state.autoEnter,
+            });
+          }
+        }
+      } catch (e) {
+        // Keep the zero-group primary result; applyResult() logs the no-match.
+      }
+    }
+
+    state.netCache.set(key, data); // only successful lookups are cached
+    applyResult(data, question);
+    // Archive this race prompt and any other-player answers already visible.
+    archiveKrillocityRace(question, data);
   }
 
   function storageGet(key, fallback) {
@@ -1036,6 +1070,38 @@
         state.krilloPrompts = map;
       })
       .catch(() => { state.krilloPrompts = new Map(); });
+
+    // Canonical merge of REAL observed wordings -> labelled bank questions.
+    // Independent and non-blocking: an old bridge (or a not-yet-built file)
+    // simply leaves the map empty and the existing lookup path is unchanged.
+    request('/api/krillo-canonical', { timeout: LOOKUP_TIMEOUT, retries: 1 })
+      .then((d) => {
+        const map = new Map();
+        const groups = (d && Array.isArray(d.data)) ? d.data : [];
+        groups.forEach((group) => {
+          if (!group) return;
+          const canonical = group.canonical || '';
+          const bankQuestions = Array.isArray(group.bank_questions)
+            ? group.bank_questions.filter((q) => typeof q === 'string' && q) : [];
+          // A merge canonical may NOT be a real bank ("What's an example of a
+          // city?" for a constrained "Name any US city" bank). Only a VERBATIM
+          // bank question may ever be used as a lookup target.
+          const target = bankQuestions[0] || '';
+          if (!target) return;
+          // Log-only / non-bank wordings are review data, never lookup keys:
+          // applying them would be an alias rewrite (DECISIONS.md).
+          const variants = Array.isArray(group.variants) ? group.variants : [];
+          variants.forEach((variant) => {
+            if (!variant || variant.exact_bank !== true || variant.log_only === true) return;
+            const text = variant.text;
+            if (!text || text !== target && !bankQuestions.includes(text)) return;
+            const key = normLocal(text);
+            if (!map.has(key)) map.set(key, { target, canonical, bank_questions: bankQuestions });
+          });
+        });
+        state.krilloCanonical = map;
+      })
+      .catch(() => { state.krilloCanonical = new Map(); });
 
     // Start the 10–85pt snapshot BEFORE awaiting /api/all so the two downloads
     // overlap. It is intentionally independent: a missing/old bridge (404 on
@@ -1412,12 +1478,32 @@
   }
 
   // The harvest stores the exact wordings the game deals in Krillocity races.
-  // Use one of them as the lookup query when the on-screen wording misses the
-  // normal index — this is how we stop "missing a lot" of race prompts.
+  // Use one of them as the lookup query only after the on-screen wording misses
+  // the index. The canonical merge is checked first: it maps a REAL observed
+  // variant to the exact bank wording it was reviewed against, so we land on
+  // the right existing labelled bank. Neither path applies an invented alias.
   function krilloWording(question) {
-    if (!state.krilloPrompts || !question) return null;
+    if (!question) return null;
     const key = normLocal(question);
-    return state.krilloPrompts.get(key) || null;
+    const canonical = krilloCanonicalMatch(question);
+    // NEVER return the merge canonical: it can be a generic wording that is not
+    // a bank at all. Only the reviewed verbatim bank question is a safe target.
+    if (canonical && canonical.target) return canonical.target;
+    return (state.krilloPrompts && state.krilloPrompts.get(key)) || null;
+  }
+
+  // Metadata for the review log. Null unless the on-screen wording is itself a
+  // real observed variant present in the canonical merge.
+  function krilloCanonicalMatch(question) {
+    if (!question || !state.krilloCanonical) return null;
+    return state.krilloCanonical.get(normLocal(question)) || null;
+  }
+
+  // Total answer rows across every labelled bank (a zero-count is the signal
+  // that a fallback lookup is allowed).
+  function answerCount(data) {
+    const groups = (data && data.groups) || [];
+    return groups.reduce((n, g) => n + (((g && g.answers) || []).length), 0);
   }
 
   function candidateInfo() {

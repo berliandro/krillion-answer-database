@@ -166,3 +166,28 @@ not reachable in one pass and the continuous follower is the honest upper bound.
   is exact when the bridge answers with zero groups.
 - Results are read after a race ends, so a live in-progress race may return
   fewer rows. The watcher re-polls on later ticks.
+
+## Canonical merge lookup (v1.1.9)
+
+`scripts/build_krillocity_canonical.py` writes `data/krillocity_canonical.json`
+(`generated_at`, `counts`, `groups`; each group has `canonical`, `variants`,
+`bank_questions`, `constraint_signature`). The bridge serves it read-only at
+`GET /api/krillo-canonical?t=krillion-local-v1`, token-enforced like every other
+endpoint, with a short content-hash `version`, `counts` and `groups` in `data`.
+A missing, partial or malformed file yields an empty payload (`version: "0"`,
+`data: []`) rather than an error, so an old clone keeps working.
+
+The userscript preloads this alongside `/api/krillo-prompts` into
+`state.krilloCanonical`: `normLocal(variant.text) -> {target, canonical, bank_questions}`.
+Only variants marked **`exact_bank: true` and not `log_only`** become keys, and the
+retry target is always a **verbatim bank question** (`bank_questions[0]`), never the
+merge canonical — a merge canonical can be a generic wording that is not a bank,
+and a log-only rewrite would be an applied alias (forbidden by `injection/DECISIONS.md`).
+`loadAnswers()` still queries the on-screen wording first; only when that reply
+has zero answer groups does it retry with the reviewed bank question (else the
+previously harvested wording). If the retry yields answers, the returned banks
+are displayed exactly as-is — no merging, no answer demotion — and
+`reportPrompt('krillocity-canonical-match', …)` records the target bank, the merge
+canonical (as `merge_canonical`) and its bank questions in `data/prompt_review.jsonl`
+for review. A failed retry keeps
+the original zero-group result.
