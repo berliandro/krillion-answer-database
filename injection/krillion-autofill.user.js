@@ -793,6 +793,7 @@
     state.answerQuestion[answer] = btn.dataset.q || state.question;
     listEl.querySelectorAll('.ka-chip').forEach((b) => { b.dataset.filled = 'false'; });
     btn.dataset.filled = 'true';
+    // Confidence gate: multi-bank matches pause auto-pick for a manual choice.
     if (state.autoEnter && state.groups.length > 1) {
       status('Several banks match — choose manually. Dive on click is paused for this prompt.', 'error');
       return;
@@ -888,8 +889,10 @@
     state.refusalActive = false;
     render();
 
-    // The first prompt can appear before preloading finishes — wait briefly,
-    // but never let a forever-retrying /api/all block this prompt's lookup.
+    // PROVEN classic "confidence-gated retry (refusal handling)": bounded
+    // preload wait (LOOKUP_TIMEOUT) so a forever-retrying /api/all can never
+    // block this prompt; fill() adds the multi-bank manual pause and
+    // checkRefusal() adds the distinct-answer retry.
     if (!state.premap && state.preloadPromise) {
       try {
         await Promise.race([
@@ -900,9 +903,10 @@
     }
     if (isStale()) return;
 
-    // Fast path: the whole rare-answer archive was loaded once at page start.
-    // Same key source as premap/prefetch/netCache (nq when the bridge supplies
-    // one, normLocal otherwise) so the first prompt stays a cache hit.
+    // PROVEN classic "exact-100 preload fast path": the whole rare-answer
+    // archive is loaded once at page start, so an exact premap hit resolves
+    // with zero /api/answers calls. Same key source as premap/prefetch/netCache
+    // (nq when the bridge supplies one, normLocal otherwise).
     const key = keyFor(question);
     if (state.premap && state.premap.has(key)) {
       const item = state.premap.get(key);
@@ -1148,6 +1152,8 @@
   }
 
   function checkRefusal() {
+    // Confidence gate: a refusal clears answeredPrompt so the next tick retries
+    // with a distinct answer — never a demotion from a play score.
     if (!state.question || !state.lastFilled) return false;
     const el = document.querySelector('.kr-refusal');
     const line = el ? (el.textContent || '').trim() : '';
@@ -1388,6 +1394,8 @@
     });
   }
 
+  // PROVEN classic "capture-banks-before-restart flywheel": gate Play-again on
+  // a settled bank capture (own rows only), hard-bounded at 2,200 ms.
   function finalizeClassicResults() {
     const rows = classicRows();
     const signature = classicBankSignature(rows);
@@ -1680,6 +1688,11 @@
     return bot.pick === 'top' ? list[0] : list[Math.floor(Math.random() * list.length)];
   }
 
+  // PROVEN classic "God Gaussian pick": Gaussian tier draw with empty-tier
+  // redistribution — an empty bucket hands its chance to the nearest populated
+  // tier via nearestGodGroup(), never to a bucket with no answers.
+  // do-not-wire: REJECTED classic id `tier-greedy fallback / rare-first within confidence` — NEVER wired here.
+  // The greedy 85pt pick exists only in the Krillocity race pool; no Classic proof.
   function pickGodAnswer(prompt, rareList, isRace) {
     const groups = {};
     GOD_TIER_POINTS.forEach((p) => { groups[p] = []; });
