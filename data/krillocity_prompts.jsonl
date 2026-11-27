@@ -6690,3 +6690,4 @@
 {"at":"2026-11-27T15:49:26.703Z","prompt_id":"race2-94:105809:5","prompt":"What's an example of an athlete?","level":3,"source":"krillocity-lineup-enum","room":"race2-94","race":105809,"source_url":"https://playdaily.org/krillocity"}
 {"at":"2026-11-27T15:49:27.284Z","prompt_id":"race2-106:105809:3","prompt":"Name an example of a piece of lab equipment","level":3,"source":"krillocity-lineup-enum","room":"race2-106","race":105809,"source_url":"https://playdaily.org/krillocity"}
 {"at":"2026-11-27T15:49:27.964Z","prompt_id":"race2-115:105809:2","prompt":"Name a thing you'd see at a park","level":1,"source":"krillocity-lineup-enum","room":"race2-115","race":105809,"source_url":"https://playdaily.org/krillocity"}
+{"at": "2026-11-27T15:51:08Z", "prompt": "What's something Las Vegas is known for?", "source": "userscript", "prompt_id": "", "source_url": "https://playdaily.org/krillocity"}
