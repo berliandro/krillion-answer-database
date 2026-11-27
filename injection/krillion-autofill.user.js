@@ -1455,6 +1455,94 @@
   }
 
   // ---- auto-play engine --------------------------------------------------
+  // ---- verified strategy router (Phase 4) --------------------------------
+  // Single source of truth for which PROVEN strategies are active per mode.
+  // Derived field-by-field from injection/STRATEGY-VERIFIED.md:
+  //   FILES=18 RUNS=55 PROVEN=14 REJECTED=4 UNTESTED=0 BAD_SHAPE=0 POLICY_VIOLATIONS=0
+  // This is a declaration/router layer ONLY. Strategy implementations stay in
+  // their owning functions (classic*/race*/lobby*/duel*); botTick consults this
+  // config to select the handler family, it never re-implements a strategy here.
+  // REJECTED ids live in doNotWire lists and must never be activated.
+  const STRATEGY_CONFIG = {
+    classic: {
+      proven: [
+        'capture-banks-before-restart flywheel',
+        'confidence-gated retry (refusal handling)',
+        'exact-100 preload fast path',
+        'God Gaussian pick',
+      ],
+      doNotWire: [
+        'tier-greedy fallback / rare-first within confidence', // do-not-wire (REJECTED)
+      ],
+      route: { answer: 'answerCurrentPrompt', lobby: 'joinLobbyRoom', start: 'startMode', idle: null },
+    },
+    krillocity: {
+      proven: [
+        'S1 supply expansion (bank-backed answers per prompt)',
+        'S2 rare-100 first then 85/60/30/15/10 with strict dedupe',
+        'S3 hold 50ms fill / 90ms step safe cadence',
+      ],
+      doNotWire: [
+        'S4 submit to buzzer + claim 2.5s verdict grace', // do-not-wire (REJECTED)
+        'S5 protect AI-judge allowance: prefer bank-known answers', // do-not-wire (REJECTED)
+      ],
+      route: { answer: 'answerCurrentPrompt', lobby: 'joinLobbyRoom', start: 'startMode', idle: null },
+    },
+    mp: {
+      proven: [
+        'cache-top-picks',
+        'duel-rare-first',
+        'most-populated-trap',
+        'marathon-5s-50',
+        'long-private-rooms',
+        'refusal-calibration',
+        'requeue-stop-loss',
+      ],
+      doNotWire: [
+        'rating-protection', // do-not-wire (REJECTED)
+      ],
+      route: { answer: 'answerCurrentPrompt', lobby: 'joinLobbyRoom', start: 'startMode', idle: null },
+    },
+    duel: {
+      // Duel shares the Multiplayer set; duel-rare-first leads the pick order.
+      proven: [
+        'cache-top-picks',
+        'duel-rare-first',
+        'most-populated-trap',
+        'marathon-5s-50',
+        'long-private-rooms',
+        'refusal-calibration',
+        'requeue-stop-loss',
+      ],
+      doNotWire: [
+        'rating-protection', // do-not-wire (REJECTED)
+      ],
+      route: { answer: 'answerCurrentPrompt', lobby: 'joinLobbyRoom', start: 'startMode', idle: 'duelTick' },
+    },
+  };
+
+  // Maps a UI mode value to a STRATEGY_CONFIG group. marathon5/showoff are both
+  // Multiplayer rooms, so they share the `mp` group; duel has its own group so
+  // its idle handler stays duelTick.
+  function modeConfigKey(modeValue) {
+    if (modeValue === 'classic' || modeValue === 'krillocity' || modeValue === 'duel') return modeValue;
+    return 'mp';
+  }
+
+  // Read-only accessors: never expose a REJECTED id as active, never mutate config.
+  function modeConfigFor(modeValue) {
+    return STRATEGY_CONFIG[modeConfigKey(modeValue)] || STRATEGY_CONFIG.classic;
+  }
+
+  function modeConfigForBot() {
+    return modeConfigFor(bot.mode);
+  }
+
+  // Diagnostics view: the PROVEN ids for a mode (copy, so callers cannot edit config).
+  function strategyIdsFor(modeValue) {
+    return modeConfigFor(modeValue).proven.slice();
+  }
+
   const BOT_KEY = 'krillion.bot.v1';
   const PICK_KEY = 'krillion.bot.pick.v1';
   const MODE_KEY = 'krillion.bot.mode.v1';
@@ -1984,6 +2072,11 @@
     if (!bot.on || bot.busy) return;
     bot.busy = true;
     try {
+      // Config is the single source of truth for the active mode's handler
+      // family. Dispatch below only reads it; strategy logic stays in the
+      // owning functions. The roundClosed results branch is W4-B owned.
+      const cfg = modeConfigForBot();
+      const route = cfg.route;
       const p = promptText();
       if (p && p !== bot.lastPrompt) {
         bot.lastPrompt = p;
@@ -2012,13 +2105,13 @@
         }
         else if (bot.mode === 'duel') duelTick();
         else botStatus('waiting for the next round');
-      } else if (p && visible(SEL.prompt) && visible(SEL.input)) {
+      } else if (p && visible(SEL.prompt) && visible(SEL.input) && route.answer) {
         answerCurrentPrompt();
-      } else if (visible('.kr-lobby-tab') || visible('.kr-room-row')) {
+      } else if ((visible('.kr-lobby-tab') || visible('.kr-room-row')) && route.lobby) {
         joinLobbyRoom();
-      } else if (visible('.kr-intro') || visible('button.kr-begin')) {
+      } else if ((visible('.kr-intro') || visible('button.kr-begin')) && route.start) {
         startMode();
-      } else if (bot.mode === 'duel') {
+      } else if (route.idle) {
         duelTick();
       } else {
         botStatus('waiting');
