@@ -1,0 +1,118 @@
+{
+  "strategy": "exact-100 preload fast path",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompt": "Name a 3D shape"
+      },
+      "output": {
+        "preloadItems": 3970,
+        "key": "name a 3d shape",
+        "exact": true,
+        "answerCount": 1,
+        "firstAnswer": "Superegg",
+        "answersApiCalls": 0,
+        "lookupMs": 1.345,
+        "filled": true,
+        "filledValue": "Superegg",
+        "fillSubmitVirtualMs": 120,
+        "fillSubmitRealMs": 1.07,
+        "submits": 1,
+        "submitMethod": "form.requestSubmit",
+        "tier": 100
+      },
+      "ms": 2.415,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Exact key found in /api/all premap; zero /api/answers calls; 100-point answer filled and form submitted.",
+      "at": "2026-11-27T07:50:29.323Z",
+      "lookupMs": 1.345,
+      "sourceData": "GET /api/all + /api/all-tier from bridge 127.0.0.1:8768"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompt": "Name a Batman character"
+      },
+      "output": {
+        "preloadItems": 3970,
+        "key": "name a batman character",
+        "exact": true,
+        "answerCount": 9,
+        "firstAnswer": "Amygdala",
+        "answersApiCalls": 0,
+        "lookupMs": 0.3,
+        "filled": true,
+        "filledValue": "Bat-Cow",
+        "fillSubmitVirtualMs": 120,
+        "fillSubmitRealMs": 0.28,
+        "submits": 1,
+        "submitMethod": "form.requestSubmit",
+        "tier": 100
+      },
+      "ms": 0.58,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Exact key found in /api/all premap; zero /api/answers calls; 100-point answer filled and form submitted.",
+      "at": "2026-11-27T07:50:29.442Z",
+      "lookupMs": 0.3,
+      "sourceData": "GET /api/all + /api/all-tier from bridge 127.0.0.1:8768"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompt": "Name a Beatles song"
+      },
+      "output": {
+        "preloadItems": 3970,
+        "key": "name a beatles song",
+        "exact": true,
+        "answerCount": 1,
+        "firstAnswer": "Everybody's Trying to Be My Baby",
+        "answersApiCalls": 0,
+        "lookupMs": 0.759,
+        "filled": true,
+        "filledValue": "Everybody's Trying to Be My Baby",
+        "fillSubmitVirtualMs": 120,
+        "fillSubmitRealMs": 0.075,
+        "submits": 1,
+        "submitMethod": "form.requestSubmit",
+        "tier": 100
+      },
+      "ms": 0.834,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Exact key found in /api/all premap; zero /api/answers calls; 100-point answer filled and form submitted.",
+      "at": "2026-11-27T07:50:29.567Z",
+      "lookupMs": 0.759,
+      "sourceData": "GET /api/all + /api/all-tier from bridge 127.0.0.1:8768"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "3/3 runs resolved the exact prompt from the state.premap built by /api/all, made zero /api/answers HTTP calls, filled a flagged 100-point answer and submitted it through form.requestSubmit (lookup 0.19-1.35 ms). Measured caveat: the premap holds 3,970 unique normalised keys for 5,801 archive prompts, so colliding near-duplicate wordings collapse to the last bank (e.g. \"Name a 3D shape\" exposes 1 answer). No play-score demotion or other-player data is involved.",
+  "measured_at": "2026-11-27T07:50:31.328Z",
+  "userscript_version": "1.1.2",
+  "harness": {
+    "path": "C:\\Users\\nberl\\AppData\\Local\\Temp\\opencode\\p3a-harness.js",
+    "based_on": "tests/roadmap_helpers.js",
+    "mode": "vm sandbox, stubbed GM/DOM, virtual clock, seeded RNG; POSTs captured in memory"
+  },
+  "source_data": {
+    "all_items": 5801,
+    "tier_rows": 2879,
+    "version": 5,
+    "etag": "bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845"
+  },
+  "policy": {
+    "play_score_demotion": false,
+    "other_player_rows_imported": false,
+    "bridge_restart": false,
+    "live_game_started": false
+  },
+  "notes": [
+    "Inputs are real prompts/answers fetched read-only from bridge 127.0.0.1:8768 (/api/all, /api/all-tier, version 5, etag bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845).",
+    "The shipped userscript v1.1.2 was evaluated unmodified in a vm sandbox based on tests/roadmap_helpers.js; POSTs were captured in memory only, so no bridge log/database was written and no game was started.",
+    "Live DOM observation was skipped: the browse relay reported paired-offline, so no live-readonly run records were fabricated."
+  ]
+}

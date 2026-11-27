@@ -1,0 +1,97 @@
+{
+  "strategy": "confidence-gated retry (refusal handling)",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompt": "Name a Batman character",
+        "note": "loadAnswers called before /api/all preload settled"
+      },
+      "output": {
+        "premapReady": true,
+        "preloadWaitRealMs": 76.067,
+        "preloadWaitCapMs": 2500,
+        "exact": true,
+        "answerCount": 9,
+        "answersApiCalls": 0,
+        "usedRareRatherThanLowTier": true
+      },
+      "ms": 76.067,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "loadAnswers awaited the preload race and resolved from the rare premap with no network lookup, so a premature low-tier fallback could not steal the rare answer.",
+      "at": "2026-11-27T07:50:30.077Z"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompt": "Name a 3D shape",
+        "note": "two near-duplicate banks, Dive on click ON"
+      },
+      "output": {
+        "groupCount": 2,
+        "autoEnter": true,
+        "status": "Several banks match — choose manually. Dive on click is paused for this prompt.",
+        "submits": 0,
+        "inputValue": "Superegg",
+        "pausedAutoPick": true
+      },
+      "ms": 0.316,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Ambiguous multi-bank match pauses auto-pick (policy DECISIONS #4/#8); the answer was filled but not submitted.",
+      "at": "2026-11-27T07:50:30.187Z"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompt": "Name a Batman character",
+        "note": "game refusal line injected after first submit"
+      },
+      "output": {
+        "firstSubmitted": true,
+        "firstAnswer": "Thomas Wayne Jr.",
+        "refusalDetected": true,
+        "refusedTracked": true,
+        "retried": true,
+        "retryAnswer": "Zur-En-Arrh Batman",
+        "distinctAnswer": true,
+        "evidencePosts": 1,
+        "refusalOutcomes": 1,
+        "demotionPosts": 0,
+        "playScoreUsedForDemotion": false
+      },
+      "ms": 1.29,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Refused answer was excluded from the retry pool and a distinct answer was selected; refusals were logged as evidence only with zero bank/correction writes (no play-score demotion).",
+      "at": "2026-11-27T07:50:30.269Z"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "PROVEN for the three implemented gates (3/3 runs): (1) loadAnswers waits for the /api/all preload race and uses the rare bank instead of an early low-tier fallback; (2) a multi-bank match pauses Dive-on-click and requires a manual choice; (3) a game refusal excludes that answer and the retry selects a distinct one, with the refusal logged as evidence only (zero bank/correction writes). The Phase-2 subjective-confidence and clock-budgeting variant is not implemented in the userscript and is not claimed as proven.",
+  "measured_at": "2026-11-27T07:50:31.328Z",
+  "userscript_version": "1.1.2",
+  "harness": {
+    "path": "C:\\Users\\nberl\\AppData\\Local\\Temp\\opencode\\p3a-harness.js",
+    "based_on": "tests/roadmap_helpers.js",
+    "mode": "vm sandbox, stubbed GM/DOM, virtual clock, seeded RNG; POSTs captured in memory"
+  },
+  "source_data": {
+    "all_items": 5801,
+    "tier_rows": 2879,
+    "version": 5,
+    "etag": "bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845"
+  },
+  "policy": {
+    "play_score_demotion": false,
+    "other_player_rows_imported": false,
+    "bridge_restart": false,
+    "live_game_started": false
+  },
+  "notes": [
+    "Inputs are real prompts/answers fetched read-only from bridge 127.0.0.1:8768 (/api/all, /api/all-tier, version 5, etag bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845).",
+    "The shipped userscript v1.1.2 was evaluated unmodified in a vm sandbox based on tests/roadmap_helpers.js; POSTs were captured in memory only, so no bridge log/database was written and no game was started.",
+    "Live DOM observation was skipped: the browse relay reported paired-offline, so no live-readonly run records were fabricated."
+  ]
+}

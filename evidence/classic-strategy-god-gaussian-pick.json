@@ -1,0 +1,152 @@
+{
+  "strategy": "God Gaussian pick",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompt": "Name a 3D shape",
+        "draws": 10000,
+        "note": "real /api/all-tier + /api/all answers, real point tags (null -> 85)"
+      },
+      "output": {
+        "counts": {
+          "10": 0,
+          "15": 0,
+          "30": 0,
+          "60": 0,
+          "85": 7363,
+          "100": 2637
+        },
+        "total": 10000,
+        "sharesPct": {
+          "10": 0,
+          "15": 0,
+          "30": 0,
+          "60": 0,
+          "85": 73.63,
+          "100": 26.37
+        },
+        "emptyGroups": [
+          10,
+          15,
+          30,
+          60
+        ],
+        "expected85Pct": 73.95,
+        "expected100Pct": 26.04,
+        "meanPointsPerPrompt": 88.96,
+        "meanDiveDepthM": 6227
+      },
+      "ms": 239.722,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "10,000 seeded draws from real bank answers: only populated buckets (85/100) were selected; empty tiers redistributed their mass to 85/100 as specified.",
+      "at": "2026-11-27T07:50:30.896Z"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompt": "Name a 3D shape",
+        "draws": 10000,
+        "note": "real answer strings; spec point tags used to populate all six buckets"
+      },
+      "output": {
+        "counts": {
+          "10": 2,
+          "15": 81,
+          "30": 719,
+          "60": 2649,
+          "85": 3942,
+          "100": 2607
+        },
+        "sharesPct": {
+          "10": 0.02,
+          "15": 0.81,
+          "30": 7.19,
+          "60": 26.49,
+          "85": 39.42,
+          "100": 26.07
+        },
+        "expectedPct": {
+          "10": 0.05,
+          "15": 0.95,
+          "30": 7.54,
+          "60": 26.04,
+          "85": 39.37,
+          "100": 26.04
+        },
+        "maxAbsDeltaPct": 0.45,
+        "withinTolerance": true,
+        "meanPointsPerPrompt": 77.75,
+        "meanDiveDepthM": 5443
+      },
+      "ms": 116.922,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Empirical shares match the GOD-DISTRIBUTION table within 1.5 percentage points over 10,000 seeded draws; 85 is the mode.",
+      "at": "2026-11-27T07:50:31.117Z"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompt": "Name a 3D shape",
+        "draws": 10000,
+        "note": "only 60-point and 100-point groups populated"
+      },
+      "output": {
+        "counts": {
+          "10": 0,
+          "15": 0,
+          "30": 0,
+          "60": 3472,
+          "85": 0,
+          "100": 6528
+        },
+        "sharesPct": {
+          "10": 0,
+          "15": 0,
+          "30": 0,
+          "60": 34.72,
+          "85": 0,
+          "100": 65.28
+        },
+        "illegalDraws": 0,
+        "expected60Pct": 34.58,
+        "expected100Pct": 65.41,
+        "redistributionCorrect": true,
+        "meanPointsPerPrompt": 86.11
+      },
+      "ms": 138.001,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Empty tiers were never selected; 60/100 shares match nearest-populated-group redistribution within tolerance.",
+      "at": "2026-11-27T07:50:31.328Z"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "PROVEN over 10,000 seeded draws per run (3/3). With all six point groups populated, empirical shares matched the GOD-DISTRIBUTION table within 0.45 percentage points (85pt mode 39.42%). With real bank data (only 85/100 tagged), empty tiers redistributed to 85/100 (73.63%/26.37%). With only 60/100 groups populated, zero illegal draws occurred and shares matched nearest-group redistribution (34.72%/65.28%).",
+  "measured_at": "2026-11-27T07:50:31.328Z",
+  "userscript_version": "1.1.2",
+  "harness": {
+    "path": "C:\\Users\\nberl\\AppData\\Local\\Temp\\opencode\\p3a-harness.js",
+    "based_on": "tests/roadmap_helpers.js",
+    "mode": "vm sandbox, stubbed GM/DOM, virtual clock, seeded RNG; POSTs captured in memory"
+  },
+  "source_data": {
+    "all_items": 5801,
+    "tier_rows": 2879,
+    "version": 5,
+    "etag": "bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845"
+  },
+  "policy": {
+    "play_score_demotion": false,
+    "other_player_rows_imported": false,
+    "bridge_restart": false,
+    "live_game_started": false
+  },
+  "notes": [
+    "Inputs are real prompts/answers fetched read-only from bridge 127.0.0.1:8768 (/api/all, /api/all-tier, version 5, etag bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845).",
+    "The shipped userscript v1.1.2 was evaluated unmodified in a vm sandbox based on tests/roadmap_helpers.js; POSTs were captured in memory only, so no bridge log/database was written and no game was started.",
+    "Live DOM observation was skipped: the browse relay reported paired-offline, so no live-readonly run records were fabricated."
+  ]
+}

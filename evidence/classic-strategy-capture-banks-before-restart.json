@@ -1,0 +1,172 @@
+{
+  "strategy": "capture-banks-before-restart flywheel",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "scenario": "normal capture",
+        "postDelayMs": 1,
+        "postNever": false,
+        "advanceMs": 420
+      },
+      "output": {
+        "scenario": "normal capture",
+        "rows": 3,
+        "gateResults": [
+          false,
+          true,
+          false
+        ],
+        "firstGateBlocked": true,
+        "afterAdvanceResult": false,
+        "gateDeniedCount": 2,
+        "captureLogCount": 1,
+        "captureLog": {
+          "rows": 3,
+          "answers": 4,
+          "gated": true,
+          "all_expanded": true,
+          "timed_out": false
+        },
+        "bankPostCount": 1,
+        "bankRowsImported": 4,
+        "otherPlayerRowsImported": 0,
+        "ownRowsImported": 4,
+        "restartClicks": 1,
+        "restartClickAt": 425,
+        "captureSettledAt": 386,
+        "captureLogAt": 425,
+        "virtualMsElapsed": 425,
+        "captureSettledBeforeRestart": true,
+        "logBeforeRestart": true,
+        "hardCapHit": false,
+        "expectedTimeout": false
+      },
+      "ms": 4.884,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Capture POST settled and all row heads were expanded before the classic-bank-capture log and the Play-again click; one capture log per dive, zero other-player rows imported.",
+      "at": "2026-11-27T07:50:30.384Z"
+    },
+    {
+      "n": 2,
+      "input": {
+        "scenario": "delayed POST holds the gate",
+        "postDelayMs": 600,
+        "postNever": false,
+        "advanceMs": 420
+      },
+      "output": {
+        "scenario": "delayed POST holds the gate",
+        "rows": 3,
+        "gateResults": [
+          false,
+          false,
+          true
+        ],
+        "firstGateBlocked": true,
+        "afterAdvanceResult": true,
+        "gateDeniedCount": 2,
+        "captureLogCount": 1,
+        "captureLog": {
+          "rows": 3,
+          "answers": 4,
+          "gated": true,
+          "all_expanded": true,
+          "timed_out": false
+        },
+        "bankPostCount": 1,
+        "bankRowsImported": 4,
+        "otherPlayerRowsImported": 0,
+        "ownRowsImported": 4,
+        "restartClicks": 1,
+        "restartClickAt": 1125,
+        "captureSettledAt": 985,
+        "captureLogAt": 1125,
+        "virtualMsElapsed": 1125,
+        "captureSettledBeforeRestart": true,
+        "logBeforeRestart": true,
+        "hardCapHit": false,
+        "expectedTimeout": false
+      },
+      "ms": 0.787,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Capture POST settled and all row heads were expanded before the classic-bank-capture log and the Play-again click; one capture log per dive, zero other-player rows imported.",
+      "at": "2026-11-27T07:50:30.464Z"
+    },
+    {
+      "n": 3,
+      "input": {
+        "scenario": "hard 2200ms cap with POST never settling",
+        "postDelayMs": 1,
+        "postNever": true,
+        "advanceMs": 2250
+      },
+      "output": {
+        "scenario": "hard 2200ms cap with POST never settling",
+        "rows": 3,
+        "gateResults": [
+          false,
+          true,
+          false
+        ],
+        "firstGateBlocked": true,
+        "afterAdvanceResult": false,
+        "gateDeniedCount": 2,
+        "captureLogCount": 1,
+        "captureLog": {
+          "rows": 3,
+          "answers": 4,
+          "gated": true,
+          "all_expanded": false,
+          "timed_out": true
+        },
+        "bankPostCount": 1,
+        "bankRowsImported": 4,
+        "otherPlayerRowsImported": 0,
+        "ownRowsImported": 4,
+        "restartClicks": 1,
+        "restartClickAt": 2255,
+        "captureSettledAt": null,
+        "captureLogAt": 2255,
+        "virtualMsElapsed": 2255,
+        "captureSettledBeforeRestart": false,
+        "logBeforeRestart": true,
+        "hardCapHit": true,
+        "expectedTimeout": true
+      },
+      "ms": 0.668,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Hard 2200ms cap restarted the dive even with an unsettled POST; timed_out flag recorded. Gate bounds a hang without shortening capture.",
+      "at": "2026-11-27T07:50:30.573Z"
+    }
+  ],
+  "verdict": "PROVEN",
+  "reason": "PROVEN for the preservation gate (3/3 runs). Normal and delayed-POST dives each emitted exactly one classic-bank-capture log with all_expanded=true, timed_out=false, and 4 own rows imported before the Play-again click; the injected other-player row was never imported. A never-settling POST hit the 2,200 ms hard cap, logged timed_out=true and restarted. The compounding effect on future dive coverage (the \"flywheel\" payoff) is a hypothesis and was not measured.",
+  "measured_at": "2026-11-27T07:50:31.328Z",
+  "userscript_version": "1.1.2",
+  "harness": {
+    "path": "C:\\Users\\nberl\\AppData\\Local\\Temp\\opencode\\p3a-harness.js",
+    "based_on": "tests/roadmap_helpers.js",
+    "mode": "vm sandbox, stubbed GM/DOM, virtual clock, seeded RNG; POSTs captured in memory"
+  },
+  "source_data": {
+    "all_items": 5801,
+    "tier_rows": 2879,
+    "version": 5,
+    "etag": "bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845"
+  },
+  "policy": {
+    "play_score_demotion": false,
+    "other_player_rows_imported": false,
+    "bridge_restart": false,
+    "live_game_started": false
+  },
+  "notes": [
+    "Inputs are real prompts/answers fetched read-only from bridge 127.0.0.1:8768 (/api/all, /api/all-tier, version 5, etag bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845).",
+    "The shipped userscript v1.1.2 was evaluated unmodified in a vm sandbox based on tests/roadmap_helpers.js; POSTs were captured in memory only, so no bridge log/database was written and no game was started.",
+    "Live DOM observation was skipped: the browse relay reported paired-offline, so no live-readonly run records were fabricated."
+  ]
+}

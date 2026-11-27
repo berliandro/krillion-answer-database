@@ -1,0 +1,151 @@
+{
+  "strategy": "tier-greedy fallback / rare-first within confidence",
+  "runs": [
+    {
+      "n": 1,
+      "input": {
+        "prompt": "Name a Dr. Seuss book",
+        "note": "real no-100 prompt from /api/all-tier"
+      },
+      "output": {
+        "prompt": "Name a Dr. Seuss book",
+        "key": "name a dr. seuss book",
+        "has100InPremap": false,
+        "tierEntries": 20,
+        "tierPointsObserved": [
+          85
+        ],
+        "poolLength": 20,
+        "poolFirst": "Because a Little Bug Went Ka-Choo!",
+        "poolFirstPoints": 85,
+        "poolBuildMs": 0.322,
+        "poolHttpCalls": 0,
+        "classicAnswerSubmitted": false,
+        "classicFillValue": "",
+        "classicAnswersApiCalls": 0,
+        "classicUsesTierPremap": false
+      },
+      "ms": 0.322,
+      "source": "harness-real-bridge-data",
+      "verdict": "REJECTED",
+      "reason": "Tier-greedy selection measured in raceBuildPool() (Krillocity race) only; Classic answerCurrentPrompt() never reads tierPremap for non-God picks and submitted nothing on this no-100 prompt. Proving this as a Classic strategy needs a userscript edit (out of W3-A scope).",
+      "at": "2026-11-27T07:50:29.698Z",
+      "mechanismLocation": "raceBuildPool (Krillocity)",
+      "classicLocation": "answerCurrentPrompt (rareList only)"
+    },
+    {
+      "n": 2,
+      "input": {
+        "prompt": "Name a Super Smash Bros. fighter",
+        "note": "real no-100 prompt from /api/all-tier"
+      },
+      "output": {
+        "prompt": "Name a Super Smash Bros. fighter",
+        "key": "name a super smash bros. fighter",
+        "has100InPremap": false,
+        "tierEntries": 20,
+        "tierPointsObserved": [
+          85
+        ],
+        "poolLength": 20,
+        "poolFirst": "Alex",
+        "poolFirstPoints": 85,
+        "poolBuildMs": 0.094,
+        "poolHttpCalls": 0,
+        "classicAnswerSubmitted": false,
+        "classicFillValue": "",
+        "classicAnswersApiCalls": 0,
+        "classicUsesTierPremap": false
+      },
+      "ms": 0.094,
+      "source": "harness-real-bridge-data",
+      "verdict": "REJECTED",
+      "reason": "Tier-greedy selection measured in raceBuildPool() (Krillocity race) only; Classic answerCurrentPrompt() never reads tierPremap for non-God picks and submitted nothing on this no-100 prompt. Proving this as a Classic strategy needs a userscript edit (out of W3-A scope).",
+      "at": "2026-11-27T07:50:29.779Z",
+      "mechanismLocation": "raceBuildPool (Krillocity)",
+      "classicLocation": "answerCurrentPrompt (rareList only)"
+    },
+    {
+      "n": 3,
+      "input": {
+        "prompt": "Name a food you eat when you're sick",
+        "note": "real no-100 prompt from /api/all-tier"
+      },
+      "output": {
+        "prompt": "Name a food you eat when you're sick",
+        "key": "name a food you eat when you're sick",
+        "has100InPremap": false,
+        "tierEntries": 20,
+        "tierPointsObserved": [
+          85
+        ],
+        "poolLength": 20,
+        "poolFirst": "Applesauce",
+        "poolFirstPoints": 85,
+        "poolBuildMs": 0.097,
+        "poolHttpCalls": 0,
+        "classicAnswerSubmitted": false,
+        "classicFillValue": "",
+        "classicAnswersApiCalls": 0,
+        "classicUsesTierPremap": false
+      },
+      "ms": 0.097,
+      "source": "harness-real-bridge-data",
+      "verdict": "REJECTED",
+      "reason": "Tier-greedy selection measured in raceBuildPool() (Krillocity race) only; Classic answerCurrentPrompt() never reads tierPremap for non-God picks and submitted nothing on this no-100 prompt. Proving this as a Classic strategy needs a userscript edit (out of W3-A scope).",
+      "at": "2026-11-27T07:50:29.888Z",
+      "mechanismLocation": "raceBuildPool (Krillocity)",
+      "classicLocation": "answerCurrentPrompt (rareList only)"
+    },
+    {
+      "n": 4,
+      "input": {
+        "prompt": "Name a 3D shape",
+        "note": "prompt with both rare and tier banks"
+      },
+      "output": {
+        "rareCount": 1,
+        "poolLength": 21,
+        "rareFirstThreeMatch": true,
+        "firstThree": [
+          "Superegg",
+          "Antiprism",
+          "Bipyramid"
+        ],
+        "tierEntriesAfterRare": 20
+      },
+      "ms": 0.2,
+      "source": "harness-real-bridge-data",
+      "verdict": "PROVEN",
+      "reason": "Within the race pool, rare 100-point answers are placed first; tier answers are appended after them (rare-first ordering verified).",
+      "at": "2026-11-27T07:50:29.998Z",
+      "mechanismLocation": "raceBuildPool (Krillocity)"
+    }
+  ],
+  "verdict": "REJECTED",
+  "reason": "REJECTED as a Classic strategy. 3/3 real no-100 prompts produced an 85-point tier-greedy pick only through raceBuildPool() (Krillocity race path); Classic answerCurrentPrompt() never reads state.tierPremap for non-God picks and submitted nothing on those prompts. A 4th run verified rare-first ordering inside the race pool. Proving the Classic variant requires a userscript change, which is outside W3-A file ownership; no result was fabricated.",
+  "measured_at": "2026-11-27T07:50:31.328Z",
+  "userscript_version": "1.1.2",
+  "harness": {
+    "path": "C:\\Users\\nberl\\AppData\\Local\\Temp\\opencode\\p3a-harness.js",
+    "based_on": "tests/roadmap_helpers.js",
+    "mode": "vm sandbox, stubbed GM/DOM, virtual clock, seeded RNG; POSTs captured in memory"
+  },
+  "source_data": {
+    "all_items": 5801,
+    "tier_rows": 2879,
+    "version": 5,
+    "etag": "bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845"
+  },
+  "policy": {
+    "play_score_demotion": false,
+    "other_player_rows_imported": false,
+    "bridge_restart": false,
+    "live_game_started": false
+  },
+  "notes": [
+    "Inputs are real prompts/answers fetched read-only from bridge 127.0.0.1:8768 (/api/all, /api/all-tier, version 5, etag bb3d29fccfddba95efe746e21ca2cf2bf9269be65758c46437b9d64ee4650845).",
+    "The shipped userscript v1.1.2 was evaluated unmodified in a vm sandbox based on tests/roadmap_helpers.js; POSTs were captured in memory only, so no bridge log/database was written and no game was started.",
+    "Live DOM observation was skipped: the browse relay reported paired-offline, so no live-readonly run records were fabricated."
+  ]
+}
