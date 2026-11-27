@@ -107,6 +107,36 @@ I probed the backend for a bulk shortcut. Findings, with command evidence in the
 The growth per pass drops as rooms hit HTTP 425 cooldowns; every pass still
 appends only new prompt text, so the file is the exact coverage record.
 
+## Continuous follower
+
+`scripts/krillocity_continuous.js` discovers the newest race that has actually
+run (`lineup` HTTP 200), harvests it over the enumerated room range, records
+`before/after/added` unique-prompt counts in `data/krillocity_continuous.json`,
+and repeats. This is the mechanism for tracking growth until it truly saturates;
+leave it running as long as the game keeps dealing races.
+
+```
+KRILLO_MAX_MINUTES=30 node scripts/krillocity_continuous.js
+```
+
+## Concrete blocker for "fetch the entire bank"
+
+Verified probes (see transcript for raw output):
+
+| Attempt | Result |
+| --- | --- |
+| `lineup?room=race2-1&race=<old>` | `404 {"error":"not this race"}` |
+| `results?room=race2-1&race=latest|all|-1` | `400 {"error":"bad race"}` |
+| `/api/krillion/blitz/{prompts,bank,deal,all}` | 404 HTML |
+| `/api/krillion/prompts`, `/api/prompts`, `/prompts.json`, … | all 404 |
+| Supabase `krillion_blitz_results`, `krillion_prompt_stats`, `krillion_answers` with anon key | `42501 permission denied` |
+| All downloaded Next.js chunks scanned for `Name a/an/any/...` prompt strings | only 2 UI placeholders, no bank |
+
+There is no authoritative full-prompt endpoint or readable table exposed to an
+anonymous client. The only obtainable source is the live lineup of current and
+just-scheduled races, which changes over time; therefore "all prompts ever" is
+not reachable in one pass and the continuous follower is the honest upper bound.
+
 ## Honest limitations
 
 - The server only exposes the **current and immediately scheduled races**;
