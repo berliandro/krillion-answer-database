@@ -11,6 +11,7 @@ Policy (injection/DECISIONS.md / PROCESS-LOG.md):
 from __future__ import annotations
 
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -52,20 +53,47 @@ def read_jsonl(path: Path):
     return out
 
 
+def constraint_signature(q: str) -> tuple:
+    """Restrictive markers that MUST match before two wordings may cluster.
+
+    A short generic prompt is often a literal substring of a constrained one
+    ("Name any fruit" vs "Name a fruit starting with P"). Treating containment
+    as paraphrase merged 63 distinct prompt families in the first harvest.
+    """
+    n = normalise(q)
+    sig = []
+    # letter constraints
+    m = re.search(r"\b(?:start(?:s|ing)?|begin(?:s|ning)?)\s+with\s+([a-z0-9]+)", n)
+    if m:
+        sig.append(("start", m.group(1)))
+    m = re.search(r"\bend(?:s|ing)?\s+with\s+([a-z0-9]+)", n)
+    if m:
+        sig.append(("end", m.group(1)))
+    # quoted terms are hard constraints
+    sig.extend(("quote", x) for x in re.findall(r'"([^"]+)"', n))
+    # origin / material / use / attribute markers
+    for marker in ("from", "made of", "used in", "with", "without", "has", "or"):
+        if re.search(r"\b" + re.escape(marker) + r"\b", n):
+            sig.append((marker,))
+    # negation and numbers
+    if set(tokens(q)) & {"not", "no", "never", "without", "non"}:
+        sig.append(("neg",))
+    sig.extend(("num", x) for x in re.findall(r"\d+", n))
+    return tuple(sorted(sig))
+
+
 def similarity(a: str, b: str) -> float:
-    """Cheap paraphrase score: token Jaccard + trigram Dice, with the
-    substring boost the site's own matcher uses for reworded prompts."""
+    """Jaccard + trigram Dice. NO substring boost: the audit found all 63
+    substring bridges were false merges between a generic bank and a
+    constrained one, and lost zero true rewordings when removed."""
     ta, tb = tokens(a), tokens(b)
     if not ta or not tb:
         return 0.0
     jac = len(ta & tb) / len(ta | tb)
     tri = dice(trigrams(a), trigrams(b))
     score = 0.75 * jac + 0.25 * tri
-    na, nb = normalise(a), normalise(b)
-    if na == nb:
+    if normalise(a) == normalise(b):
         return 1.0
-    if na in nb or nb in na:
-        score = max(score, 0.88)
     return score
 
 
@@ -88,20 +116,24 @@ class DSU:
 def main():
     rows = read_jsonl(PROMPTS)
     seen = {}
+    freq = Counter()
     for r in rows:
         q = (r.get("prompt") or "").strip()
         if q:
             seen.setdefault(q, r)
+            freq[q] += 1
     questions = list(seen)
     n = len(questions)
     print(f"harvest prompt lines={len(rows)} exact-unique={n}")
 
     dsu = DSU(n)
+    sigs = [constraint_signature(q) for q in questions]
     # Bucket 1: identical token sets (stopword-stripped) — catches most
     # "Name any one X" / "Name one X" / "What's an example of X" variants.
+    # A constraint signature guard keeps distinct qualifiers apart.
     buckets = defaultdict(list)
     for i, q in enumerate(questions):
-        buckets[frozenset(tokens(q))].append(i)
+        buckets[(frozenset(tokens(q)), sigs[i])].append(i)
     for idxs in buckets.values():
         for j in idxs[1:]:
             dsu.union(idxs[0], j)
@@ -123,6 +155,10 @@ def main():
     for i, j in pairs:
         if dsu.find(i) == dsu.find(j):
             continue
+        if sigs[i] != sigs[j]:
+            continue
+        if abs(len(tokens(questions[i])) - len(tokens(questions[j]))) > 1:
+            continue
         if similarity(questions[i], questions[j]) >= THRESHOLD:
             dsu.union(i, j)
 
@@ -130,10 +166,15 @@ def main():
     for i, q in enumerate(questions):
         clusters[dsu.find(i)].append(q)
 
-    # Canonical wording: shortest question in the cluster (least reworded).
+    # Canonical: the modal content-token family's most frequent wording, NOT
+    # the shortest string (which was usually a qualifier-free generic bank).
     grouped = []
     for root, members in clusters.items():
-        canonical = min(members, key=lambda s: (len(s), s))
+        families = defaultdict(list)
+        for q in members:
+            families[frozenset(tokens(q))].append(q)
+        family = max(families.values(), key=lambda xs: (len(xs), sum(freq[x] for x in xs)))
+        canonical = max(family, key=lambda q: (freq[q], q))
         grouped.append({
             "canonical": canonical,
             "variants": sorted(members, key=lambda s: (s != canonical, s)),
@@ -157,8 +198,10 @@ def main():
     }, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # Aliases are LOG ONLY — never applied to matching (PROCESS-LOG.md step 2).
+    # This file is generated solely by this script; rewrite it so false aliases
+    # from the earlier substring-boost clustering cannot linger.
     before = ALIASES.stat().st_size if ALIASES.exists() else 0
-    with ALIASES.open("a", encoding="utf-8") as f:
+    with ALIASES.open("w", encoding="utf-8") as f:
         for g in multi:
             for v in g["variants"]:
                 if v == g["canonical"]:

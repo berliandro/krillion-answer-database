@@ -1,103 +1,175 @@
 {
-  "generated_at": "2026-11-27T16:13:05.085386+00:00",
-  "clusters": 1252,
-  "stats": {
-    "total": 4857,
-    "rank1": 4817,
-    "rank2to5": 29,
-    "miss": 11
+  "generated_at": "2026-11-27T16:28:09.714920+00:00",
+  "clusters": 1704,
+  "canonical_only": {
+    "stats": {
+      "total": 5825,
+      "rank1": 5815,
+      "rank2to5": 6,
+      "miss": 4
+    },
+    "rank1_rate": 0.9983,
+    "note": "canonical-only proxy; false-merge clusters can make this look worse than the live path"
   },
-  "rank1_rate": 0.9918,
-  "miss_rate": 0.0023,
-  "misses": [
-    {
-      "variant": "Name an example of a fruit or vegetable that starts with P",
-      "expected": "Name any fruit",
-      "got": [
-        "Name any animal starting with P"
-      ],
-      "top_score": 0.5605
+  "live_bank": {
+    "stats": {
+      "total": 5825,
+      "rank1": 5661,
+      "miss": 164
     },
-    {
-      "variant": "Name any one fruit or vegetable that starts with P",
-      "expected": "Name any fruit",
-      "got": [
-        "Name any animal starting with P"
-      ],
-      "top_score": 0.5704
-    },
-    {
-      "variant": "Name one fruit or vegetable that starts with P",
-      "expected": "Name any fruit",
-      "got": [
-        "Name any animal starting with P"
-      ],
-      "top_score": 0.5606
-    },
-    {
-      "variant": "What's an example of a fruit or vegetable that starts with P?",
-      "expected": "Name any fruit",
-      "got": [
-        "Name any animal starting with P"
-      ],
-      "top_score": 0.5464
-    },
-    {
-      "variant": "What's an example of a religion that has a holy book?",
-      "expected": "Name any religion",
-      "got": [
-        "Name any holy book"
-      ],
-      "top_score": 0.7144
-    },
-    {
-      "variant": "What's an example of a religion with a holy book?",
-      "expected": "Name any religion",
-      "got": [
-        "Name any holy book"
-      ],
-      "top_score": 0.7149
-    },
-    {
-      "variant": "Name an example of a band from the United States",
-      "expected": "Name any band",
-      "got": [
-        "Name any island in the United States"
-      ],
-      "top_score": 0.6812
-    },
-    {
-      "variant": "Name any band from the United States",
-      "expected": "Name any band",
-      "got": [
-        "Name any island in the United States"
-      ],
-      "top_score": 0.6998
-    },
-    {
-      "variant": "Name any one band from the United States",
-      "expected": "Name any band",
-      "got": [
-        "Name any island in the United States"
-      ],
-      "top_score": 0.6951
-    },
-    {
-      "variant": "Name one band from the United States",
-      "expected": "Name any band",
-      "got": [
-        "Name any island in the United States"
-      ],
-      "top_score": 0.6865
-    },
-    {
-      "variant": "What's an example of a band from the United States?",
-      "expected": "Name any band",
-      "got": [
-        "Name any island in the United States"
-      ],
-      "top_score": 0.6677
-    }
-  ],
-  "note": "A 'miss' can also be a false-merge cluster where the canonical is a genuinely different prompt."
+    "rank1_rate": 0.9718,
+    "misses": [
+      {
+        "variant": "Name an example of a US state",
+        "expected": "What's an example of a US state?",
+        "got": "Name an example of a US state capital"
+      },
+      {
+        "variant": "Name any US state",
+        "expected": "What's an example of a US state?",
+        "got": "Name any US state with no coastline"
+      },
+      {
+        "variant": "Name any one US state",
+        "expected": "What's an example of a US state?",
+        "got": "Name any one US state with no coastline"
+      },
+      {
+        "variant": "Name one US state",
+        "expected": "What's an example of a US state?",
+        "got": "Name one US state east of the Mississippi"
+      },
+      {
+        "variant": "Name an example of a body part beginning with H",
+        "expected": "What's an example of a body part beginning with H?",
+        "got": "Name a body part starting with H"
+      },
+      {
+        "variant": "Name any body part beginning with H",
+        "expected": "What's an example of a body part beginning with H?",
+        "got": "Name any body part starting with H"
+      },
+      {
+        "variant": "Name any one body part beginning with H",
+        "expected": "What's an example of a body part beginning with H?",
+        "got": "Name any body part starting with H"
+      },
+      {
+        "variant": "Name one body part beginning with H",
+        "expected": "What's an example of a body part beginning with H?",
+        "got": "Name a body part starting with H"
+      },
+      {
+        "variant": "Name an example of a calisthenics exercise",
+        "expected": "What's an example of a calisthenics exercise?",
+        "got": "What's an example of a gym exercise?"
+      },
+      {
+        "variant": "Name any calisthenics exercise",
+        "expected": "What's an example of a calisthenics exercise?",
+        "got": "Name any gym exercise"
+      },
+      {
+        "variant": "Name any one calisthenics exercise",
+        "expected": "What's an example of a calisthenics exercise?",
+        "got": "Name any gym exercise"
+      },
+      {
+        "variant": "Name one calisthenics exercise",
+        "expected": "What's an example of a calisthenics exercise?",
+        "got": "Name a gym exercise"
+      },
+      {
+        "variant": "Name an example of a card game for children",
+        "expected": "What's an example of a card game for children?",
+        "got": "What's an example of a card game?"
+      },
+      {
+        "variant": "Name any card game for children",
+        "expected": "What's an example of a card game for children?",
+        "got": "Name a card game"
+      },
+      {
+        "variant": "Name any one card game for children",
+        "expected": "What's an example of a card game for children?",
+        "got": "Name a card game"
+      },
+      {
+        "variant": "Name one card game for children",
+        "expected": "What's an example of a card game for children?",
+        "got": "Name a card game"
+      },
+      {
+        "variant": "Name an example of a city whose name begins with M",
+        "expected": "What's an example of a city whose name begins with M?",
+        "got": "What's an example of a city whose name starts with M?"
+      },
+      {
+        "variant": "Name any city whose name begins with M",
+        "expected": "What's an example of a city whose name begins with M?",
+        "got": "Name a city whose name starts with M"
+      },
+      {
+        "variant": "Name any one city whose name begins with M",
+        "expected": "What's an example of a city whose name begins with M?",
+        "got": "Name a city whose name starts with M"
+      },
+      {
+        "variant": "Name one city whose name begins with M",
+        "expected": "What's an example of a city whose name begins with M?",
+        "got": "Name a city whose name starts with M"
+      },
+      {
+        "variant": "Name an example of a country whose name begins with C",
+        "expected": "What's an example of a country whose name begins with C?",
+        "got": "Name a country whose name starts with C"
+      },
+      {
+        "variant": "Name any country whose name begins with C",
+        "expected": "What's an example of a country whose name begins with C?",
+        "got": "Name a country whose name starts with C"
+      },
+      {
+        "variant": "Name any one country whose name begins with C",
+        "expected": "What's an example of a country whose name begins with C?",
+        "got": "Name one country whose name starts with C"
+      },
+      {
+        "variant": "Name one country whose name begins with C",
+        "expected": "What's an example of a country whose name begins with C?",
+        "got": "Name one country whose name starts with C"
+      },
+      {
+        "variant": "Name an example of a fantasy television show",
+        "expected": "What's an example of a fantasy television show?",
+        "got": "Name an example of a fantasy book series"
+      },
+      {
+        "variant": "Name any fantasy television show",
+        "expected": "What's an example of a fantasy television show?",
+        "got": "Name a fantasy TV show"
+      },
+      {
+        "variant": "Name any one fantasy television show",
+        "expected": "What's an example of a fantasy television show?",
+        "got": "Name one fantasy TV show"
+      },
+      {
+        "variant": "Name one fantasy television show",
+        "expected": "What's an example of a fantasy television show?",
+        "got": "Name one fantasy TV show"
+      },
+      {
+        "variant": "Name an example of a fruit or vegetable that begins with B",
+        "expected": "What's an example of a fruit or vegetable that begins with B?",
+        "got": "What's an example of a fruit or vegetable that starts with B?"
+      },
+      {
+        "variant": "Name any fruit or vegetable that begins with B",
+        "expected": "What's an example of a fruit or vegetable that begins with B?",
+        "got": "Name a fruit or vegetable that starts with B"
+      }
+    ],
+    "note": "top hit from the real 5,810-bank index must share the variant's content token set"
+  }
 }

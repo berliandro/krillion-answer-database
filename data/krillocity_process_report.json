@@ -1,62 +1,63 @@
 {
-  "generated_at": "2026-11-27T15:45:10.862312+00:00",
+  "generated_at": "2026-11-27T16:17:28.216123+00:00",
   "prompt_dedupe": {
-    "lines": 6480,
-    "exact_unique": 6477,
-    "clusters": 1620,
-    "multi_variant_clusters": 1252,
-    "variants_collapsed": 4857
+    "lines": 7981,
+    "exact_unique": 7978,
+    "clusters": 2153,
+    "multi_variant_clusters": 1704,
+    "variants_collapsed": 5825
   },
   "logs": {
     "evidence": {
-      "lines": 3866,
+      "lines": 3886,
       "outcomes": {
         "": 46,
-        "ok": 3794,
+        "ok": 3814,
         "below-100": 21,
         "refused": 5
       },
       "modes": {
-        "classic": 3663,
-        "multiplayer": 201,
+        "classic": 3665,
+        "multiplayer": 219,
         "krillocity": 2
       },
       "below_100": 21
     },
     "prompt_review": {
-      "lines": 4209,
+      "lines": 4262,
       "kinds": {
-        "ambiguous": 4110,
-        "no-match": 45,
+        "ambiguous": 4146,
+        "no-match": 46,
         "low-score": 21,
         "refused": 5,
-        "krillocity-race-prompt": 28
+        "krillocity-race-prompt": 42,
+        "krillocity-bank-match": 2
       },
-      "zero_match": 45
+      "zero_match": 46
     },
     "bot_log": {
-      "lines": 187,
+      "lines": 208,
       "events": {
-        "bot-start": 79,
-        "krillocity-open": 41,
+        "bot-start": 85,
+        "krillocity-open": 49,
         "duel-start": 20,
-        "duel-requeue": 15,
-        "mode-change": 9,
+        "duel-requeue": 16,
+        "mode-change": 12,
         "krillocity-start": 9,
-        "duel-queue": 5,
-        "room-select": 4,
+        "duel-queue": 6,
+        "room-select": 5,
         "classic-bank-capture": 4,
-        "krillocity-multi-open": 1
+        "krillocity-multi-open": 2
       }
     },
     "failed_prompts": {
-      "lines": 70
+      "lines": 71
     },
     "corrections": {
       "lines": 0
     },
     "learned": {
-      "lines": 6270
+      "lines": 6275
     },
     "krillocity_answers": {
       "lines": 3249,

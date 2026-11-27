@@ -34,5 +34,12 @@
   {"typed": "Name a DC superhero", "expect": "Name a DC superhero"},
   {"typed": "Name a word that can follow \"white\"", "expect": "Name a word that can follow \"white\""},
   {"typed": "Name a chemical element ending in -ium", "expect": "Name a chemical element ending in -ium"},
-  {"typed": "Name a chemical element not ending in -ium", "expect": "Name a chemical element not ending in -ium"}
+  {"typed": "Name a chemical element not ending in -ium", "expect": "Name a chemical element not ending in -ium"},
+  {"typed": "Name a thing you can break that isn't a bone", "expect": "Name something you can break that isn't a bone"},
+  {"typed": "Name a thing you'd see on a road trip", "expect": "Name something you'd see on a road trip"},
+  {"typed": "Name any island located in the United States", "expect": "Name an island in the United States"},
+  {"typed": "Name an example of a landmark located in Egypt or the Middle East", "expect": "Name a landmark in Egypt or the Middle East"},
+  {"typed": "Name one word that can follow \"star\"", "expect": "Name one word that can follow \"star\""},
+  {"typed": "Name one city located in North America", "expect": "Name one city located in North America"},
+  {"typed": "Name any one animated television show for adults", "expect": "Name any one animated television show for adults"}
 ]

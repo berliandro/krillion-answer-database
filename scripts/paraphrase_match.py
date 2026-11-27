@@ -33,7 +33,7 @@ STOP = {
     "examples", "with", "in", "for", "to", "and", "or", "on", "at", "as",
     "by", "from", "this", "it", "its", "has", "have", "had", "be", "been",
     "there", "they", "them", "your", "my", "our", "would", "could", "should",
-    "will", "shall", "after", "can", "could", "about", "like",
+    "will", "shall", "after", "can", "could", "about", "like", "located",
 }
 
 # Negation flips the meaning of a prompt; a candidate missing a negation the
@@ -52,7 +52,7 @@ SYNONYMS: list[tuple[str, ...]] = [
     ("country", "nation", "state"),
     ("food", "dish", "cuisine", "meal"),
     ("sport", "game"),
-    ("item", "thing", "object", "article"),
+    ("item", "thing", "object", "article", "something"),
     ("clothing", "clothes", "garment", "apparel", "wear"),
     ("winter", "cold", "snow", "coldseason"),
     ("oneword", "singleword"),
@@ -83,9 +83,14 @@ for _group in SYNONYMS:
 def stem(w: str) -> str:
     """Very small, conservative stemmer (no外部 dependency)."""
     if len(w) > 4 and w.endswith("ies"):
-        return w[:-3] + "y"
+        # only after a consonant: movies -> movie, series -> series
+        return w[:-3] + ("y" if w[-4] not in "aeiou" else "ie")
     if len(w) > 5 and w.endswith("ing"):
-        return w[:-3]
+        stemmed = w[:-3]
+        # beginning -> begin, running -> run (do not double-strip)
+        if len(stemmed) > 2 and stemmed[-1] == stemmed[-2]:
+            stemmed = stemmed[:-1]
+        return stemmed
     if len(w) > 4 and w.endswith("ed"):
         return w[:-2]
     if len(w) > 3 and w.endswith("s") and not w.endswith(("ss", "us", "is")):
@@ -132,7 +137,10 @@ def tokens(text: str) -> set[str]:
     t = normalise(text)
     for phrase, joined in PHRASES:
         t = re.sub(r"\b" + re.escape(phrase) + r"\b", joined, t)
-    quoted = [canonical_token(x) for x in re.findall(r'"([^"]*)"', t)]
+    # Quoted terms are hard constraints: verbatim lowercase alnum, never
+    # stemmed or synonymised (docstring above). shared_weight still allows a
+    # quoted/unquoted cross-match with a small boost.
+    quoted = [re.sub(r"[^a-z0-9]+", "", x.lower()) for x in re.findall(r'"([^"]*)"', t)]
     unquoted = re.sub(r'"[^"]*"', " ", t)
     out: set[str] = set()
     for w in re.findall(r"[a-z0-9]+(?:-[a-z0-9]+)*", unquoted):

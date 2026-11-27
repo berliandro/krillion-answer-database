@@ -490,7 +490,7 @@ async function loadDatabase() {
 /* ---- Paraphrase-tolerant matcher (mirrors scripts/paraphrase_match.py) ---- */
 const STOP = new Set(('a an the any one of name give list state please can you i we me tell us some anyone '
   + 'do does did is are that which what example examples with in for to and or on at as by from this it its '
-  + 'has have had be been there they them your my our would could should will shall after about like').split(' '));
+  + 'has have had be been there they them your my our would could should will shall after about like located').split(' '));
 
 const NEGATIONS = new Set(['without', 'not', 'never', 'no', 'non', 'neither']);
 
@@ -501,7 +501,7 @@ const SYN_GROUPS = [
   ['show','series','program','programme','tvshow'], ['book','novel'],
   ['character','person','hero','heroine','figure'], ['country','nation','state'],
   ['food','dish','cuisine','meal'], ['sport','game'],
-  ['item','thing','object','article'], ['clothing','clothes','garment','apparel','wear'],
+  ['item','thing','object','article','something'], ['clothing','clothes','garment','apparel','wear'],
   ['winter','cold','snow','coldseason'], ['oneword','singleword'],
   ['threedimensional','3d'], ['follow','after','comesafter'],
   ['park','parkland','gardens'], ['author','writer','novelist'],
@@ -540,8 +540,12 @@ function normalise(s) {
   return t.replace(/\s+/g, ' ').replace(/[?!.,:;]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 function stem(w) {
-  if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + 'y';
-  if (w.length > 5 && w.endsWith('ing')) return w.slice(0, -3);
+  if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + ('aeiou'.includes(w[w.length - 4]) ? 'ie' : 'y');
+  if (w.length > 5 && w.endsWith('ing')) {
+    let s = w.slice(0, -3);
+    if (s.length > 2 && s[s.length - 1] === s[s.length - 2]) s = s.slice(0, -1);
+    return s;
+  }
   if (w.length > 4 && w.endsWith('ed')) return w.slice(0, -2);
   if (w.length > 3 && w.endsWith('s') && !/(ss|us|is)$/.test(w)) return w.slice(0, -1);
   return w;
@@ -553,7 +557,8 @@ function canonicalToken(w) {
 function tokenize(s) {
   let t = normalise(s);
   for (const [p, j] of PHRASES) t = t.replace(new RegExp('\\b' + p + '\\b', 'g'), j);
-  const quoted = [...t.matchAll(/"([^"]*)"/g)].map(m => canonicalToken(m[1])).filter(Boolean);
+  // Quoted terms are hard constraints: verbatim, never stemmed/synonymised.
+  const quoted = [...t.matchAll(/"([^"]*)"/g)].map(m => m[1].toLowerCase().replace(/[^a-z0-9]+/g, '')).filter(Boolean);
   const rest = t.replace(/"[^"]*"/g, ' ');
   const out = new Set();
   for (const w of rest.match(/[a-z0-9]+(?:-[a-z0-9]+)*/g) || []) {
