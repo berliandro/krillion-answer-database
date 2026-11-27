@@ -58,3 +58,12 @@ command output is not accepted. Do not delete rows; correct them with a dated no
 | P4-version | Self-update serves new version | `@version 1.1.3` + raw GitHub URL | version bumped from 1.1.2; pushed; raw URL check below | version bumped + URL serves it | `e3f524d` | PASS |
 
 **P4 gate verdict:** PASS — 4 clean merges, STRATEGY_CONFIG with 14 PROVEN / 4 doNotWire, zero REJECTED active, all tests pass, version 1.1.3. Ready for Phase 5.
+
+| Phase | Hypothesis | Command | Result | Pass threshold | Commit | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| P5-detect | Fault injection finds real bugs | `node tests/faults.test.js`, `python tests/test_faults.py` (pre-fix) | 19/23 JS + 10/13 PY; 4 real bugs reproduced with exact repro/expected/actual | >=1 reproducible bug per relevant class | `63b2dab` | PASS |
+| P5-gate | All faults fixed and retested; state matrix 100%; suite green | `node tests/faults.test.js`, `python tests/test_faults.py`, `node tests/state_matrix.js`, `python tests/run_all.py` | faults JS 23/23 PASS 0 FAIL; faults PY 13/13 PASS 0 FAIL; matrix 58 PASS/0 FAIL/3 N/A coverage=100%; run_all 9/9; node --check pass | zero FAIL in every suite | `pending` | PASS |
+
+**P5 fixes:** (1) Gaussian weights sum exactly 100.00 (85→39.38); (2) refusal lines scoped to filled answer/current prompt, lingering line not re-attributed; (3) colliding nq banks retained as separate labelled groups (no merge); (4) authoritative bank score ≥100 clears refusedAnswers for that pair. P-W03 test premise corrected (nq collisions are expected; retention is the invariant) with proof it still fails against pre-fix code.
+
+**P5 gate verdict:** PASS — zero FAIL across fault suites, state matrix 100% coverage, full suite 9/9. Ready for Phase 6.
