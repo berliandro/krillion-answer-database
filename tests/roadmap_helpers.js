@@ -176,7 +176,7 @@ function buildRegistry() {
   const re = /value="([a-z0-9]+)"/g;
   let m;
   while ((m = re.exec(src))) {
-    if (!modes.includes(m[1]) && /^(classic|krillocity|marathon5|showoff|duel)$/.test(m[1])) modes.push(m[1]);
+    if (!modes.includes(m[1]) && /^(classic|krillocity|krillomulti|marathon5|showoff|duel)$/.test(m[1])) modes.push(m[1]);
   }
 
   return {

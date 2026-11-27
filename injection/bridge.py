@@ -44,6 +44,11 @@ MISSES = INJ / "data" / "failed_prompts.jsonl"
 EVIDENCE = INJ / "data" / "evidence.jsonl"
 PROMPT_REVIEW = INJ / "data" / "prompt_review.jsonl"
 BOT_LOG = INJ / "data" / "bot_log.jsonl"
+# Krillocity archive: prompt wordings harvested from the live lineups and
+# other players' answers, kept strictly separate from the graded 100pt archive.
+KRILLO_PROMPTS = DATA_DIR / "krillocity_prompts.jsonl"
+KRILLO_ANSWERS = DATA_DIR / "krillocity_answers.jsonl"
+KRILLO_ZERO = DATA_DIR / "krillocity_zero_match.jsonl"
 FETCH_QUEUE = INJ / "data" / "fetch_queue.jsonl"
 CORRECTIONS = DATA / "corrections.jsonl"
 LEARNED = DATA / "learned.jsonl"
@@ -300,7 +305,8 @@ def cached_learned():
 
 
 DATA.mkdir(parents=True, exist_ok=True)
-for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES, EVIDENCE, PROMPT_REVIEW, BOT_LOG, FETCH_QUEUE):
+for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES, EVIDENCE, PROMPT_REVIEW, BOT_LOG,
+          KRILLO_PROMPTS, KRILLO_ANSWERS, KRILLO_ZERO, FETCH_QUEUE):
     f.touch(exist_ok=True)
 if not CHANGELOG.exists():
     CHANGELOG.write_text(
@@ -662,6 +668,98 @@ def add_bot_log(body):
     return {"ok": True}
 
 
+# ---- Krillocity archive (separate from the graded 100-point archive) --------
+KRILLO_SETS = {}
+
+def _krillo_seen(key, path, fields):
+    if key not in KRILLO_SETS:
+        seen = set()
+        if path.exists():
+            for line in path.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    continue
+                seen.add(tuple(str(obj.get(f, "")) for f in fields))
+        KRILLO_SETS[key] = seen
+    return KRILLO_SETS[key]
+
+
+def add_krillo_prompt(body):
+    prompt = str(body.get("prompt", "")).strip()
+    if not prompt:
+        return {"ok": False, "error": "prompt is required"}
+    seen = _krillo_seen("prompt", KRILLO_PROMPTS, ("prompt",))
+    if (prompt,) in seen:
+        return {"ok": True, "duplicate": True}
+    seen.add((prompt,))
+    rec = {"at": now(), "prompt": prompt, "source": "userscript"}
+    for key in ("prompt_id", "level", "room", "race", "source_url"):
+        if key in body:
+            rec[key] = body[key]
+    with KRILLO_PROMPTS.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return {"ok": True, "duplicate": False}
+
+
+def add_krillo_answer(body):
+    fields = ("room", "race", "slot", "answer")
+    seen = _krillo_seen("answer", KRILLO_ANSWERS, fields)
+    key = tuple(str(body.get(f, "")) for f in fields)
+    if key in seen:
+        return {"ok": True, "duplicate": True}
+    seen.add(key)
+    rec = {"at": now(), "source": "krillocity", "authoritative": False}
+    for f in ("room", "race", "prompt_id", "prompt", "slot", "answer", "game_points",
+              "other_players", "index_status", "index_matches", "index_exact",
+              "index_banks", "match", "zero_match", "source_url"):
+        if f in body:
+            rec[f] = body[f]
+    with KRILLO_ANSWERS.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    if rec.get("zero_match") is True:
+        add_krillo_zero(rec)
+    return {"ok": True, "duplicate": False}
+
+
+def add_krillo_zero(body):
+    fields = ("prompt", "answer", "room", "race", "slot")
+    seen = _krillo_seen("zero", KRILLO_ZERO, fields)
+    key = tuple(str(body.get(f, "")) for f in fields)
+    if key in seen:
+        return {"ok": True, "duplicate": True}
+    seen.add(key)
+    rec = {"at": now(), "reason": "zero-index-match",
+           "needs_review": ["duplicate-check", "search-engine-fault-check"]}
+    for f in fields + ("game_points", "prompt_id", "source_url"):
+        if f in body:
+            rec[f] = body[f]
+    with KRILLO_ZERO.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return {"ok": True, "duplicate": False}
+
+
+def krillo_prompt_bank():
+    seen = set()
+    out = []
+    if KRILLO_PROMPTS.exists():
+        for line in KRILLO_PROMPTS.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                o = json.loads(line)
+            except Exception:
+                continue
+            q = str(o.get("prompt", "")).strip()
+            if not q or q in seen:
+                continue
+            seen.add(q)
+            out.append({"q": q, "level": o.get("level"), "source": o.get("source", "")})
+    return out
+
+
 # Backwards compatibility for any older userscript copy still posting here.
 add_correction = add_evidence
 
@@ -958,6 +1056,9 @@ class Handler(BaseHTTPRequestHandler):
                     "evidence": len(read_jsonl(EVIDENCE)),
                     "prompt_review": len(read_jsonl(PROMPT_REVIEW)),
                     "bot_log": len(read_jsonl(BOT_LOG)),
+                    "krillocity_prompts": len(read_jsonl(KRILLO_PROMPTS)),
+                    "krillocity_answers": len(read_jsonl(KRILLO_ANSWERS)),
+                    "krillocity_zero": len(read_jsonl(KRILLO_ZERO)),
                 },
             })
             return
@@ -969,6 +1070,10 @@ class Handler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/bot-log":
             self._send(200, {"ok": True, "events": read_jsonl(BOT_LOG)[-100:]})
+            return
+        if parsed.path == "/api/krillo-prompts":
+            bank = krillo_prompt_bank()
+            self._send(200, {"ok": True, "version": len(bank), "data": bank})
             return
         if parsed.path == "/api/answers-tier":
             q = (parse_qs(parsed.query).get("q") or [""])[0]
@@ -1059,6 +1164,12 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, add_prompt_review(body))
             elif parsed.path == "/api/bot-log":
                 self._send(200, add_bot_log(body))
+            elif parsed.path == "/api/krillo-prompt":
+                self._send(200, add_krillo_prompt(body))
+            elif parsed.path == "/api/krillo-answer":
+                self._send(200, add_krillo_answer(body))
+            elif parsed.path == "/api/krillo-zero":
+                self._send(200, add_krillo_zero(body))
             else:
                 self._send(404, {"ok": False, "error": "not found"})
 

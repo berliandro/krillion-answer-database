@@ -3,7 +3,7 @@
 // @namespace    https://github.com/berliandro/krillion-answer-database
 // @author       berliandro — https://github.com/berliandro
 // @homepage     https://github.com/berliandro/krillion-answer-database
-// @version      1.1.6
+// @version      1.1.8
 // @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running. By berliandro — https://github.com/berliandro/krillion-answer-database
 // @downloadURL https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @updateURL  https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
@@ -66,6 +66,7 @@
     premap: null,
     premapText: null,     // exact stored wording -> authoritative nq key
     tierPremap: null,     // null until /api/all-tier resolves; Map afterwards
+    krilloPrompts: null,  // harvested Krillocity wordings: normLocal -> exact text
     netCache: new Map(),
     bankCapturing: false, // guards the 50ms-debounced end-of-dive capture
     refusedAnswers: new Set(),
@@ -678,7 +679,7 @@
           '<span id="ka-botstate" data-active="false" title="Play for me is off — you answer prompts yourself.">Off · you are playing</span>' +
         '</div>' +
         '<p class="ka-botnote" id="ka-botnote">While Play for me is on, it drives the dive and pauses Dive on click.</p>' +
-        '<div id="ka-botdeps" hidden>' +
+        '<div id="ka-botdeps">' +
           '<div class="ka-botrow"><label for="ka-pick"><span class="ka-ico ka-ico-mask ka-ico-dice"></span>Pick</label>' +
             '<select id="ka-pick">' +
               '<option value="random">Random 100-point answer</option>' +
@@ -689,6 +690,7 @@
             '<select id="ka-mode">' +
               '<option value="classic">Classic</option>' +
               '<option value="krillocity">Krillocity · daily race</option>' +
+              '<option value="krillomulti">Krillocity · multiplayer race</option>' +
               '<option value="marathon5">Multiplayer · 5s / 50 prompts</option>' +
               '<option value="showoff">Multiplayer · most players</option>' +
               '<option value="duel">1 vs 1</option>' +
@@ -980,8 +982,18 @@
     }
 
     status('Loading 100-point answers…', 'loading');
+    // Krillocity fallback: retry the lookup with a wording actually seen in a
+    // live race when the on-screen phrasing has no local index hit. This uses
+    // the harvested prompt bank instead of guessing an alias.
+    const wording = krilloWording(question);
+    const lookup = wording && wording !== question ? wording : question;
+    if (lookup !== question) {
+      reportPrompt('krillocity-bank-match', question, {
+        candidates: [], chosen_bank: lookup, mode: mode(), auto: state.autoEnter,
+      });
+    }
     try {
-      const data = await request('/api/answers?q=' + encodeURIComponent(question), {
+      const data = await request('/api/answers?q=' + encodeURIComponent(lookup), {
         timeout: LOOKUP_TIMEOUT,
         forever: true,
         isStale,
@@ -991,6 +1003,8 @@
       clearLookupFailure();
       state.netCache.set(key, data); // only successful lookups are cached
       applyResult(data, question);
+      // Archive this race prompt and any other-player answers already visible.
+      archiveKrillocityRace(question, data);
     } catch (e) {
       // Stale requests are cancelled on purpose — never log them as misses.
       if (isStale()) return;
@@ -1009,6 +1023,20 @@
   }
 
   async function preloadAnswers() {
+    // Harvested Krillocity wordings are a fallback matcher for the race modes.
+    // Independent and non-blocking: an old bridge simply leaves the map empty.
+    request('/api/krillo-prompts', { timeout: LOOKUP_TIMEOUT, retries: 1 })
+      .then((d) => {
+        const map = new Map();
+        ((d && d.data) || []).forEach((row) => {
+          if (!row || !row.q) return;
+          const key = normLocal(row.q);
+          if (!map.has(key)) map.set(key, row.q);
+        });
+        state.krilloPrompts = map;
+      })
+      .catch(() => { state.krilloPrompts = new Map(); });
+
     // Start the 10–85pt snapshot BEFORE awaiting /api/all so the two downloads
     // overlap. It is intentionally independent: a missing/old bridge (404 on
     // /api/all-tier) must never delay or break the 100pt fast path.
@@ -1107,7 +1135,12 @@
   // genuinely visible prompt, preferring one with text. A visible-but-empty
   // node is kept as a fallback so gameState() still sees the prompt reveal.
   function promptEl() {
-    const all = document.querySelectorAll(SEL.prompt);
+    let all = document.querySelectorAll ? Array.from(document.querySelectorAll(SEL.prompt)) : [];
+    if (!all.length) {
+      // Minimal/stubbed DOMs may only implement querySelector.
+      const one = document.querySelector(SEL.prompt);
+      all = one ? [one] : [];
+    }
     let fallback = null;
     for (const el of all) {
       const cs = typeof getComputedStyle === 'function' ? getComputedStyle(el) : null;
@@ -1350,6 +1383,41 @@
     request('/api/prompt-review', {
       method: 'POST', body, retries: 1,
     }).catch(() => queuePost('/api/prompt-review', body));
+  }
+
+  // Fire-and-forget archive write with the same offline queue as other logs.
+  function reportKrillo(path, body) {
+    request(path, { method: 'POST', body, retries: 1 })
+      .catch(() => queuePost(path, body));
+  }
+
+  // Log a live race prompt into the separate Krillocity archive. Zero-match
+  // prompts get their own review record; matched prompts stay identifiable as
+  // race wordings. Nothing here can demote a graded 100-point answer.
+  function archiveKrillocityRace(question, data) {
+    if (!/^\/krillocity\/?$/.test(location.pathname)) return;
+    const el = document.querySelector('p.kr-prompt');
+    const rec = { prompt: question, prompt_id: el && el.id ? el.id : '', source: 'userscript', source_url: location.href };
+    reportKrillo('/api/krillo-prompt', rec);
+    const groups = (data && data.groups) || [];
+    const matches = groups.reduce((n, g) => n + ((g.answers || []).length), 0);
+    if (matches === 0) {
+      reportKrillo('/api/krillo-zero', Object.assign({}, rec, { reason: 'zero-index-match' }));
+    } else {
+      reportPrompt('krillocity-race-prompt', question, {
+        candidates: candidateInfo(), mode: mode(), exact: !!(data && data.exact),
+        auto: state.autoEnter, index_matches: matches,
+      });
+    }
+  }
+
+  // The harvest stores the exact wordings the game deals in Krillocity races.
+  // Use one of them as the lookup query when the on-screen wording misses the
+  // normal index — this is how we stop "missing a lot" of race prompts.
+  function krilloWording(question) {
+    if (!state.krilloPrompts || !question) return null;
+    const key = normLocal(question);
+    return state.krilloPrompts.get(key) || null;
   }
 
   function candidateInfo() {
@@ -1631,9 +1699,11 @@
 
   // Maps a UI mode value to a STRATEGY_CONFIG group. marathon5/showoff are both
   // Multiplayer rooms, so they share the `mp` group; duel has its own group so
-  // its idle handler stays duelTick.
+  // its idle handler stays duelTick. Krillocity multiplayer is still a rapid
+  // race, so it uses the `krillocity` proven set even though it joins a room.
   function modeConfigKey(modeValue) {
     if (modeValue === 'classic' || modeValue === 'krillocity' || modeValue === 'duel') return modeValue;
+    if (modeValue === 'krillomulti') return 'krillocity';
     return 'mp';
   }
 
@@ -1691,8 +1761,10 @@
   function setBot(on) {
     bot.on = !!on;
     botActive = bot.on;
+    // Pick / Mode are deliberately always visible: choose the next run before
+    // turning Play for me on. They are inert while the bot is off, not hidden.
     const deps = document.getElementById('ka-botdeps');
-    if (deps) deps.hidden = !bot.on;
+    if (deps) deps.hidden = false;
     try { GM_setValue(BOT_KEY, bot.on); } catch (e) { /* no storage */ }
     const btn = document.getElementById('ka-bot');
     btn.setAttribute('aria-pressed', String(bot.on));
@@ -2110,10 +2182,11 @@
       target = parsed.find((x) => x.seconds === 5 && x.prompts >= 50)
         || parsed.find((x) => x.seconds === 5 && x.prompts >= 15);
       reason = target ? 'matched 5-second room' : 'no 5-second room available';
-    } else if (bot.mode === 'showoff') {
+    } else if (bot.mode === 'showoff' || bot.mode === 'krillomulti') {
       // PROVEN most-populated-trap: argmax seat count wins. Crowding only lengthens
       // the between-round settle; our own grade stays independent of population.
       // Other players' rows are never read, so room place stays unmeasured.
+      // Krillocity multiplayer uses the same room-list selector on /krillocity.
       let best = -1;
       info.forEach((x) => { if (x.count > best) { best = x.count; target = x; } });
       // PROVEN long-private-rooms: this same argmax path selects a long (50-prompt)
@@ -2147,6 +2220,31 @@
   function startMode() {
     const begin = document.querySelector('button.kr-begin');
     const online = [...document.querySelectorAll('button.kr-online')];
+    // Krillocity multiplayer: same rapid-fire race engine, but enter through
+    // the room lobby instead of START DAILY. Room selection is the most-populated
+    // trap already proven for multiplayer, and other players' answers are never read.
+    if (bot.mode === 'krillomulti') {
+      if (!/^\/krillocity\/?$/.test(location.pathname)) {
+        const link = document.querySelector('a.kr-peek');
+        if (link && link.offsetParent !== null) {
+          reportBot('krillocity-open', { note: 'Play Krillocity (multiplayer)' });
+          link.click();
+          botStatus('opening Krillocity');
+          return true;
+        }
+        return false;
+      }
+      const play = [...document.querySelectorAll('button')].find(
+        (b) => /play\s+multiplayer/i.test(b.innerText || '') && b.offsetParent !== null
+      );
+      if (play) {
+        reportBot('krillocity-multi-open', { note: 'Play multiplayer' });
+        play.click();
+        botStatus('opening Krillocity multiplayer lobby');
+        return true;
+      }
+      return false;
+    }
     if (bot.mode === 'krillocity') {
       if (!/^\/krillocity\/?$/.test(location.pathname)) {
         const link = document.querySelector('a.kr-peek');
