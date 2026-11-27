@@ -38,3 +38,9 @@ command output is not accepted. Do not delete rows; correct them with a dated no
 | P1-merge | Four Phase 1 branches merged without conflict | `git merge feat/p1-classic/p1-krillo/p1-mp-duel/p1-interactions --no-edit` | 4 fast-forwards, zero conflicts; `STATES.md` +3 new docs present | clean merge | `045e4b5` | PASS |
 
 **P1 gate verdict:** PASS — complete inventory for Classic, Krillocity, Multiplayer and Duel; shop excluded; all 38 registry selectors, 10 states, 5 modes and 4 log sites mapped. Ready for Phase 2.
+
+| Phase | Hypothesis | Command | Result | Pass threshold | Commit | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| P2-gate | Four strategy docs give >=3 ranked strategies per mode with evidence/risk/testable flags and no policy violations | `python -c "<count markers>"` | Scoring 245 lines / 33 evidence / 7 testable; Classic 278 / 59 / 6; Krillo 285 / 39 / 5; MP-Duel 285 / 12 testable; 61 no-demotion + 13 other-player prohibition mentions across all docs; 4 clean merges | >=3 strategies/mode, evidence+risk+testable flags, zero policy violations | `d012870` | PASS |
+
+**P2 gate verdict:** PASS — 5/5/5/8 ranked strategies across scoring/Classic/Krillocity/MP-Duel, one-page summary written; ready for Phase 3 proof runs.
