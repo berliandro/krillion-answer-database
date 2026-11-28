@@ -1242,7 +1242,13 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", origin)
         self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Krillion-Token")
         self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.wfile.write(body)
+        except OSError:
+            # A client that navigates away or times out can abort mid-write.
+            # This is not a server fault; never let it raise into socketserver's
+            # handle_error (which prints a misleading traceback for every abort).
+            return
 
     def do_OPTIONS(self):
         self._send(200, {})
@@ -1433,8 +1439,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_error(self, request, client_address):
         # Browsers abort in-flight requests on navigation; do not spam logs.
+        # Covers every disconnect flavour (and Python-version differences in
+        # how the exception reaches this hook).
         err = sys.exc_info()[1]
-        if isinstance(err, (BrokenPipeError, ConnectionResetError, ConnectionAbortedError)):
+        if isinstance(err, OSError):
             return
         super().handle_error(request, client_address)
 
