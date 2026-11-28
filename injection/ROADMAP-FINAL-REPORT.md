@@ -1,6 +1,6 @@
 # Krillion Roadmap — Phase 7 final report (evidence only)
 
-**Goal:** execute the approved 8-phase roadmap in `Active Goals/KRILLION-COMPLETE-ROADMAP.md`.
+**Goal:** execute the approved 8-phase roadmap in `active-goals/KRILLION-COMPLETE-ROADMAP.md`.
 **Status:** ALL GATES PASSED. `HEAD == origin/main == c3f3d6bae45fd2639f88a6c52da0d55039e53905`.
 **Bridge:** `{"ok":true,"service":"krillion-bridge","base_answers":21384,...,"log_lines":{"evidence":3820,"prompt_review":4086,"bot_log":92}}` on 127.0.0.1:8768.
 **Shipped userscript:** v1.1.5, verified on the raw GitHub URL (`@version 1.1.5`, credit/header/footer intact).

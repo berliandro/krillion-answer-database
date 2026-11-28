@@ -127,7 +127,7 @@
 
 ## Appendix A — Evidence and limitations
 
-Full observations, request URLs, response headers/bodies and bundle excerpts are in `FINDINGS/SECURITY-AUDIT-EVIDENCE.md`. Method: one passive browser session, no race start, no answer submission, no username change, no replay, no flood, no captcha solving, no leaderboard write.
+Full observations, request URLs, response headers/bodies and bundle excerpts are in `findings/SECURITY-AUDIT-EVIDENCE.md`. Method: one passive browser session, no race start, no answer submission, no username change, no replay, no flood, no captcha solving, no leaderboard write.
 
 - **Live-verified:** public API payloads and cache headers; Cloudflare challenge assets; client storage keys; the automatic `PUT /scores {"name":...}`; the game's own FAQ rules and tier table; absence of published source maps.
 - **Bundle-verified:** signed ticket/stamp schema; `too fast`, `dup`, `late`, `closed`, `shut`, `suggest` response handling; 2 s count-in and 30 s clock; 400 ms client scheduler; answer-limit formula; AI-judge response validation; Supabase realtime channel and standings-only rendering.

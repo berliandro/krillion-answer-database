@@ -133,7 +133,7 @@ Upon completing the audit, **you MUST generate a comprehensive, empathetic, and 
 | **P2 (Hardening)** | FLAW-04 | Add lightweight bot attestation (e.g., Turnstile) & AI judge input hardening | Medium (~4–6 hours) | Prevents headless browser farming & judge abuse |
 ```
 
-Write the finished report to `FINDINGS/SECURITY-REMEDIATION-REPORT.md` (audit artifact — does not overwrite any collaborator-owned file).
+Write the finished report to `findings/SECURITY-REMEDIATION-REPORT.md` (audit artifact — does not overwrite any collaborator-owned file).
 
 ---
 
@@ -142,6 +142,6 @@ Write the finished report to `FINDINGS/SECURITY-REMEDIATION-REPORT.md` (audit ar
 - All four audit phases (A–D) have at least one recorded concrete observation each; findings with no evidence are explicitly labelled `UNVERIFIED`/`hypothesis`.
 - Zero rules-of-engagement violations: no automated flooding, no live leaderboard submissions, no DoS, no scraping, no captcha solving, no destructive controls.
 - Every finding is mapped to a concrete server-side patch with effort estimate and anti-cheat impact.
-- The report in §4 is produced verbatim in structure (Executive Summary, Detailed Findings `[FLAW-XX]`, Prioritized Roadmap table), written to `FINDINGS/SECURITY-REMEDIATION-REPORT.md`.
+- The report in §4 is produced verbatim in structure (Executive Summary, Detailed Findings `[FLAW-XX]`, Prioritized Roadmap table), written to `findings/SECURITY-REMEDIATION-REPORT.md`.
 - Honest limitations section: live-verified vs bundle-inferred vs unverified; any endpoints that could not be observed are named.
 - `git status` shows only the new report/artifact files added by this audit; no collaborator-owned or userscript files modified.
