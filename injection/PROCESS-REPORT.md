@@ -1,63 +1,94 @@
-# Process-the-log report — 2026-11-22
+# PROCESS REPORT — paraphrase-duplicate audit
 
-Mode: **read-only / deferred**. A 24-hour Krillion run is active in Microsoft Edge
-and the bridge on `127.0.0.1:8768` is in use. No database, active log, browser
-tab, or bridge process was modified or restarted.
+Generated: 2026-11-28T01:57:04.645969+00:00
 
-## Counts (live files, read only)
+Read-only audit. No raw JSONL was rewritten, no answer demoted, no alias applied.
 
-| File | Lines |
-| --- | --- |
-| `evidence.jsonl` | 2,477 |
-| `prompt_review.jsonl` | 2,227 |
-| `bot_log.jsonl` | 14 |
-| `failed_prompts.jsonl` | 33 |
-| `fetch_queue.jsonl` | 0 |
-| `corrections.jsonl` | 0 |
-| `learned.jsonl` | 3,227 (own 2,184 / api 1,043) |
-| `answers_injection.jsonl` | 3,227 |
-| `other_users_quarantine.jsonl` | 2,536 |
+## Counts
 
-Bridge health at review: OK, 17,876 base answers, 0 corrections, 3,227 learned,
-33 misses. Listener PID unchanged.
+- Full DB rows: 127135; distinct stored prompts: 6154
+- Graded-bank prompt strings (learned source api/own): 3698
+- TRIVIAL prompt pairs (same normalised key, different stored wording): 0
+  - of which both strings are game-graded: 0
+- ANSWER-VARIANT pairs (same prompt, same normalised answer): 0
+- PARAPHRASE pairs from aliases: 10187
+  - both strings game-graded: 477
+  - negation traps flagged: 0
+- alias pairs already trivial after normalisation: 29
+- tier disagreements (100 vs <100) under paraphrase groups: 2
+- proposed paraphrase groups (link only): 477
 
-## Findings
+## TRIVIAL prompt examples (up to 20)
 
-1. **Scoring is good.** 2,469 of 2,477 evidence events scored 100; only 8 were
-   below 100. Play scores are evidence only — no demotions.
-2. **Log-growth root cause found.** `prompt_review.jsonl` has 2,194 `ambiguous`
-   events for 2,193 unique prompts. The userscript logs *every* non-exact match,
-   even a single bank at 0.98 confidence. That is why the file grew to ~2,200
-   lines in one run. Fix (next run): log `ambiguous` only when more than one bank
-   is shown, or the best score is below ~0.90.
-3. **Duel bot bug found.** `bot_log` shows `duel-start` clicking
-   **“Leave before it starts”** — the generic start-button regex matches the word
-   *starts* in a *leave* button. Fix (next run): exclude buttons matching
-   `/leave|cancel|quit|back/i` from the duel start candidates.
-4. **Paraphrase rewrites validated offline.** Applying these to the on-screen
-   text before matching turns several near-matches into exact matches:
-   - `name one ` → `name a `
-   - `name any one ` → `name a `
-   - `name any ` → `name a `
-   - `what is an example of a/an ` → `name a/an `
-   - `beginning with` → `starting with` (already present)
-   Also needed: `kind ↔ type` synonym handling for prompts like
-   “Name any one type of hat” → stored “Name a kind of hat”.
-5. **No-match prompts** are mostly “kind/type” variants; 4 earlier events were
-   `unreachable: bridge offline`. Fetch queue is empty.
-6. `prompt_review` contains 2 synthetic `__PROMPT__` records from testing —
-   remove them after the run.
-7. Bot log confirms `marathon5` selected “The Marathon · 5 sec / 50 prompts” —
-   the room selector is working.
+| key | stored A | stored B | both graded |
+| --- | --- | --- | --- |
 
-## Deferred until the 24-hour run ends
+## ANSWER-VARIANT examples (up to 20)
 
-- `python scripts/krillion_db.py import` — rebuilds `krillion_only.db`, which the
-  live bridge reads.
-- `python scripts/build_static.py` — generated-site refresh.
-- `python injection/rotate_logs.py --apply` — rewrites active logs the bridge appends to.
-- Committing the dirty data/log files (they are still being appended to).
-- Applying the code fixes above (source edits are safe, but a Tampermonkey
-  re-paste/bridge restart would disturb the run, so they are documented only).
+| prompt | normalised answer | stored A | stored B |
+| --- | --- | --- | --- |
 
-No authoritative demotions were pending (`corrections.jsonl` is empty).
+## PARAPHRASE examples (up to 20)
+
+| canonical | variant | score | both graded | negation trap |
+| --- | --- | --- | --- | --- |
+| What's an example of a movie with a single-word title? | Name an example of a film with a one-word title | 0.9079 | False | False |
+| What's an example of a movie with a single-word title? | Name an example of a film with a single-word title | 0.9356 | False | False |
+| What's an example of a movie with a single-word title? | Name an example of a movie with a one-word title | 0.9395 | False | False |
+| What's an example of a movie with a single-word title? | Name an example of a movie with a single-word title | 0.9665 | False | False |
+| What's an example of a movie with a single-word title? | Name any film with a one-word title | 0.8559 | False | False |
+| What's an example of a movie with a single-word title? | Name any film with a single-word title | 0.8879 | False | False |
+| What's an example of a movie with a single-word title? | Name any movie with a one-word title | 0.8853 | False | False |
+| What's an example of a movie with a single-word title? | Name any movie with a single-word title | 0.9167 | False | False |
+| What's an example of a movie with a single-word title? | Name any one film with a one-word title | 0.8547 | False | False |
+| What's an example of a movie with a single-word title? | Name any one film with a single-word title | 0.8819 | False | False |
+| What's an example of a movie with a single-word title? | Name any one movie with a one-word title | 0.8837 | False | False |
+| What's an example of a movie with a single-word title? | Name any one movie with a single-word title | 0.9093 | False | False |
+| What's an example of a movie with a single-word title? | Name one film with a one-word title | 0.8598 | False | False |
+| What's an example of a movie with a single-word title? | Name one film with a single-word title | 0.8879 | False | False |
+| What's an example of a movie with a single-word title? | Name one movie with a one-word title | 0.8902 | False | False |
+| What's an example of a movie with a single-word title? | Name one movie with a single-word title | 0.9167 | False | False |
+| What's an example of a movie with a single-word title? | What's an example of a film with a one-word title? | 0.9439 | False | False |
+| What's an example of a movie with a single-word title? | What's an example of a film with a single-word title? | 0.97 | False | False |
+| What's an example of a movie with a single-word title? | What's an example of a movie with a one-word title? | 0.9745 | False | False |
+| What's an example of a Christmas movie? | Name an example of a Christmas film | 0.9189 | False | False |
+
+## Tier disagreements (report only — never demote)
+
+- `What's something you find in a living room?` ↔ `Name one thing you find in a living room` answer `Name one thing you find in a living room` tiers [0, 1]
+- `What's an example of a one-word band name?` ↔ `Name an example of a one-word band name` answer `What's an example of a one-word band name?` tiers [0, 1]
+
+## Proposed paraphrase groups (graded pairs, link only)
+
+| group_id | canonical | variant | score | negation |
+| --- | --- | --- | --- | --- |
+| pg-0001 | What's an example of a Christmas movie? | Name one Christmas film | 0.8306 | False |
+| pg-0002 | What's an example of a Marvel movie? | Name one Marvel film | 0.8125 | False |
+| pg-0003 | What's an example of a country located in Africa? | Name one country located in Africa | 0.9066 | False |
+| pg-0004 | What's an example of a movie about a wedding? | Name one movie about a wedding | 0.8986 | False |
+| pg-0005 | What's an example of a movie about space? | Name any one film about space | 0.8429 | False |
+| pg-0006 | What's an example of a movie character? | Name an example of a movie character | 0.9567 | False |
+| pg-0007 | What's an example of a movie that has a sequel? | What's an example of a film that has a sequel? | 0.9618 | False |
+| pg-0008 | What's an example of a movie villain? | What's an example of a film villain? | 0.9555 | False |
+| pg-0009 | What's an example of a river located in North America? | Name one river located in North America | 0.9185 | False |
+| pg-0010 | What's an example of a romantic movie? | Name an example of a romantic film | 0.9167 | False |
+| pg-0011 | What's an example of a romantic movie? | Name any romantic movie | 0.873 | False |
+| pg-0012 | What's an example of a vehicle that doesn't travel on whe... | Name any vehicle that doesn't travel on wheels | 0.9357 | False |
+| pg-0013 | What's an example of an animal that can fly but isn't a b... | Name any animal that can fly but isn't a bird | 0.9388 | False |
+| pg-0014 | What's an example of an item of clothing? | Name an example of an article of clothing | 0.9097 | False |
+| pg-0015 | What's an example of a city? | Name any US city | 0.8068 | False |
+| pg-0016 | What's an example of a novel? | Name an example of a novel | 0.9409 | False |
+| pg-0017 | What's an example of a novel? | Name one book | 0.7619 | False |
+| pg-0018 | What's an example of a novel? | What's an example of a book? | 0.9518 | False |
+| pg-0019 | What's an example of a plant? | Name an example of a flower | 0.8839 | False |
+| pg-0020 | What's an example of a plant? | Name an example of a plant | 0.9409 | False |
+| … | (457 more in the JSON artifact) | | | |
+
+## Decisions needed from the user (STOP)
+
+- Whether to merge PARAPHRASE banks (NOT done here — game treats them as separate banks).
+- Whether Search DB should hold one answer per paraphrase group (NOT done here).
+- Whether to apply any alias to the matcher (NOT done here; aliases stay log-only).
+
+Automatic applications allowed by the directive: TRIVIAL prompt and ANSWER-VARIANT
+cleanup, non-destructively in the import/derive layer, preserving original strings.
