@@ -49,6 +49,7 @@ BOT_LOG = INJ / "data" / "bot_log.jsonl"
 KRILLO_PROMPTS = DATA_DIR / "krillocity_prompts.jsonl"
 KRILLO_ANSWERS = DATA_DIR / "krillocity_answers.jsonl"
 KRILLO_ZERO = DATA_DIR / "krillocity_zero_match.jsonl"
+KRILLO_POOL_USE = DATA_DIR / "krillocity_pool_use.jsonl"
 # Canonical merge of REAL observed wordings -> labelled bank questions, built by
 # scripts/build_krillocity_canonical.py. Optional: a missing/corrupt file yields
 # an empty payload rather than an error, so old clones work unchanged.
@@ -329,7 +330,7 @@ def cached_learned():
 
 DATA.mkdir(parents=True, exist_ok=True)
 for f in (CORRECTIONS, LEARNED, IMPORT_JSONL, MISSES, EVIDENCE, PROMPT_REVIEW, BOT_LOG,
-          KRILLO_PROMPTS, KRILLO_ANSWERS, KRILLO_ZERO, FETCH_QUEUE):
+          KRILLO_PROMPTS, KRILLO_ANSWERS, KRILLO_ZERO, KRILLO_POOL_USE, FETCH_QUEUE):
     f.touch(exist_ok=True)
 if not CHANGELOG.exists():
     CHANGELOG.write_text(
@@ -569,7 +570,7 @@ def krillo_race_pool(query):
     q = str(query or "").strip()
     exact, groups = resolve_question(q)
     banks = []
-    if exact:
+    if isinstance(exact, str) and exact:
         banks.append(exact)
     for g in groups:
         b = g.get("question")
@@ -631,6 +632,18 @@ def krillo_race_pool(query):
         seen.add(norm_key)
         out.append(entry)
     out.sort(key=lambda x: (-x["points"], x["answer"].casefold()))
+
+    # Audit log: which other-player answers were served for this on-screen prompt.
+    try:
+        used = [x for x in out if x.get("source") == "krillocity-other"]
+        with KRILLO_POOL_USE.open("a", encoding="utf-8") as f:
+            f.write(json.dumps({
+                "at": now(), "screen_prompt": q, "banks": banks,
+                "other_player_answers": used,
+                "total_answers": len(out),
+            }, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
     return {"ok": True, "question": q, "banks": banks, "answers": out}
 
 
