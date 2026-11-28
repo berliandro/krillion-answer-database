@@ -3,7 +3,7 @@
 // @namespace    https://github.com/berliandro/krillion-answer-database
 // @author       berliandro — https://github.com/berliandro
 // @homepage     https://github.com/berliandro/krillion-answer-database
-// @version      1.2.0
+// @version      1.2.3
 // @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running. By berliandro — https://github.com/berliandro/krillion-answer-database
 // @downloadURL https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @updateURL  https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
@@ -16,6 +16,7 @@
 // @grant        unsafeWindow
 // @connect      127.0.0.1
 // @connect      localhost
+// @connect      playdaily.org
 // @run-at       document-start
 // @noframes
 // ==/UserScript==
@@ -71,6 +72,8 @@
     // Advisory lookup only — never changes which labelled banks are displayed.
     krilloCanonical: null,
     krilloRacePool: null,  // normLocal(prompt) -> [{answer, points, source}] from bridge
+    rivalSeen: new Set(),  // game results URLs already captured this session
+    lastRivalCapture: 0,
     netCache: new Map(),
     bankCapturing: false, // guards the 50ms-debounced end-of-dive capture
     refusedAnswers: new Set(),
@@ -969,6 +972,11 @@
       } catch (e) { /* continue with network */ }
     }
     if (isStale()) return;
+    // The race pool must load for EVERY Krillocity prompt, including the
+    // premap/netCache fast paths below that return before the network lookup.
+    // Otherwise a prompt that happens to be a preloaded bank would enter only
+    // its 100-point answers -- the original "no other answers" symptom.
+    if (/^\/krillocity\/?$/.test(location.pathname)) loadKrilloRacePool(question);
 
     // PROVEN classic "exact-100 preload fast path": the whole rare-answer
     // archive is loaded once at page start, so an exact premap hit resolves
@@ -1048,8 +1056,6 @@
     applyResult(data, question);
     // Archive this race prompt and any other-player answers already visible.
     archiveKrillocityRace(question, data);
-    // Race pool: all graded tiers + harvested other-player answers, high->low.
-    if (/^\/krillocity\/?$/.test(location.pathname)) loadKrilloRacePool(question);
   }
 
   // Fetch the server-side race pool for the exact wording on screen. The bridge
@@ -1066,6 +1072,87 @@
         raceSchedule(0);
       }
     }).catch(() => { /* old bridge: local pool fallback stays in place */ });
+  }
+
+  // Record OTHER players' game-graded answers from the live Krillocity room.
+  // The game itself polls /api/krillion/blitz/results with a signed room/race
+  // token; we reuse those exact URLs (no invented credentials). Each row has
+  // w[] = answers and v[] = the game's own points for its slot. Everything goes
+  // to the SEPARATE Krillocity archive via /api/krillo-answer -- never to the
+  // graded 100-point bank, and never as a demotion.
+  function gameFetch(url) {
+    return new Promise((resolve, reject) => {
+      try {
+        GM_xmlhttpRequest({
+          method: 'GET', url, timeout: LOOKUP_TIMEOUT,
+          onload: (r) => {
+            if (r && r.status >= 200 && r.status < 300) {
+              try { resolve(JSON.parse(r.responseText)); }
+              catch (e) { reject(e); }
+            } else reject(new Error('game status ' + (r && r.status)));
+          },
+          onerror: (e) => reject(e || new Error('game request failed')),
+        });
+      } catch (e) { reject(e); }
+    });
+  }
+
+  function captureRivalAnswers() {
+    if (mode() !== 'krillocity' || bot.mode !== 'krillomulti') return;
+    const nowMs = Date.now();
+    if (state.lastRivalCapture && nowMs - state.lastRivalCapture < 5000) return;
+    state.lastRivalCapture = nowMs;
+    let urls;
+    try {
+      urls = (performance.getEntriesByType('resource') || [])
+        .map((e) => e.name)
+        .filter((u) => /\/api\/krillion\/blitz\/results\?room=/.test(u));
+    } catch (e) { return; }
+    const fresh = [];
+    for (let i = urls.length - 1; i >= 0 && fresh.length < 4; i--) {
+      const u = urls[i];
+      if (!state.rivalSeen.has(u)) { state.rivalSeen.add(u); fresh.push(u); }
+    }
+    fresh.forEach((u) => {
+      gameFetch(u).then((res) => {
+        if (!res || !Array.isArray(res.rows)) return;
+        const m = u.match(/[?&]room=([^&]+)&race=([^&]+)&s=([^&]+)&k=([^&]+)/);
+        if (!m) return;
+        const room = decodeURIComponent(m[1]);
+        const race = Number(m[2]);
+        const sm = decodeURIComponent(m[3]);
+        const km = decodeURIComponent(m[4]);
+        // The game reveals prompts incrementally; a single upto=6 probe is
+        // rate-limited (425). upto=3 is the largest request the live client
+        // itself makes repeatedly and reliably returns the slot -> text map.
+        const lineup = 'https://playdaily.org/api/krillion/blitz/lineup?room='
+          + encodeURIComponent(room) + '&race=' + race + '&upto=3&s='
+          + encodeURIComponent(sm) + '&k=' + encodeURIComponent(km);
+        return gameFetch(lineup).then((lj) => {
+          const prompts = (lj && lj.prompts) || [];
+          let count = 0;
+          res.rows.forEach((row) => {
+            const slot = Number(row.s);
+            const meta = prompts[slot];
+            if (!meta || !meta.text || !Array.isArray(row.w) || !Array.isArray(row.v)) return;
+            for (let k = 0; k < row.w.length; k++) {
+              const answer = String(row.w[k] || '').trim();
+              const points = Number(row.v[k]);
+              if (!answer || !Number.isFinite(points)) continue;
+              reportKrillo('/api/krillo-answer', {
+                source: 'krillocity', room, race, slot,
+                prompt_id: meta.id || '', prompt: meta.text, answer,
+                game_points: points, other_players: 1,
+                match: true, zero_match: false, authoritative: false,
+                source_url: location.href,
+              });
+              count++;
+            }
+          });
+          if (count) reportBot('krillocity-rivals-captured', { room, race, answers: count });
+        });
+      }).catch(() => { /* keep the URL marked; a later room join re-observes it */ });
+    });
   }
 
   function storageGet(key, fallback) {
@@ -2488,6 +2575,7 @@
   }
 
   function botTick() {
+    captureRivalAnswers();
     if (!bot.on || bot.busy) return;
     bot.busy = true;
     try {
