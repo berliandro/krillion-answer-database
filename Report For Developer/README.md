@@ -1,102 +1,75 @@
-# Report For Developer
+# Findings for the Krillion developer
 
-A short, plain-language write-up of what this project is, what I found while tidying it, and what I changed. Nothing was deleted.
+These are the problems I found while playing and examining the game. I've written them in plain language so you don't have to spend time finding them again — you can go straight to fixing them. Most were observed directly in the game or its requests; where something could only be inferred from the client code, I've said so.
 
-## What this project actually is
+## 1. The 1v1 leaderboard can be climbed with guaranteed wins
 
-It's an answer archive for the Krillion trivia game, with a few layers on top:
+Someone near the top of the 1v1 leaderboard runs several bots at once. Only one of them is meant to win; the rest are burners. They all start matchmaking together, and if the bots don't see each other in the match, that match is cancelled straight away and they start again. When the pairing they want finally happens, it's a guaranteed win for the one bot.
 
-- A big database of graded answers (the full history) and a small search database (one answer per question).
-- A fast static search site that finds an answer while you play, including the rare 100-point ones.
-- A PC-only Tampermonkey userscript plus a small local helper that can autofill answers.
-- A lot of notes: strategy write-ups, a roadmap, a process log, and a security audit.
+*Worth fixing:* make cancelling and re-queuing cost something (a cooldown), and look for batches of accounts that move and cancel together from the same client or device.
 
-The README at the repo root already explains all of this well, so I kept it and only added a short "where new files go" note.
+## 2. The whole graded answer bank is available to anyone
 
-## What I found
+`POST /api/krillion/deal` is unthrottled and `GET /api/krillion/answers` hands over all six tiers, including the 100-point answers. The HTTP 425 `wait` is a shared window, so you sleep and then burst. That's how I collected 127,118 graded answers with plain `fetch` and no cookies. Anyone can rebuild the rare-answer database in an afternoon and feed it to a bot — that's the whole payoff.
 
-Most of the project was already in good shape. The folders have sensible lowercase names, code and data live in predictable places, and the site, tests, and build scripts are where you'd expect them. I did not want to churn working code just to make the tree look different.
+*Worth fixing:* require a live, signed round ticket on `/answers`, return only the tiers the player has actually earned in that round, and replace the shared 65-second window with per-client limits.
 
-Three things were worth fixing:
+## 3. Krillocity prompts can be collected before a race starts
 
-- `FINDINGS` was uppercase while every other top-level folder was lowercase.
-- `Active Goals` had uppercase letters and a space, unlike the kebab-case style used elsewhere.
-- `evidence/` held 18 strategy result files at the root, while other long-form material lived in `docs/`.
+`/rooms` lists only four rooms, but `/lineup?room=race2-N` answers for every room number I tried (1–1000, no gaps). Each one deals seven prompt wordings, including all the near-duplicate versions. A bot can walk the room numbers and have the prompts before it ever joins a race.
 
-None of these are used by the build or site code — only by other Markdown files — so the moves were safe.
+*Worth fixing:* only deal lineups to rooms that actually have seated players, and make room/race IDs hard to guess.
 
-## What I changed
+## 4. `/results` gives away everyone's answers
 
-| Before | After | Why |
-| --- | --- | --- |
-| `FINDINGS/` | `findings/` | lowercase to match its sibling folders |
-| `Active Goals/` | `active-goals/` | kebab-case to match its sibling folders |
-| `evidence/*.json` (18 files) | `docs/evidence/*.json` | group strategy results with the other docs |
-| — | `Report For Developer/README.md` | this report (added, not moved) |
-| root README | added "Where new files go" | make the convention easy to follow |
+`GET /results?room=...&race=...` returns one row per player per slot, with their answers **and** the game's own point values — no seat needed. I watched public rooms without joining at all. It's a free answer feed and a fairness problem for anyone actually racing.
 
-Git recorded all the moves as renames, so file history is preserved.
+*Worth fixing:* hide raw answers until after the reveal, or require a seated participant; never expose the point values used for grading.
 
-## Links I fixed
+## 5. The speed limit is per request, not per turn
 
-Every link that pointed at an old location was updated, and every new path resolves to a real file:
+There is a `too fast` rejection, but the client schedules about 400 ms between answers and its own limit formula allows roughly 123 answers in 30 seconds. The game's guide says about 10 is a good human turn. That gap is how 3,000–25,000-point turns happen — each request looks fine on its own, while the total is impossible.
 
-- `active-goals/KRILLION-COMPLETE-ROADMAP.md` — folder paths for the three strategy-proof groups.
-- `injection/STRATEGY-VERIFIED.md` — the 18 result-file links plus the header sentence that used to call them "root" files.
-- `injection/STRATEGY-MP-DUEL.md` — the result-file pattern link.
-- `injection/ROADMAP-FINAL-REPORT.md` — the result-file pattern link.
-- `active-goals/KRILLOCITY-SECURITY-ANTICHEAT-AUDIT.md` — two links to the remediation report.
-- `findings/SECURITY-REMEDIATION-REPORT.md` — one link to the audit evidence.
-- `injection/ROADMAP-FINAL-REPORT.md` — one link to the roadmap.
-- `injection/ROADMAP-EVIDENCE.md` — two links to the roadmap / folder.
+*Worth fixing:* add a server-side ceiling on answers and points per turn, and quietly keep impossible runs off the leaderboards.
 
-I left phrases like "evidence/risk/testable flags" and "evidence/prompt/bot event" alone — those are ordinary words, not file paths.
+## 6. Bot protection stops at the page, not the game
 
-## What I deliberately left alone
+Cloudflare's challenge guards the page, but a headless browser that passes it can join a room and drive the whole race through the normal JSON API. Nothing in the game's own join or answer contract asks for proof of a human player.
 
-- `data/`, `scripts/`, `webapp/`, `krillion/`, `shared/`, `injection/`, `assets/`, `tests/`, and `docs/`. Their paths are hardcoded in `scripts/config.py`, the site HTML, and the build manifest. Moving them would break the build for no real gain.
-- The root site files (`index.html`, `site-template.html`, `search-data*.json`, `krillion-data.v2.json`). The public site fetches these by name.
-- `favicon.ico` was already deleted before I started; that change is in the checkpoint commit too.
-- `__pycache__`, `*.pyc`, `.worktrees/`, and `.git/` — caches, worktrees, and repository internals are off-limits.
+*Worth fixing:* an invisible Turnstile check on room join and daily-race start, with the result tied to the race ticket. Don't put it on every answer — that would hurt latency.
 
-I also looked at near-duplicates such as `search-data.json` alongside `search-data.v2.json`. Both are live: the site tries v2 first and falls back to the older file, so I kept both. Empty `.jsonl` files are append-only logs that happen to be empty right now, so those stay too.
+## 7. Names can be changed whenever
 
-## The security findings, in plain language
+The page PUTs `{"name":...}` to `/scores` with only a 1.5-second debounce, and the name lives in `localStorage` as `arena:name` / `krillion:board-name`. Change it mid-lobby or between races and you can appear as a top racer, including lookalike spellings with invisible or similar-looking characters.
 
-These are weaknesses in the game itself (documented in `findings/`), not bugs in this repo. The short version:
+*Worth fixing:* a cooldown on name changes, checks against reserved and top-leaderboard names (including lookalikes), and freeze the name for the length of a race.
 
-1. The graded answer bank is handed to anyone who asks, so a bot can rebuild our rare-answer list in an afternoon.
-2. Krillocity room prompts can be enumerated, so a bot can collect them before a race even starts.
-3. The results screen exposes everyone's answers and the game's own point values.
-4. The speed limit is per request, not per turn, which allows huge single-turn scores.
-5. Player names can be changed mid-lobby with only a tiny delay.
-6. Guest identities are free — clear your storage and you're a new player.
-7. The AI judge has no visible per-user quota, so crafted answers can be pushed toward 100 points.
-8. The clock has a wide grace window, so late answers still score.
-9. Public leaderboards hand cheaters the exact spelling of top players' names.
+## 8. Guest identities are free
 
-The full write-up with evidence is in `findings/SECURITY-REMEDIATION-REPORT.md`, the raw observations in `findings/SECURITY-AUDIT-EVIDENCE.md`, and our rule about never demoting an answer based on play scores is in `injection/DECISIONS.md`.
+`client` and `key` UUIDs are made in the browser and sent with every answer. Clear your storage and you're a brand-new player, with no visible cost. That makes burner accounts cheap for probing prompts and retrying races. If a flagged guest record is later merged into a real account, its standing could carry over — I couldn't test that without an account, so treat it as a design risk rather than a confirmed exploit.
 
-## Checks I ran
+*Worth fixing:* issue the IDs on the server and bind them to the signed ticket, limit how often one device can mint new ones, and drop flagged runs when merging into an account.
 
-- Full test suite: 10 checks passed, 0 failed.
-- Old folder names no longer appear anywhere in the project.
-- File count is unchanged (200 files plus this report); the renames added no files.
-- Checksums: only the files whose links I edited changed; renamed files kept their exact contents.
-- Working tree is clean and the branch is ahead of `origin/main`, ready to push.
+## 9. The boards are a name directory
 
-## How to undo
+`/daily/board?day=...` and `/board` are public and CDN-cached. Anyone can walk back through dates and collect the exact spelling of top racers' names, then use those names for the impersonation in finding 7. The boards are meant to be public; the problem is feeding them into a weak identity system.
 
-Everything is in a checkpoint commit, so rolling back is clean:
+*Worth fixing:* give board rows stable player IDs and render names from those records, so a name change can't quietly rewrite history.
 
-```powershell
-git reset --hard 325b0eb
-git branch -D pre-reorg-checkpoint-20261128
-```
+## 10. The clock gives away a few seconds
 
-That returns the tree to its pre-reorg state. (`git reset --hard` is only safe here because the checkpoint captured the full working state; don't use it casually.)
+Signed tickets and `late` / `closed` rejections are real, but the client allows a fixed 4-second RTT grace and derives the phases itself. A script can submit in the last seconds — or just after, claiming latency — and still get a stamp.
 
-## Suggestions for later, not done now
+*Worth fixing:* let the server alone decide when a window is open (`startsAt` / `endsAt` in the ticket), and reduce the grace from 4 seconds to about 1.
 
-- A few `docs/evidence/*.json` files cite a temp harness path outside the repo. It's a record of how the test was run, not a live dependency, so I left it as-is.
-- The root README now states the convention; if new folders get added, keep them lowercase.
+## 11. The AI judge is a soft target
+
+Anything outside the known bank goes to a model. There are length caps and a `shut` flag, but no visible per-user limit on how often you can ask the judge. Crafted input can be nudged toward a 100-point grade. The server already has `shut` to switch a prompt to bank-only, so the lever exists.
+
+*Worth fixing:* enforce the input limits on the server, pass the player's text as data rather than instructions, cap judge calls per player and per prompt, and automatically switch to bank-only when the rarity pattern looks impossible.
+
+---
+
+**What's already working well, and worth keeping:** Krillocity does not send answer banks to the browser; prompts arrive on a signed ticket and grading happens on the server. Tickets and stamps are signed. Source maps aren't published. Realtime rooms only show public standings, not other players' raw answers. Those are good foundations — the fixes above are about closing the gaps around them.
+
+**How I checked:** one passive browser session and read-only request/bundle inspection. I did not start a race, submit an answer, change a name, solve a captcha, or write to a leaderboard. Where I say a server-side limit is missing, that is inferred from the client contract rather than proven — I did not run an exploit to confirm it.
