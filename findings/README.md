@@ -20,6 +20,8 @@ I'm the one who built this repo. I harvested the answer bank with `scripts/harve
 
 **9. The boards are a name directory.** `/daily/board?day=...` and `/board` are public and CDN-cached. *Why fix:* feeds flaw 5 with the exact spelling of top racers.
 
+**10. The 1v1 rating ladder can be farmed with burner bots.** I found that a single account at the top of the 1v1 leaderboard can be propped up by a stable of bots that all enter matchmaking at once. One bot is the designated winner; the burners deliberately lose to it. If any of them gets paired with a real opponent instead, it leaves before the match starts and queues again. The cycle repeats until the bots draw each other, so the chosen account collects a stream of guaranteed wins and climbs the rating while the burners absorb the losses. *Why fix:* leaving before a match starts costs nothing, so the farm is cheap to run; a cooldown on abandoning a queue, plus a check for groups of accounts that repeatedly queue and cancel together from the same client, would take away the free retries. Full write-up: `SECURITY-REMEDIATION-REPORT.md` (FLAW-09).
+
 To be fair: Krillocity does *not* send answer banks to the browser, tickets and stamps are signed, source maps aren't published, and realtime rooms only show public standings. Those parts are fine. It's the export paths, the missing per-turn limits and the loose identity handling that let cheaters flood.
 
 Full write-up with evidence: `SECURITY-REMEDIATION-REPORT.md`. Raw observations: `SECURITY-AUDIT-EVIDENCE.md`. Our data policy (why we never demote from play scores) is in `../injection/DECISIONS.md`.

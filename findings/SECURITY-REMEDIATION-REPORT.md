@@ -109,6 +109,18 @@
   * I would cap judge calls per user per turn (e.g. 6) and per prompt globally; after the cap, return `shut:true` and grade only against the known bank.
   * I would automatically set `shut:true` for a prompt whose judge-accepted rarity distribution is statistically impossible, and surface a concise reason to the client using the existing `reason` field.
 
+### [FLAW-09] 1v1 rating ladder can be farmed with burner bots
+* **Severity:** Medium
+* **Category:** WSTG-BUSL — Business logic abuse / leaderboard integrity
+* **Affected Endpoint / Component:** 1v1 (Colosseum) matchmaking and the rating write that feeds the season ladder; `button.kd-play` queue and `kd-again` requeue controls
+* **How the Cheat Works:** A single account at the top of the 1v1 board is propped up by a stable of bots that all enter matchmaking at once. One is the designated winner; the burners deliberately lose to it. If a burner is paired with a real opponent instead, it leaves before the match starts and queues again. The cycle repeats until the bots draw each other, so the chosen account collects a stream of guaranteed wins while the burners absorb the losses. Leaving before a start carries no cost, so the farm needs patience rather than skill.
+* **Root Cause:** Matchmaking has no meaningful penalty for abandoning a queue, and rating is computed per match without checking whether the wins come from a repeated, coordinated set of opponents. Cheap identities (FLAW-05) make it easy to field the burner pool.
+* **Recommended Fix (Step-by-Step):**
+  * I would charge an escalating cooldown for leaving before a duel starts, scoped to the server-issued identity, so repeated requeues stop being free.
+  * I would detect groups that enter and abandon matchmaking together from the same client or network, and exclude their matches from rating or shadow-ban them from the public ladder — the same pattern approach I proposed for per-turn anomalies in FLAW-02.
+  * I would cap rating gain per account per time window and flag accounts whose wins come overwhelmingly from a small fixed set of opponents; I would treat those wins as evidence rather than acting on a single observation.
+  * I would keep the public board schema unchanged so the shipped client keeps working, and apply the exclusion server-side.
+
 ---
 
 ## Prioritized Implementation Roadmap for the Developer
@@ -120,6 +132,7 @@
 | **P1 (Short-Term)** | FLAW-03 | Invisible Turnstile on join/daily start, token bound to ticket | Medium (~2–3 hours) | Raises cost of headless-browser farming without touching answer latency |
 | **P1 (Short-Term)** | FLAW-05 | Server-issued guest IDs, issuance throttling, clean guest→account merge | Medium (~3–4 hours) | Prevents identity recycling and laundering of flagged standings |
 | **P1 (Short-Term)** | FLAW-08 | Server-side judge input caps, sandbox-style prompt, per-user judge quota, auto `shut` | Medium (~4–6 hours) | Prevents judge prompt-injection and crafted 100-point awards |
+| **P1 (Short-Term)** | FLAW-09 | Abandon cooldown + coordinated-queue detection + collusion-aware rating caps | Medium (~3–4 hours) | Stops burner-bot farms from buying 1v1 rating with guaranteed wins |
 | **P2 (Hardening)** | FLAW-07 | Server-authoritative `startsAt`/`endsAt`; grace reduced from 4s to ≤1s | Low (~1–2 hours) | Closes late-submission and count-in boundary abuse |
 | **P2 (Hardening)** | FLAW-06 | Stable public player IDs and historical-name hygiene on cached boards | Low (~1 hour) | Removes the reconnaissance input for impersonation |
 
@@ -132,4 +145,5 @@ Full observations, request URLs, response headers/bodies and bundle excerpts are
 - **Live-verified:** public API payloads and cache headers; Cloudflare challenge assets; client storage keys; the automatic `PUT /scores {"name":...}`; the game's own FAQ rules and tier table; absence of published source maps.
 - **Bundle-verified:** signed ticket/stamp schema; `too fast`, `dup`, `late`, `closed`, `shut`, `suggest` response handling; 2 s count-in and 30 s clock; 400 ms client scheduler; answer-limit formula; AI-judge response validation; Supabase realtime channel and standings-only rendering.
 - **First-party documented:** the 127,118-answer harvest via `/deal` + `/answers`, the 425 `wait` window, and the 24-hour automated play session.
+- **Reported from the public 1v1 board:** a top-ranked account backed by a pool of burner bots; the deliberate-loss and leave-before-start requeue loop is reported behaviour rather than something I reproduced in the read-only pass.
 - **Unverified (stated honestly):** exact server thresholds for `too fast`, the answer-limit default `bq`, server-side enforcement of character caps, name-change cooldown policy, account-merge behaviour, and server-side realtime payload filtering. No exploit was executed to resolve these, in line with the rules of engagement.
