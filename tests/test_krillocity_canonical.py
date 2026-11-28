@@ -33,8 +33,8 @@ def test_krillocity_canonical() -> str:
           "userscript must only key the target bank wording")
     check("canonical.target" in src and "return canonical.canonical" not in src,
           "userscript must never rewrite to a merge canonical")
-    check("@version      1.2.3" in src,
-          "userscript version should be 1.2.3 for rival capture + fast-path fix")
+    check("@version      1.2.5" in src,
+          "userscript version should be 1.2.5 for observed-response rival capture")
 
     # Data-level guards against the artifact.
     conn = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
@@ -61,7 +61,7 @@ def test_krillocity_canonical() -> str:
                 unsafe_keys += 1
     check(safe_keys > 0, "no eligible verbatim-bank lookup keys found")
     return (f"canonical keys verbatim-bank={safe_keys}, excluded(log-only/non-bank)="
-            f"{unsafe_keys}, no merge-canonical rewrite, version=1.2.3")
+            f"{unsafe_keys}, no merge-canonical rewrite, version=1.2.5")
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 // @namespace    https://github.com/berliandro/krillion-answer-database
 // @author       berliandro — https://github.com/berliandro
 // @homepage     https://github.com/berliandro/krillion-answer-database
-// @version      1.2.3
+// @version      1.2.5
 // @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running. By berliandro — https://github.com/berliandro/krillion-answer-database
 // @downloadURL https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @updateURL  https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
@@ -72,7 +72,8 @@
     // Advisory lookup only — never changes which labelled banks are displayed.
     krilloCanonical: null,
     krilloRacePool: null,  // normLocal(prompt) -> [{answer, points, source}] from bridge
-    rivalSeen: new Set(),  // game results URLs already captured this session
+    rivalLineups: {},      // "room|race" -> prompts[] observed from the game's own fetch
+    rivalResults: [],      // {room, race, rows} observed from the game's own fetch
     lastRivalCapture: 0,
     netCache: new Map(),
     bankCapturing: false, // guards the 50ms-debounced end-of-dive capture
@@ -117,10 +118,27 @@
       const wrapped = function (input, init) {
         const url = typeof input === 'string' ? input : (input && input.url) || '';
         return original.apply(this, arguments).then(async (res) => {
-          if (/\/api\/krillion\/(deal|answers)(\?|$)/.test(url)) {
+          if (/\/api\/krillion\/(deal|answers|blitz\/(lineup|results))(\?|$)/.test(url)) {
             try {
               const data = await res.clone().json();
-              if (url.indexOf('/deal') !== -1 && data.prompts) {
+              if (url.indexOf('/blitz/lineup') !== -1 && data && Array.isArray(data.prompts)) {
+                // The game fetches its own lineup as each round is revealed.
+                // Observing the response avoids a second, rate-limited request.
+                const m = url.match(/[?&]room=([^&]+)&race=([^&]+)/);
+                if (m) {
+                  const key = decodeURIComponent(m[1]) + '|' + m[2];
+                  const prompts = state.rivalLineups[key] || (state.rivalLineups[key] = []);
+                  data.prompts.forEach((p, i) => { if (p && p.text) prompts[i] = p; });
+                }
+              } else if (url.indexOf('/blitz/results') !== -1 && data && Array.isArray(data.rows)) {
+                const m = url.match(/[?&]room=([^&]+)&race=([^&]+)/);
+                if (m) {
+                  state.rivalResults.push({
+                    room: decodeURIComponent(m[1]), race: Number(m[2]), rows: data.rows,
+                  });
+                  if (state.rivalResults.length > 30) state.rivalResults.shift();
+                }
+              } else if (url.indexOf('/deal') !== -1 && data.prompts) {
                 data.prompts.forEach((p) => {
                   if (p && p.id && p.text) {
                     seenDeals[p.id] = p.text;
@@ -1075,84 +1093,48 @@
   }
 
   // Record OTHER players' game-graded answers from the live Krillocity room.
-  // The game itself polls /api/krillion/blitz/results with a signed room/race
-  // token; we reuse those exact URLs (no invented credentials). Each row has
-  // w[] = answers and v[] = the game's own points for its slot. Everything goes
-  // to the SEPARATE Krillocity archive via /api/krillo-answer -- never to the
+  // watchApi() already observes the game's OWN lineup and results responses,
+  // so this never issues a second (rate-limited) request. Each results row has
+  // w[] = answers and v[] = the game's points for its slot. Everything goes to
+  // the SEPARATE Krillocity archive via /api/krillo-answer -- never to the
   // graded 100-point bank, and never as a demotion.
-  function gameFetch(url) {
-    return new Promise((resolve, reject) => {
-      try {
-        GM_xmlhttpRequest({
-          method: 'GET', url, timeout: LOOKUP_TIMEOUT,
-          onload: (r) => {
-            if (r && r.status >= 200 && r.status < 300) {
-              try { resolve(JSON.parse(r.responseText)); }
-              catch (e) { reject(e); }
-            } else reject(new Error('game status ' + (r && r.status)));
-          },
-          onerror: (e) => reject(e || new Error('game request failed')),
-        });
-      } catch (e) { reject(e); }
-    });
-  }
-
   function captureRivalAnswers() {
     if (mode() !== 'krillocity' || bot.mode !== 'krillomulti') return;
     const nowMs = Date.now();
     if (state.lastRivalCapture && nowMs - state.lastRivalCapture < 5000) return;
+    if (!state.rivalResults.length) return;
     state.lastRivalCapture = nowMs;
-    let urls;
-    try {
-      urls = (performance.getEntriesByType('resource') || [])
-        .map((e) => e.name)
-        .filter((u) => /\/api\/krillion\/blitz\/results\?room=/.test(u));
-    } catch (e) { return; }
-    const fresh = [];
-    for (let i = urls.length - 1; i >= 0 && fresh.length < 4; i--) {
-      const u = urls[i];
-      if (!state.rivalSeen.has(u)) { state.rivalSeen.add(u); fresh.push(u); }
-    }
-    fresh.forEach((u) => {
-      gameFetch(u).then((res) => {
-        if (!res || !Array.isArray(res.rows)) return;
-        const m = u.match(/[?&]room=([^&]+)&race=([^&]+)&s=([^&]+)&k=([^&]+)/);
-        if (!m) return;
-        const room = decodeURIComponent(m[1]);
-        const race = Number(m[2]);
-        const sm = decodeURIComponent(m[3]);
-        const km = decodeURIComponent(m[4]);
-        // The game reveals prompts incrementally; a single upto=6 probe is
-        // rate-limited (425). upto=3 is the largest request the live client
-        // itself makes repeatedly and reliably returns the slot -> text map.
-        const lineup = 'https://playdaily.org/api/krillion/blitz/lineup?room='
-          + encodeURIComponent(room) + '&race=' + race + '&upto=3&s='
-          + encodeURIComponent(sm) + '&k=' + encodeURIComponent(km);
-        return gameFetch(lineup).then((lj) => {
-          const prompts = (lj && lj.prompts) || [];
-          let count = 0;
-          res.rows.forEach((row) => {
-            const slot = Number(row.s);
-            const meta = prompts[slot];
-            if (!meta || !meta.text || !Array.isArray(row.w) || !Array.isArray(row.v)) return;
-            for (let k = 0; k < row.w.length; k++) {
-              const answer = String(row.w[k] || '').trim();
-              const points = Number(row.v[k]);
-              if (!answer || !Number.isFinite(points)) continue;
-              reportKrillo('/api/krillo-answer', {
-                source: 'krillocity', room, race, slot,
-                prompt_id: meta.id || '', prompt: meta.text, answer,
-                game_points: points, other_players: 1,
-                match: true, zero_match: false, authoritative: false,
-                source_url: location.href,
-              });
-              count++;
-            }
+    const pending = [];
+    while (state.rivalResults.length) {
+      const item = state.rivalResults.shift();
+      const prompts = state.rivalLineups[item.room + '|' + item.race];
+      // The game reveals prompts incrementally; a results response can land
+      // before its slot's lineup. Keep it until the lineup is observed.
+      if (!prompts) { if (pending.length < 30) pending.push(item); continue; }
+      let count = 0;
+      item.rows.forEach((row) => {
+        const slot = Number(row.s);
+        const meta = prompts[slot];
+        if (!meta || !meta.text || !Array.isArray(row.w) || !Array.isArray(row.v)) return;
+        for (let k = 0; k < row.w.length; k++) {
+          const answer = String(row.w[k] || '').trim();
+          const points = Number(row.v[k]);
+          if (!answer || !Number.isFinite(points)) continue;
+          reportKrillo('/api/krillo-answer', {
+            source: 'krillocity', room: item.room, race: item.race, slot,
+            prompt_id: meta.id || '', prompt: meta.text, answer,
+            game_points: points, other_players: 1,
+            match: true, zero_match: false, authoritative: false,
+            source_url: location.href,
           });
-          if (count) reportBot('krillocity-rivals-captured', { room, race, answers: count });
-        });
-      }).catch(() => { /* keep the URL marked; a later room join re-observes it */ });
-    });
+          count++;
+        }
+      });
+      if (count) reportBot('krillocity-rivals-captured', {
+        room: item.room, detail: 'race ' + item.race, count: count,
+      });
+    }
+    state.rivalResults.unshift(...pending);
   }
 
   function storageGet(key, fallback) {
