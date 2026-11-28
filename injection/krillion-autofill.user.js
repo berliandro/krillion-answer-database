@@ -3,7 +3,7 @@
 // @namespace    https://github.com/berliandro/krillion-answer-database
 // @author       berliandro — https://github.com/berliandro
 // @homepage     https://github.com/berliandro/krillion-answer-database
-// @version      1.2.5
+// @version      1.2.6
 // @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running. By berliandro — https://github.com/berliandro/krillion-answer-database
 // @downloadURL https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @updateURL  https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
@@ -1111,7 +1111,7 @@
       // The game reveals prompts incrementally; a results response can land
       // before its slot's lineup. Keep it until the lineup is observed.
       if (!prompts) { if (pending.length < 30) pending.push(item); continue; }
-      let count = 0;
+      const records = [];
       item.rows.forEach((row) => {
         const slot = Number(row.s);
         const meta = prompts[slot];
@@ -1120,19 +1120,23 @@
           const answer = String(row.w[k] || '').trim();
           const points = Number(row.v[k]);
           if (!answer || !Number.isFinite(points)) continue;
-          reportKrillo('/api/krillo-answer', {
+          records.push({
             source: 'krillocity', room: item.room, race: item.race, slot,
             prompt_id: meta.id || '', prompt: meta.text, answer,
             game_points: points, other_players: 1,
             match: true, zero_match: false, authoritative: false,
             source_url: location.href,
           });
-          count++;
         }
       });
-      if (count) reportBot('krillocity-rivals-captured', {
-        room: item.room, detail: 'race ' + item.race, count: count,
-      });
+      // ONE POST per results feed. Hundreds of individual requests would
+      // saturate GM_xmlhttpRequest and starve /api/answers lookups.
+      if (records.length) {
+        reportKrillo('/api/krillo-answers-batch', { answers: records });
+        reportBot('krillocity-rivals-captured', {
+          room: item.room, detail: 'race ' + item.race, count: records.length,
+        });
+      }
     }
     state.rivalResults.unshift(...pending);
   }

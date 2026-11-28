@@ -926,6 +926,42 @@ def add_krillo_answer(body):
     return {"ok": True, "duplicate": False}
 
 
+def add_krillo_answers_batch(body):
+    """Write many other-player answers in ONE request.
+
+    The userscript observes the game's own results feed; posting one HTTP
+    request per answer (hundreds per round) starves its answer lookups. One
+    batched POST keeps the archive current without flooding the bridge.
+    """
+    items = body.get("answers") if isinstance(body, dict) else None
+    if not isinstance(items, list):
+        return {"ok": False, "error": "answers must be a list"}
+    fields = ("room", "race", "slot", "answer")
+    seen = _krillo_seen("answer", KRILLO_ANSWERS, fields)
+    lines = []
+    added = dup = 0
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        key = tuple(str(item.get(f, "")) for f in fields)
+        if key in seen:
+            dup += 1
+            continue
+        seen.add(key)
+        rec = {"at": now(), "source": "krillocity", "authoritative": False}
+        for f in ("room", "race", "prompt_id", "prompt", "slot", "answer",
+                  "game_points", "other_players", "index_status", "index_matches",
+                  "index_exact", "index_banks", "match", "zero_match", "source_url"):
+            if f in item:
+                rec[f] = item[f]
+        lines.append(json.dumps(rec, ensure_ascii=False) + "\n")
+        added += 1
+    if lines:
+        with KRILLO_ANSWERS.open("a", encoding="utf-8") as f:
+            f.writelines(lines)
+    return {"ok": True, "added": added, "duplicate": dup}
+
+
 def add_krillo_zero(body):
     fields = ("prompt", "answer", "room", "race", "slot")
     seen = _krillo_seen("zero", KRILLO_ZERO, fields)
@@ -1432,6 +1468,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, add_krillo_prompt(body))
             elif parsed.path == "/api/krillo-answer":
                 self._send(200, add_krillo_answer(body))
+            elif parsed.path == "/api/krillo-answers-batch":
+                self._send(200, add_krillo_answers_batch(body))
             elif parsed.path == "/api/krillo-zero":
                 self._send(200, add_krillo_zero(body))
             else:
