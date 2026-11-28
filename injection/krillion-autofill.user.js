@@ -3,7 +3,7 @@
 // @namespace    https://github.com/berliandro/krillion-answer-database
 // @author       berliandro — https://github.com/berliandro
 // @homepage     https://github.com/berliandro/krillion-answer-database
-// @version      1.1.9
+// @version      1.2.0
 // @description  Shows every known 100-point answer for the current Krillion prompt and records scoring mismatches back to the local archive. PC only; requires injection/bridge.py running. By berliandro — https://github.com/berliandro/krillion-answer-database
 // @downloadURL https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
 // @updateURL  https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js
@@ -70,6 +70,7 @@
     // Canonical merge: normLocal(real observed variant) -> {canonical, bank_questions}.
     // Advisory lookup only — never changes which labelled banks are displayed.
     krilloCanonical: null,
+    krilloRacePool: null,  // normLocal(prompt) -> [{answer, points, source}] from bridge
     netCache: new Map(),
     bankCapturing: false, // guards the 50ms-debounced end-of-dive capture
     refusedAnswers: new Set(),
@@ -1047,6 +1048,24 @@
     applyResult(data, question);
     // Archive this race prompt and any other-player answers already visible.
     archiveKrillocityRace(question, data);
+    // Race pool: all graded tiers + harvested other-player answers, high->low.
+    if (/^\/krillocity\/?$/.test(location.pathname)) loadKrilloRacePool(question);
+  }
+
+  // Fetch the server-side race pool for the exact wording on screen. The bridge
+  // resolves reworded prompts via exact/alias/fuzzy and attaches real tierIndex
+  // points plus other players' game-graded answers from public race results.
+  function loadKrilloRacePool(question) {
+    request('/api/krillocity-race-pool?q=' + encodeURIComponent(question), {
+      timeout: LOOKUP_TIMEOUT, retries: 1,
+    }).then((d) => {
+      if (!state.krilloRacePool) state.krilloRacePool = new Map();
+      state.krilloRacePool.set(keyFor(question), (d && d.answers) || []);
+      if (bot.on && mode() === 'krillocity') {
+        bot.racePool = null;   // rebuild with the full sorted pool
+        raceSchedule(0);
+      }
+    }).catch(() => { /* old bridge: local pool fallback stays in place */ });
   }
 
   function storageGet(key, fallback) {
@@ -2037,10 +2056,25 @@
   // per-prompt uniqueness. Near-duplicate banks stay separate — only groups[0]
   // is used, and aliases are never applied.
   function raceBuildPool(prompt) {
-    const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
-    const rareList = groups[0].answers || [];
     const seen = new Set();
     const pool = [];
+    // Preferred path: the bridge's full race pool (100/85/60/30/15/10 plus
+    // other players' graded answers) already sorted highest points first.
+    const serverPool = state.krilloRacePool && state.krilloRacePool.get(keyFor(prompt));
+    if (serverPool && serverPool.length) {
+      const sorted = serverPool.slice().sort((x, y) => (y.points || 0) - (x.points || 0));
+      sorted.forEach((entry) => {
+        const a = String(entry && entry.answer == null ? '' : entry.answer).trim();
+        const key = a.toLowerCase();
+        if (!a || seen.has(key)) return;
+        if (state.refusedAnswers.has(prompt + '\u0000' + a)) return;
+        seen.add(key);
+        pool.push(a);
+      });
+      return pool;
+    }
+    const groups = state.groups.length ? state.groups : [{ answers: state.answers || [] }];
+    const rareList = groups[0].answers || [];
     rareList.forEach((value) => {
       const a = String(value == null ? '' : value).trim();
       if (!a || seen.has(a)) return;

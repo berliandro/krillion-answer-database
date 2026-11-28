@@ -33,8 +33,8 @@ def test_krillocity_canonical() -> str:
           "userscript must only key the target bank wording")
     check("canonical.target" in src and "return canonical.canonical" not in src,
           "userscript must never rewrite to a merge canonical")
-    check("@version      1.1.9" in src,
-          "userscript version should be 1.1.9 for the canonical fallback")
+    check("@version      1.2.0" in src,
+          "userscript version should be 1.2.0 for the race pool fix")
 
     # Data-level guards against the artifact.
     conn = sqlite3.connect(f"file:{DB}?mode=ro", uri=True)

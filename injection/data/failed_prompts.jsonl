@@ -69,3 +69,7 @@
 {"at": "2026-11-27T12:23:30Z", "prompt": "(preload)", "reason": "unreachable: bridge offline after 3 attempts"}
 {"at": "2026-11-27T12:24:34Z", "prompt": "Name a vegetable eaten raw", "reason": "unreachable: bridge offline after 3 attempts"}
 {"at": "2026-11-27T15:58:09Z", "prompt": "Name any television doctor", "reason": "no-match"}
+{"at": "2026-11-28T05:23:52Z", "prompt": "(preload)", "reason": "unreachable: bridge offline after 3 attempts"}
+{"at": "2026-11-28T05:23:59Z", "prompt": "What's an example of a compound word that has sun in it?", "reason": "unreachable: bridge offline after 3 attempts"}
+{"at": "2026-11-28T05:24:01Z", "prompt": "Name one thing sold in sheets", "reason": "unreachable: bridge offline after 3 attempts"}
+{"at": "2026-11-28T05:24:01Z", "prompt": "Name one fictional weapon", "reason": "unreachable: bridge offline after 3 attempts"}

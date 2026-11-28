@@ -545,6 +545,95 @@ def tier_answers(question):
     return rare, [a for (a,) in rows], False
 
 
+TIER_INDEX_POINTS = (10, 15, 30, 60, 85, 100)
+
+
+def _points_of(rec):
+    """Game-assigned points: tierIndex first, then explicit points, else low."""
+    idx = rec.get("tierIndex")
+    if isinstance(idx, int) and 0 <= idx < len(TIER_INDEX_POINTS):
+        return TIER_INDEX_POINTS[idx]
+    p = rec.get("points")
+    if p in TIER_INDEX_POINTS:
+        return p
+    return 10
+
+
+def krillo_race_pool(query):
+    """All bank-backed answers for a Krillocity prompt, sorted high->low.
+
+    Sources: graded 100pt banks, learned low tiers with real tierIndex points,
+    and other players' game-graded answers harvested from public race results.
+    Exact/alias resolution is reused so reworded on-screen prompts work.
+    """
+    q = str(query or "").strip()
+    exact, groups = resolve_question(q)
+    banks = []
+    if exact:
+        banks.append(exact)
+    for g in groups:
+        b = g.get("question")
+        if b and b not in banks:
+            banks.append(b)
+    aliased = ALIAS_REWRITES.get(normalise(q))
+    if aliased and aliased in ALL_QUESTIONS and aliased not in banks:
+        banks.append(aliased)
+    # The on-screen wording itself often carries harvested other-player rows and
+    # low-tier observations, even when it is not a stored bank spelling.
+    if q and q not in banks:
+        banks.append(q)
+    if not banks:
+        banks = [q]
+
+    learned_points = {}
+    for rec in cached_learned():
+        key = (rec.get("question"), rec.get("answer"))
+        if key[0] in banks and key[1]:
+            learned_points[key] = _points_of(rec)
+
+    others = {}
+    for rec in read_jsonl(KRILLO_ANSWERS):
+        prompt = rec.get("prompt")
+        answer = rec.get("answer")
+        if not prompt or not answer or prompt not in banks:
+            continue
+        points = rec.get("game_points")
+        if points not in TIER_INDEX_POINTS:
+            points = _points_of(rec)
+        key = str(answer).strip()
+        if not key:
+            continue
+        norm_key = normalise(key)
+        current = others.get(norm_key)
+        if current is None or points > current["points"]:
+            others[norm_key] = {"answer": key, "points": points,
+                                "source": "krillocity-other"}
+
+    removed = removed_pairs()
+    out = []
+    seen = set()
+    for bank in banks:
+        for answer in answers_for(bank, removed):
+            a = str(answer).strip()
+            if not a or normalise(a) in seen:
+                continue
+            seen.add(normalise(a))
+            out.append({"answer": a, "points": 100, "source": "bank"})
+    for (bank, answer), points in learned_points.items():
+        a = str(answer).strip()
+        if not a or normalise(a) in seen or (bank, a) in removed:
+            continue
+        seen.add(normalise(a))
+        out.append({"answer": a, "points": points, "source": "learned"})
+    for norm_key, entry in others.items():
+        if norm_key in seen:
+            continue
+        seen.add(norm_key)
+        out.append(entry)
+    out.sort(key=lambda x: (-x["points"], x["answer"].casefold()))
+    return {"ok": True, "question": q, "banks": banks, "answers": out}
+
+
 def _load_tier_snapshot():
     """Return (version, etag, rows) from data/tier-data.json, else None.
 
@@ -1152,6 +1241,13 @@ class Handler(BaseHTTPRequestHandler):
             # Read-only, token-enforced by the common GET check above. The merge
             # is advisory lookup data only: it never writes to the graded bank.
             self._send(200, krillo_canonical_payload())
+            return
+        if parsed.path == "/api/krillocity-race-pool":
+            q = unquote((parse_qs(parsed.query).get("q") or [""])[0]).strip()
+            if not q:
+                self._send(400, {"ok": False, "error": "q is required"})
+                return
+            self._send(200, krillo_race_pool(q))
             return
         if parsed.path == "/api/answers-tier":
             q = (parse_qs(parsed.query).get("q") or [""])[0]
