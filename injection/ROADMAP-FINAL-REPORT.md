@@ -35,7 +35,7 @@ curl /api/health?t=krillion-local-v1                    -> ok:true
 
 ## What was built / fixed during integration
 - **Inventory docs:** STATES.md + STATES-KRILLO.md + STATES-MP-DUEL.md + INTERACTIONS.md (shop excluded).
-- **Strategy docs:** STRATEGY-SCORING / CLASSIC / KRILLO / MP-DUEL + STRATEGY.md + STRATEGY-VERIFIED.md + 18 `evidence/*-strategy-*.json`.
+- **Strategy docs:** STRATEGY-SCORING / CLASSIC / KRILLO / MP-DUEL + STRATEGY.md + STRATEGY-VERIFIED.md + 18 `docs/evidence/*-strategy-*.json`.
 - **Robustness:** TROUBLESHOOTING.md (11 live-readonly observations), state-matrix + fault-injection harnesses, four real bugs fixed.
 - **Perf/UX:** tests/perf.js, UX.md, premapText key fix (1,008/5,801 verbatim prompts stopped issuing HTTP), W6-B CSS craft fix.
 - Integration fixes I made: (1) corrected W5-E's false test premise with proof, (2) resolved version bumps centrally, (3) merged 20+ feat branches with zero unresolved conflicts.

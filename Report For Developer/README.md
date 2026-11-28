@@ -11,18 +11,19 @@ It's an answer archive for the Krillion trivia game, with a few layers on top:
 - A PC-only Tampermonkey userscript plus a small local helper that can autofill answers.
 - A lot of notes: strategy write-ups, a roadmap, a process log, and a security audit.
 
-The README at the repo root already explains all of this well, so I left it alone.
+The README at the repo root already explains all of this well, so I kept it and only added a short "where new files go" note.
 
 ## What I found
 
 Most of the project was already in good shape. The folders have sensible lowercase names, code and data live in predictable places, and the site, tests, and build scripts are where you'd expect them. I did not want to churn working code just to make the tree look different.
 
-Two documentation folders were the odd ones out:
+Three things were worth fixing:
 
 - `FINDINGS` was uppercase while every other top-level folder was lowercase.
 - `Active Goals` had uppercase letters and a space, unlike the kebab-case style used elsewhere.
+- `evidence/` held 18 strategy result files at the root, while other long-form material lived in `docs/`.
 
-Both are referred to only by other Markdown files, never by code, so renaming them was safe.
+None of these are used by the build or site code — only by other Markdown files — so the moves were safe.
 
 ## What I changed
 
@@ -30,20 +31,30 @@ Both are referred to only by other Markdown files, never by code, so renaming th
 | --- | --- | --- |
 | `FINDINGS/` | `findings/` | lowercase to match its sibling folders |
 | `Active Goals/` | `active-goals/` | kebab-case to match its sibling folders |
+| `evidence/*.json` (18 files) | `docs/evidence/*.json` | group strategy results with the other docs |
 | — | `Report For Developer/README.md` | this report (added, not moved) |
+| root README | added "Where new files go" | make the convention easy to follow |
 
-I also fixed the six links that pointed at the old folder names:
+Git recorded all the moves as renames, so file history is preserved.
 
+## Links I fixed
+
+Every link that pointed at an old location was updated, and every new path resolves to a real file:
+
+- `active-goals/KRILLION-COMPLETE-ROADMAP.md` — folder paths for the three strategy-proof groups.
+- `injection/STRATEGY-VERIFIED.md` — the 18 result-file links plus the header sentence that used to call them "root" files.
+- `injection/STRATEGY-MP-DUEL.md` — the result-file pattern link.
+- `injection/ROADMAP-FINAL-REPORT.md` — the result-file pattern link.
 - `active-goals/KRILLOCITY-SECURITY-ANTICHEAT-AUDIT.md` — two links to the remediation report.
 - `findings/SECURITY-REMEDIATION-REPORT.md` — one link to the audit evidence.
 - `injection/ROADMAP-FINAL-REPORT.md` — one link to the roadmap.
 - `injection/ROADMAP-EVIDENCE.md` — two links to the roadmap / folder.
 
-Every path I changed still resolves to a real file.
+I left phrases like "evidence/risk/testable flags" and "evidence/prompt/bot event" alone — those are ordinary words, not file paths.
 
 ## What I deliberately left alone
 
-- `data/`, `scripts/`, `webapp/`, `krillion/`, `shared/`, `injection/`, `assets/`, `tests/`, `docs/`, and `evidence/`. Their paths are hardcoded in `scripts/config.py`, the site HTML, and the build manifest. Moving them would break the build for no real gain.
+- `data/`, `scripts/`, `webapp/`, `krillion/`, `shared/`, `injection/`, `assets/`, `tests/`, and `docs/`. Their paths are hardcoded in `scripts/config.py`, the site HTML, and the build manifest. Moving them would break the build for no real gain.
 - The root site files (`index.html`, `site-template.html`, `search-data*.json`, `krillion-data.v2.json`). The public site fetches these by name.
 - `favicon.ico` was already deleted before I started; that change is in the checkpoint commit too.
 - `__pycache__`, `*.pyc`, `.worktrees/`, and `.git/` — caches, worktrees, and repository internals are off-limits.
@@ -70,8 +81,9 @@ The full write-up with evidence is in `findings/SECURITY-REMEDIATION-REPORT.md`,
 
 - Full test suite: 10 checks passed, 0 failed.
 - Old folder names no longer appear anywhere in the project.
-- File count is unchanged (200 files before the report, plus this new README).
-- Checksums: only the four files whose links I edited changed; the renamed files kept their exact contents.
+- File count is unchanged (200 files plus this report); the renames added no files.
+- Checksums: only the files whose links I edited changed; renamed files kept their exact contents.
+- Working tree is clean and the branch is ahead of `origin/main`, ready to push.
 
 ## How to undo
 
@@ -86,5 +98,5 @@ That returns the tree to its pre-reorg state. (`git reset --hard` is only safe h
 
 ## Suggestions for later, not done now
 
-- If you want a stricter convention, move `evidence/*.json` under `docs/evidence/`, but that means updating about 30 report links first.
-- Consider adding a one-paragraph "where to put new files" section to the root README so the next person keeps the lowercase convention going.
+- A few `docs/evidence/*.json` files cite a temp harness path outside the repo. It's a record of how the test was run, not a live dependency, so I left it as-is.
+- The root README now states the convention; if new folders get added, keep them lowercase.

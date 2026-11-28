@@ -2,7 +2,7 @@
 
 **Status:** research only. No live proof in Phase 2; every unmeasured claim is
 labelled `hypothesis`. Phase 3 (W3-C) must turn the ranked list below into
-`evidence/mp-strategy-<n>.json` runs before any of it is implemented.
+`docs/evidence/mp-strategy-<n>.json` runs before any of it is implemented.
 
 **Scope:** room choice (5s/6s marathon, most-populated, long rooms), seat
 limits, score/rank mechanics, duel rating, requeue vs leave, other-player

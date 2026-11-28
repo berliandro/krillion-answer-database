@@ -94,9 +94,9 @@
 
 - **Method:** scripted live runs using the current bot (or a controlled harness) with fixed prompts where possible; record points gained, answers accepted/refused, time per prompt, rank/depth change, and failures. Use the in-app browser; fall back to Playwright. If a mechanic is unclear, search the web for Krillion rules/strategy before proceeding.
 - **Workstreams (parallel, disjoint test artefacts):**
-  - **W3-A Classic proof runs** → `evidence/classic-strategy-<n>.json`
-  - **W3-B Krillocity proof runs** → `evidence/krillo-strategy-<n>.json`
-  - **W3-C Multiplayer/duel proof runs** → `evidence/mp-strategy-<n>.json`
+  - **W3-A Classic proof runs** → `docs/evidence/classic-strategy-<n>.json`
+  - **W3-B Krillocity proof runs** → `docs/evidence/krillo-strategy-<n>.json`
+  - **W3-C Multiplayer/duel proof runs** → `docs/evidence/mp-strategy-<n>.json`
   - **W3-D Analyse & rank** (reads all three, owns `injection/STRATEGY-VERIFIED.md`) — converts raw runs into a keep/discard table.
 - **Gate (measurable):** every candidate strategy is either `PROVEN` (≥3 runs with recorded numbers, no policy violation) or `REJECTED` (reason recorded). No `UNTESTED` entries may reach Phase 4. If a strategy cannot be safely live-tested, mark `REJECTED — untestable` with the reason and continue.
 - **Deliverable:** `injection/STRATEGY-VERIFIED.md` + raw evidence files; ledger row.

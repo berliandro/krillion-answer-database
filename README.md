@@ -168,6 +168,10 @@ krillion/   second static site: every 100-point answer, krillion-only database s
 jobs.md, AGENTS.md             job tracker and project rules
 ```
 
+### Where new files go
+
+Keep folder names lowercase (hyphens for multi-word names). New code goes in `scripts/` or `webapp/`, raw data and databases in `data/`, tests in `tests/`, and notes in `docs/`. Strategy run results belong in `docs/evidence/`, audit findings in `findings/`, and active working docs in `active-goals/`. Site outputs (`index.html`, `krillion/`, `webapp/index.html`) and their JSON snapshots stay at the root because the pages fetch them by name.
+
 ---
 
 ## Final tally
