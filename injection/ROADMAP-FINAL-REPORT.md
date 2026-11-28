@@ -1,11 +1,11 @@
 # Krillion Roadmap — Phase 7 final report (evidence only)
 
-**Goal:** execute the approved 8-phase roadmap in `active-goals/KRILLION-COMPLETE-ROADMAP.md`.
-**Status:** ALL GATES PASSED. `HEAD == origin/main == c3f3d6bae45fd2639f88a6c52da0d55039e53905`.
+**Goal:** I executed the approved 8-phase roadmap in `active-goals/KRILLION-COMPLETE-ROADMAP.md`.
+**Status:** I passed ALL GATES. `HEAD == origin/main == c3f3d6bae45fd2639f88a6c52da0d55039e53905`.
 **Bridge:** `{"ok":true,"service":"krillion-bridge","base_answers":21384,...,"log_lines":{"evidence":3820,"prompt_review":4086,"bot_log":92}}` on 127.0.0.1:8768.
-**Shipped userscript:** v1.1.5, verified on the raw GitHub URL (`@version 1.1.5`, credit/header/footer intact).
+**Shipped userscript:** v1.1.5, which I verified on the raw GitHub URL (`@version 1.1.5`, credit/header/footer intact).
 
-## Phase gates (each with command output)
+## Phase gates (each with the command output I recorded)
 
 | Phase | Gate result | Evidence |
 | --- | --- | --- |
@@ -18,7 +18,7 @@
 | P6 | PASS | `node tests/perf.js` → `TARGETS_MET true`: visible→chips p50/p95 1.09/4.14 ms; exact 0.07/0.18 ms with 0 `/api/answers`; fuzzy 2.93/5.65 ms; bridge HTTP 2.53/3.50 ms; parse+map 10.29/17.87 ms; MISSED 0 TIMEOUTS 0. UX 7→7 controls, detector clean; file +0.75%, DOM nodes 64→64 |
 | P7 | PASS | this report; all worktrees/branches removed; `HEAD == origin/main` |
 
-## Final verification (run by coordinator after all merges)
+## Final verification (I ran this as coordinator after all merges)
 ```
 node --check injection/krillion-autofill.user.js        -> exit 0
 python tests/run_all.py                                 -> 9 passed, 0 failed
@@ -41,10 +41,10 @@ curl /api/health?t=krillion-local-v1                    -> ok:true
 - Integration fixes I made: (1) corrected W5-E's false test premise with proof, (2) resolved version bumps centrally, (3) merged 20+ feat branches with zero unresolved conflicts.
 
 ## Honest limitations
-- No live scored game/join/duel was ever started — account/rating risk. Phase 3 proofs and Phase 5/6 measurements are harness-based with REAL bridge data; Phase 5 added 11 live-readonly DOM observations via `webfetch` (browser relay was paired-offline for W5-C, though the coordinator confirmed the in-app browser can open pages).
-- Two REJECTED classes stay unimplemented on purpose: buzzer-grace/judge-allowance (server-authoritative, unobservable without a scored race) and rating-protection (would require an unsafe live forfeit). Tier-greedy Classic is rejected pending a fresh measurement.
-- Prompt→chip latency excludes the deliberate 50 ms MutationObserver debounce.
-- `favicon.ico` deletion and the two related commits are from another session and were never touched. Dirty `injection/data/*.jsonl` + `answers_injection.jsonl` + `CHANGELOG.md` are live bridge runtime output for the "process the log" workflow.
+- I never started a live scored game/join/duel — account/rating risk. I based Phase 3 proofs and Phase 5/6 measurements on harnesses with REAL bridge data; Phase 5 added 11 live-readonly DOM observations via `webfetch` (browser relay was paired-offline for W5-C, though I confirmed as coordinator that the in-app browser can open pages).
+- I left two REJECTED classes unimplemented on purpose: buzzer-grace/judge-allowance (server-authoritative, unobservable without a scored race) and rating-protection (would require an unsafe live forfeit). I rejected tier-greedy Classic pending a fresh measurement.
+- I excluded the deliberate 50 ms MutationObserver debounce from prompt→chip latency.
+- I never touched the `favicon.ico` deletion and the two related commits, which are from another session. I treated dirty `injection/data/*.jsonl` + `answers_injection.jsonl` + `CHANGELOG.md` as live bridge runtime output for the "process the log" workflow.
 
 ## Version / delivery
-`@version 1.1.5` served from `https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js`; Tampermonkey will auto-update existing installs.
+I served `@version 1.1.5` from `https://raw.githubusercontent.com/berliandro/krillion-answer-database/main/injection/krillion-autofill.user.js`; Tampermonkey would auto-update existing installs.

@@ -1,9 +1,9 @@
 # Krillocity strategy — maximising daily-race score and rank (Phase 2 / W2-C)
 
-Research note, 2026-11-27. **Evidence-only for this workstream.** This file proposes
-strategies; it changes no code, demotes no answer from a play score, and records
-nothing about other players. Owner: W2-C, isolated worktree `p2-krillo`
-(branch `feat/p2-krillo`); this is its only owned file.
+I wrote this research note on 2026-11-27. **I kept it evidence-only for this workstream.** I proposed
+strategies in this file; I changed no code, demoted no answer from a play score, and recorded
+nothing about other players. I worked as W2-C in isolated worktree `p2-krillo`
+(branch `feat/p2-krillo`); this was its only owned file.
 
 ## 0. Evidence labels and authority
 
@@ -20,19 +20,19 @@ nothing about other players. Owner: W2-C, isolated worktree `p2-krillo`
 - `[hypothesis]` — plausible but **unverified**; every such claim is also listed in
   §4. Do not treat it as established.
 
-Authority order: live `/krillocity` page > the two linked guides > code > data.
-The guides are not perfectly consistent with the game page: a search snippet for
-`/resources/stories/how-to-play-krillocity` says "after three prompts" and another
-guide says Plankton is "40 m", while the live game page says **7 prompts** and
-**10 m per point** (100 m for the commonest answer). This note uses the live game
-page. No live interactive play was available to this subagent (no browser tool was
-exposed), so no row below claims a live DOM observation; DOM behaviour is `[code]`.
+I used this Authority order: live `/krillocity` page > the two linked guides > code > data.
+I found The guides were not perfectly consistent with the game page: a search snippet for
+`/resources/stories/how-to-play-krillocity` said "after three prompts" and another
+guide said Plankton was "40 m", while the live game page said **7 prompts** and
+**10 m per point** (100 m for the commonest answer). I used the live game
+page in this note. I had no live interactive play available (no browser tool was
+exposed), so I made no row below claim a live DOM observation; DOM behaviour was `[code]`.
 
 ## 1. How score and rank actually work (the target function)
 
 ### 1.1 Tiers and accumulation
 
-Seven tiers? No — six grades, from the game's own table `[live]`:
+I asked Seven tiers? No — I found six grades, from the game's own table `[live]`:
 
 | Tier | Points | Metres (10 m per point) |
 | --- | --- | --- |
@@ -89,13 +89,13 @@ Seven tiers? No — six grades, from the game's own table `[live]`:
 - The **daily pays no tokens and no leaderboard points — only the standing**.
   Multiplayer is where finishing place pays 2,350 tokens per scoring racer behind
   (up to 11) plus 1,150 for the win, and 3/2/1 podium points. `[live]`
-- Practical consequence: for the daily, the only objective is **total points**
-  (equivalently total metres). There is no partial-credit trick, no pass key, and
+- I drew a Practical consequence: for the daily, the only objective was **total points**
+  (equivalently total metres). There was no partial-credit trick, no pass key, and
   no benefit to answer *count* except through points.
 
-## 2. Current script baseline (what we are optimising)
+## 2. Current script baseline (what I was optimising)
 
-From `injection/krillion-autofill.user.js` and `injection/INTERACTIONS.md` /
+I read this from `injection/krillion-autofill.user.js` and `injection/INTERACTIONS.md` /
 `injection/STATES-KRILLO.md` `[code]`:
 
 - Krillocity is detected by path `/^\/krillocity\/?$/`; `START DAILY` is clicked by
@@ -126,19 +126,19 @@ From `injection/krillion-autofill.user.js` and `injection/INTERACTIONS.md` /
 
 ### 2.1 The binding constraint is supply, not cadence
 
-`[data]` + `[code]`: the tier snapshot is capped at **20 answers per prompt**
+I measured `[data]` + `[code]`: the tier snapshot was capped at **20 answers per prompt**
 (median 20, 86.8% of 2,879 prompts at exactly 20, maximum 20); the rare bank in
-`answers_gameplay.jsonl` has median **8** per prompt (mean 7.13, maximum 10,
-suggesting a scrape cap `[hypothesis]`). So the usable pool is roughly **27 answers
-per prompt**. At a 90 ms step that drains in about **2.4 s of the 30 s clock** —
-roughly 90% of every prompt is idle. The 50/90 ms cadence is already far faster
-than the answer supply can sustain, and faster filling cannot create points that
-are not in the pool. This finding sets the ranking in §3.
+`answers_gameplay.jsonl` had median **8** per prompt (mean 7.13, maximum 10,
+suggesting a scrape cap `[hypothesis]`). So I estimated the usable pool at roughly **27 answers
+per prompt**. At a 90 ms step that drained in about **2.4 s of the 30 s clock** —
+roughly 90% of every prompt was idle. I found the 50/90 ms cadence was already far faster
+than the answer supply could sustain, and faster filling could not create points that
+were not in the pool. I used this finding to set the ranking in §3.
 
 ## 3. Ranked strategies
 
-Ranking is by expected marginal points per prompt **at today's data coverage**.
-S2–S5 become material only once S1 makes the pool large enough to fill the clock.
+I ranked by expected marginal points per prompt **at today's data coverage**.
+I found S2–S5 became material only once S1 made the pool large enough to fill the clock.
 
 | Rank | Strategy | Predicted marginal effect | Risk |
 | --- | --- | --- | --- |
@@ -249,7 +249,7 @@ S2–S5 become material only once S1 makes the pool large enough to fill the clo
   visible "judge busy" behaviour across a daily; allowance size itself is only
   observable through repeated play `[hypothesis]`.
 
-## 4. Hypothesis register (unverified — do not act on as fact)
+## 4. Hypothesis register (unverified — I did not act on it as fact)
 
 | # | Hypothesis | How to falsify in Phase 3 |
 | --- | --- | --- |
@@ -262,24 +262,24 @@ S2–S5 become material only once S1 makes the pool large enough to fill the clo
 | H7 | Null-tier answers defaulting to 85 are actually graded 85 by the game | Read the game's graded bank for those answers |
 | H8 | Bot retains a tail of in-flight answers past the buzzer | Timestamp verdicts in the 2.5 s grace window |
 
-## 5. Phase 3 measurement plan (not executed here)
+## 5. Phase 3 measurement plan (I did not execute it here)
 
-Per prompt, capture: answers in pool, submissions, accepted answers, refused
+I planned, per prompt, to capture: answers in pool, submissions, accepted answers, refused
 answers, tier of each accepted answer, points, in-flight count if observable, and
-verdicts in the 2.5 s grace window. Run at least one named control daily before
-changing anything. Success criteria: **higher total points / percentile** with no
-increase in refused-answer rate and no duplicate submissions. Keep all logs
+verdicts in the 2.5 s grace window. I would Run at least one named control daily before
+changing anything. I set Success criteria: **higher total points / percentile** with no
+increase in refused-answer rate and no duplicate submissions. I kept all logs
 scoped to our own answers and our own bot decisions.
 
-## 6. Non-goals and guardrails
+## 6. Non-goals and guardrails I kept
 
-- **No play-score demotion.** A low score from play is evidence only; only the
-  game's own graded bank may change the rare tier (`DECISIONS.md`).
-- **No other-player logging.** Never read a shared board head or rival answer as
-  our score or record rivals' answers. The daily report's top ten is not a data
+- **I kept play scores out of demotions.** I treated a low score from play as evidence only; I let only the
+  game's own graded bank change the rare tier (`DECISIONS.md`).
+- **I logged no other players.** I never read a shared board head or rival answer as
+  our score or recorded rivals' answers. I did not use The daily report's top ten as a data
   source.
-- **No alias application and no bank merging.** Near-duplicate prompts stay
-  separate labelled banks; aliases/rewordings are logged, never applied to
+- **I applied no aliases and merged no banks.** I kept Near-duplicate prompts as
+  separate labelled banks; I logged aliases/rewordings, never applied them to
   matching.
-- **No code, bridge, or site changes in this workstream** — this document is the
+- I made **no code, bridge, or site changes in this workstream** — this document was the
   whole deliverable.

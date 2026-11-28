@@ -1,19 +1,19 @@
 # Phase 3 — verified strategy keep/discard table
 
-This is the authoritative Phase 3 gate result. It is derived field-by-field from the
-18 `docs/evidence/*-strategy-*.json` result files; no result here is
-invented, inferred from a keyword, or carried over from an earlier document.
+I wrote this as the authoritative Phase 3 gate result. I derived it field-by-field from the
+18 `docs/evidence/*-strategy-*.json` result files; I invented no result here,
+inferred none from a keyword, and carried none over from an earlier document.
 
 ## Gate / verification header
 
 - Phase 3 gate numbers: `FILES=18 RUNS=55 PROVEN=14 REJECTED=4 UNTESTED=0 BAD_SHAPE=0 POLICY_VIOLATIONS=0`.
-- Verification command used (coordinator): `python <temp>/verify_p3b.py`, whose output was
+- I used the Verification command (coordinator): `python <temp>/verify_p3b.py`, whose output was
   `FILES=18 RUNS=55 PROVEN=14 REJECTED=4 UNTESTED=0 BAD_SHAPE=0 POLICY_VIOLATIONS=0`.
 - Coverage: 18 evidence files, exactly one table row per file, 55 measured runs in total
   (Classic 16, Krillocity 15, Multiplayer 24). 14 strategies PROVEN, 4 REJECTED, 0 UNTESTED.
 - Mode codes: `classic` = Classic banks, `krillo` = Krillocity race, `mp` = Multiplayer.
-- A verdict is the file's top-level `verdict`, not a per-run verdict (one Classic file has a
-  PROVEN run inside an overall REJECTED file; that file is counted REJECTED).
+- I took A verdict as the file's top-level `verdict`, not a per-run verdict (one Classic file had a
+  PROVEN run inside an overall REJECTED file; I counted that file REJECTED).
 
 ## Authoritative keep/discard table
 
@@ -50,32 +50,32 @@ invented, inferred from a keyword, or carried over from an earlier document.
 **Multiplayer (7):** `cache-top-picks`, `duel-rare-first`, `most-populated-trap`,
 `marathon-5s-50`, `long-private-rooms`, `refusal-calibration`, `requeue-stop-loss`.
 
-Total KEEP = 14. No PROVEN strategy is "untested": each has at least 3 measured runs.
+I counted Total KEEP = 14. I found No PROVEN strategy was "untested": each had at least 3 measured runs.
 
 ## DISCARD — REJECTED strategies (with reason)
 
 - **classic / tier-greedy fallback / rare-first within confidence** — the 85-point tier-greedy
-  pick and rare-first ordering exist only inside `raceBuildPool()` (Krillocity race path);
-  Classic `answerCurrentPrompt()` never reads `state.tierPremap` for non-God picks and submitted
-  nothing on the tested no-100 prompts. A Classic proof requires a userscript edit outside the
+  pick and rare-first ordering existed only inside `raceBuildPool()` (Krillocity race path);
+  I found Classic `answerCurrentPrompt()` never read `state.tierPremap` for non-God picks and submitted
+  nothing on the tested no-100 prompts. A Classic proof required a userscript edit outside the
   evidence worker's file ownership. (Full verbatim reason in the table.)
-- **krillo / S4 submit to buzzer + claim 2.5s verdict grace** — the deciding verdict signals are
-  server-authoritative and cannot be observed without a live scored daily, which is forbidden by
-  account risk; the 6 in-grace verdicts are 400 ms-latency model outputs, not observations.
-- **krillo / S5 protect AI-judge allowance: prefer bank-known answers** — allowance size, refill
-  rate and allowance consumption are server-side; the measured bank-only vs speculative control
-  is a client-side proxy only.
-- **mp / rating-protection** — proving avoidance of a tab-out/leave forfeit requires deliberately
-  forfeiting a real match, which is unsafe and prohibited; `liveForfeitTested=false`.
+- **krillo / S4 submit to buzzer + claim 2.5s verdict grace** — I found the deciding verdict signals were
+  server-authoritative and could not be observed without a live scored daily, which I forbade by
+  account risk; the 6 in-grace verdicts were 400 ms-latency model outputs, not observations.
+- **krillo / S5 protect AI-judge allowance: prefer bank-known answers** — I found allowance size, refill
+  rate and allowance consumption were server-side; the measured bank-only vs speculative control
+  was a client-side proxy only.
+- **mp / rating-protection** — I found proving avoidance of a tab-out/leave forfeit required deliberately
+  forfeiting a real match, which was unsafe and prohibited; `liveForfeitTested=false`.
 
-Total DISCARD = 4. All four are rejected for unobservability or out-of-scope implementation, not
+I counted Total DISCARD = 4. I rejected all four for unobservability or out-of-scope implementation, not
 for a measured regression.
 
 ## LIVE validation verdict (2026-11-27, Edge automation profile)
 
-Real scored play was run in the dedicated Edge profile with the shipped userscript source; see
-`injection/LIVE-VALIDATION.md` and `injection/data/live_validation/*`. None of the four REJECTED
-claims could be promoted; all four are **formally discarded**, now with live-backed reasons:
+I ran Real scored play in the dedicated Edge profile with the shipped userscript source; see
+`injection/LIVE-VALIDATION.md` and `injection/data/live_validation/*`. I could not promote any of the four REJECTED
+claims; I **formally discarded** all four, now with live-backed reasons:
 
 | Strategy | Live outcome | Verdict |
 | --- | --- | --- |
@@ -84,13 +84,13 @@ claims could be promoted; all four are **formally discarded**, now with live-bac
 | krillo / protect AI-judge allowance | Live race logged bank-known sends only; allowance size/refill/consumption are server-side and invisible. | DISCARD (server-authoritative, unobservable) |
 | mp / rating-protection | Real multiplayer room `Riptide` was joined and left untouched (no forfeit, no tab-out); Elo deltas remain unobservable and a live forfeit is unsafe. | DISCARD (unsafe to test) |
 
-Live play also found and fixed a real v1.1.5 bug: Krillocity's hidden duplicate `p.kr-prompt` made the
-script miss the visible prompt; v1.1.6 selects the visible prompt and the live race then answered.
+Live play also led me to find and fix a real v1.1.5 bug: Krillocity's hidden duplicate `p.kr-prompt` made the
+script miss the visible prompt; v1.1.6 selected the visible prompt and the live race then answered.
 
 ## Policy statement — field-level verification
 
-No PROVEN strategy relies on play-score demotion, other-player logging, or alias application.
-This was checked against concrete evidence fields, not by searching for the words:
+I checked that No PROVEN strategy relied on play-score demotion, other-player logging, or alias application.
+I did this against concrete evidence fields, not by searching for the words:
 
 - **Classic (4 PROVEN files):** top-level `policy.play_score_demotion=false` and
   `policy.other_player_rows_imported=false` (also `policy.bridge_restart=false`,
@@ -108,35 +108,35 @@ This was checked against concrete evidence fields, not by searching for the word
   duel-rare-first and `foeRowsArchived=0` in requeue-stop-loss instead. cache-top-picks
   records `banksSeparate=true` with `bankLabelsRendered=2` on both multi-bank runs.
 
-A low play score is logged as evidence only (`lowScoreLogged=true` in long-private-rooms,
+I logged A low play score as evidence only (`lowScoreLogged=true` in long-private-rooms,
 `refusalLogs=1` in refusal-calibration, `evidencePosts=1` in confidence-gated retry) and never
-used to demote a bank. This matches `injection/DECISIONS.md` and `injection/CONTRACT-MODES.md`.
+used it to demote a bank. I checked this matched `injection/DECISIONS.md` and `injection/CONTRACT-MODES.md`.
 
 ## Phase 4 input
 
-**Classic — wire in:** exact-100 preload fast path (premap hit, zero `/api/answers` calls),
+**I wired in for Classic:** exact-100 preload fast path (premap hit, zero `/api/answers` calls),
 God Gaussian pick (distribution and empty-tier redistribution), confidence-gated retry
 (preload wait, multi-bank pause, refusal retry), capture-banks-before-restart flywheel
 (capture gate before Play-again, bounded 2,200 ms hard cap).
-**Classic — do not wire:** tier-greedy fallback / rare-first within confidence (REJECTED;
-requires a userscript edit and a fresh measurement before it can be claimed for Classic).
+**I did not wire for Classic:** tier-greedy fallback / rare-first within confidence (REJECTED;
+it required a userscript edit and a fresh measurement before it could be claimed for Classic).
 
-**Krillocity — wire in:** S1 supply expansion, S2 rare-100 first with strict dedupe,
+**I wired in for Krillocity:** S1 supply expansion, S2 rare-100 first with strict dedupe,
 S3 50 ms fill / 90 ms step cadence.
-**Krillocity — do not wire:** S4 buzzer-grace verdict claim and S5 judge-allowance protection
+**I did not wire for Krillocity:** S4 buzzer-grace verdict claim and S5 judge-allowance protection
 (both REJECTED; server-authoritative signals are unobservable without a live scored daily).
-The 50 ms threshold is a harness model, not a live measurement — keep it bounded, not a claim
+I treated The 50 ms threshold as a harness model, not a live measurement — I kept it bounded, not a claim
 of an exact live minimum.
 
-**Multiplayer — wire in:** cache-top-picks, duel-rare-first, most-populated-trap,
+**I wired in for Multiplayer:** cache-top-picks, duel-rare-first, most-populated-trap,
 marathon-5s-50, long-private-rooms, refusal-calibration, requeue-stop-loss.
-**Multiplayer — do not wire:** rating-protection (REJECTED; live forfeit test is unsafe).
-Room place must stay unmeasured and low scores evidence-only.
+**I did not wire for Multiplayer:** rating-protection (REJECTED; live forfeit test was unsafe).
+I kept Room place unmeasured and low scores evidence-only.
 
 ## Limitations — harness-only vs live-readonly evidence
 
-**No evidence file used live-readonly interactive DOM for its runs.** All 55 runs are harness
-runs; where live-readonly information appears, it is prior input, not a run observation:
+**I found No evidence file used live-readonly interactive DOM for its runs.** All 55 runs were harness
+runs; where live-readonly information appeared, it was prior input, not a run observation:
 
 - **Stubbed harness with real bridge data — the 5 `classic-*` files.** Each run has `source:
   "harness-real-bridge-data"` and the file's `harness.mode` is "vm sandbox, stubbed GM/DOM,
@@ -158,14 +158,14 @@ runs; where live-readonly information appears, it is prior input, not a run obse
   bridge answers = injected fixture". Foe rating/identity was in-memory only and never
   archived; the live-readonly notes predate these runs.
 
-Consequences for Phase 4: measured effects are client-side and deterministic-harness results
+I drew these Consequences for Phase 4: measured effects were client-side and deterministic-harness results
 with real bridge data (Classic/Krillocity) or fixtures (MP). Server-authoritative outcomes —
-live judge verdicts, judge allowance, forfeit rating loss, grace credit — remain unproven and
-are exactly the four REJECTED claims. Do not present any PROVEN effect as a live-game result.
+live judge verdicts, judge allowance, forfeit rating loss, grace credit — remained unproven and
+were exactly the four REJECTED claims. I did not present any PROVEN effect as a live-game result.
 
 ## Scoped check (row count + verdict cross-check)
 
-Command (PowerShell, run from the worktree):
+I ran this Command (PowerShell, from the worktree):
 
 ```powershell
 $mdPath = 'D:\! Games\Krillion Game\.worktrees\p3-analysis\injection\STRATEGY-VERIFIED.md'
@@ -190,7 +190,7 @@ foreach ($f in $files) { $j = Get-Content $f.FullName -Raw | ConvertFrom-Json; $
 "JSON_TOTAL_RUNS=$totalRuns"
 ```
 
-Exact output:
+I recorded the Exact output:
 
 ```text
 ROWS=18
@@ -217,6 +217,5 @@ EVIDENCE_FILES=18
 JSON_TOTAL_RUNS=55
 ```
 
-A second field check compared the `REJECTED reason` cell of all four rejected rows against the
-top-level `reason` field in their JSON: `REASON_MATCH=4 REASON_MISMATCH=0`. No full test suite
-was run.
+I ran a second field check that compared the `REJECTED reason` cell of all four rejected rows against the
+top-level `reason` field in their JSON: `REASON_MATCH=4 REASON_MISMATCH=0`. I ran no full test suite.

@@ -1,9 +1,9 @@
 # Krillocity state inventory — Phase 1 / W1-B (daily race)
 
-Scope: **every on-screen state and script interaction from the `/krillion` landing
-page through the `/krillocity` daily race to completion.** Companion to
-`STATES.md` (authority for the `game_state` / `input_state` tags attached to every
-archive event). This file is evidence-only: no code, no policy change.
+I scoped this to **every on-screen state and script interaction from the `/krillion` landing
+page through the `/krillocity` daily race to completion.** I wrote it as a companion to
+`STATES.md` (the authority for the `game_state` / `input_state` tags attached to every
+archive event). I made this file evidence-only: no code, no policy change.
 
 ## Method and evidence labels
 
@@ -15,26 +15,26 @@ archive event). This file is evidence-only: no code, no policy change.
   plus the live-mapped `injection/STATES.md` (2026-11-23) and
   `injection/CONTRACT-MODES.md`.
 
-**Live interactive play was not possible for this workstream:** the `browse`
+**I could not do live interactive play in this workstream:** the `browse`
 browser was offline (`connected:false`, `pairingState:paired-offline`) and no
-in-app `browser` tool is exposed to this subagent. Therefore no row claims a
-live *DOM* observation; DOM selectors and script actions are labelled
-`code/live notes`, while game rules, clocks and screen names are labelled
-`live` (site copy). This distinction is deliberate and is kept per row.
+in-app `browser` tool was exposed to me. I made no row claim a
+live *DOM* observation; I labelled DOM selectors and script actions
+`code/live notes`, while game rules, clocks and screen names were labelled
+`live` (site copy). I kept this distinction deliberately, per row.
 
-**Shop is EXCLUDED** — see the Exclusions section at the end. There are no shop
+I **excluded Shop** — see the Exclusions section at the end. I recorded no shop
 catalogue rows in the tables below.
 
 ## How to read the table
 
-`game_state` is the classifier in `gameState()` (script lines 1075–1088);
-`input_state` is the snapshot from `inputState()` (lines 1092–1102). Visibility
-means `offsetParent !== null || getClientRects().length > 0` (`visible()` /
-`isVisible()`, lines 1046–1049 and 1522–1525). Logged events carry `mode` from
-`mode()` (lines 1059–1069), which returns `krillocity` purely from the path
+I read `game_state` as the classifier in `gameState()` (script lines 1075–1088);
+`input_state` as the snapshot from `inputState()` (lines 1092–1102). Visibility
+meant `offsetParent !== null || getClientRects().length > 0` (`visible()` /
+`isVisible()`, lines 1046–1049 and 1522–1525). Logged events carried `mode` from
+`mode()` (lines 1059–1069), which returned `krillocity` purely from the path
 `/^\/krillocity\/?$/` — no DOM guess.
 
-Timing constants used below (all from the script unless marked live):
+The Timing constants I used below were all from the script unless marked live:
 observer debounce **50 ms** (line 85), bot tick **500 ms** (line 1513), race
 fill→submit **50 ms** / submit→next **90 ms** (lines 1753–1754), answers-loading
 retry **80 ms** (line 1742), pool-drained retry **150 ms** (line 1750), lookup
@@ -74,8 +74,8 @@ K-10/K-12.
 
 ## Registry selector coverage (Phase 0: 38 selectors / 10 states / 5 modes)
 
-Every Krillocity-relevant registry selector is represented above. The table
-below maps all 38 registry selectors so coverage is auditable; "NO" entries are
+I represented every Krillocity-relevant registry selector above. I mapped all 38 registry selectors
+in the table below so coverage was auditable; "NO" entries were
 deliberately owned by the Classic (W1-A) or Multiplayer/1v1 (W1-C) inventories.
 
 | Registry selector | Krillocity-relevant? | Where / why |
@@ -125,14 +125,14 @@ krillocity-specific `loading-shell` (K-01). Registry modes represented:
 `krillocity` (all rows); `classic`/`duel`/`marathon5`/`showoff` are owned by the
 other Phase 1 workstreams.
 
-## Exclusions (encountered, deliberately not inventoried)
+## Exclusions (I encountered these, deliberately did not inventory them)
 
-- **SHOP — EXCLUDED.** Live site copy mentions it ("The two games share their
+- **I excluded SHOP.** I found Live site copy mentioned it ("The two games share their
   answers, depth tokens, shop, avatars and emotes"; the `/krillion` landing has
-  a "Shop" link), and the tier table is worth 10/15/30/60/85/100 points. No
-  shop screen, item, purchase or catalogue state is inventoried here — it is
-  out of scope for Phase 1 by project decision. This paragraph is the only
-  mention; there are **zero shop rows** in the tables above.
-- Multiplayer rooms / private races on `/krillocity` (`Play multiplayer`,
-  `.kr-lobby-tab`, `.kr-room-row`, `.kr-arena-main`) and all duel screens are
+  a "Shop" link), and the tier table was worth 10/15/30/60/85/100 points. I inventoried no
+  shop screen, item, purchase or catalogue state — it was
+  out of scope for Phase 1 by project decision. This paragraph is my only
+  mention; I recorded **zero shop rows** in the tables above.
+- I left Multiplayer rooms / private races on `/krillocity` (`Play multiplayer`,
+  `.kr-lobby-tab`, `.kr-room-row`, `.kr-arena-main`) and all duel screens
   out of scope for this daily-race workstream (owned by W1-C).

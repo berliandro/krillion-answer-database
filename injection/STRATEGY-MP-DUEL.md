@@ -1,16 +1,16 @@
 # Phase 2 / W2-D — Multiplayer & 1v1 duel rank strategy
 
-**Status:** research only. No live proof in Phase 2; every unmeasured claim is
-labelled `hypothesis`. Phase 3 (W3-C) must turn the ranked list below into
-`docs/evidence/mp-strategy-<n>.json` runs before any of it is implemented.
+**Status:** I wrote this as research only. I had no live proof in Phase 2; I labelled every unmeasured claim
+`hypothesis`. I required Phase 3 (W3-C) to turn the ranked list below into
+`docs/evidence/mp-strategy-<n>.json` runs before any of it was implemented.
 
-**Scope:** room choice (5s/6s marathon, most-populated, long rooms), seat
+**Scope:** I scoped this to room choice (5s/6s marathon, most-populated, long rooms), seat
 limits, score/rank mechanics, duel rating, requeue vs leave, other-player
-effects, refusal cost. Classic and Krillocity are out of scope except where
-their rules contrast with MP/duel. Shop/rewards are excluded.
+effects, refusal cost. I left Classic and Krillocity out of scope except where
+their rules contrasted with MP/duel. I excluded Shop/rewards.
 
-**Owned file:** this document only. No userscript, bridge, data or site file is
-changed by this workstream.
+**Owned file:** I owned this document only. I changed no userscript, bridge, data or site file
+in this workstream.
 
 ## Evidence key
 
@@ -29,25 +29,25 @@ changed by this workstream.
   `data/answers_gameplay.jsonl`, `data/answers.jsonl` in this worktree.
 - `LIVE-NOTE` — previously observed in the real game, recorded in
   `injection/STATES.md` / `STATES-MP-DUEL.md` (includes a real 6s/50 room).
-  No new live observation was possible: the paired browser was offline, so no
-  Phase 2 score/rating measurement was taken.
+  I found no new live observation was possible: the paired browser was offline, so I
+  took no Phase 2 score/rating measurement.
 - `hypothesis` — plausible but not verified by FAQ, bundle, code or measurement.
 
-## Hard constraints (apply to every strategy below)
+## Hard constraints I applied to every strategy below
 
-1. **Never demote a 100-point answer from a play score.** The game AI-grades
-   unknown answers inconsistently; only the game's dive-end graded bank may
-   demote. Refusals, MP board points and duel result points are evidence only
+1. **I kept play scores from demoting a 100-point answer.** The game AI-grades
+   unknown answers inconsistently; I let only the game's dive-end graded bank
+   demote. I treated Refusals, MP board points and duel result points as evidence only
    (`DECISIONS.md` #1, #5, #7; `INTERACTIONS.md` T21/T22).
-2. **Never record another player's answer, score, chat or emote.** Board rows,
+2. **I never recorded another player's answer, score, chat or emote.** Board rows,
    `.kr-board-head`, `.kd-result-diver[data-side=foe]`, opponent chat and
-   emotes are interaction context only. The bot captures only `[data-me]` lines
+   emotes were interaction context only. I had the bot capture only `[data-me]` lines
    and `source: api` graded banks (`DECISIONS.md` #5/#7; `STATES-MP-DUEL.md`
-   M09/M10/D07/D08). This is a policy constraint, not a scoring tactic.
-3. **Near-duplicate / reworded prompts stay separate labelled banks.** Duel
-   prompts are reworded and cannot be copied off screen (`WEB`); aliases are
-   logged, never applied to matching (`DECISIONS.md` #2; `AGENTS.md`).
-4. **No shop mechanics** are used or recommended in this document.
+   M09/M10/D07/D08). This was a policy constraint, not a scoring tactic.
+3. **I kept Near-duplicate / reworded prompts as separate labelled banks.** Duel
+   prompts are reworded and cannot be copied off screen (`WEB`); I logged aliases,
+   never applied them to matching (`DECISIONS.md` #2; `AGENTS.md`).
+4. I used **no shop mechanics** and recommended none in this document.
 
 ## Mechanic model (what actually moves rank)
 
@@ -71,8 +71,8 @@ changed by this workstream.
 
 ## Ranked strategies
 
-Ranked by expected effect on **rank / score** with acceptable risk. Every row
-has the four required fields; "testable in Phase 3" is explicit.
+I ranked by expected effect on **rank / score** with acceptable risk. Every row
+had the four required fields; "testable in Phase 3" was explicit.
 
 | # | Strategy | Predicted effect | Evidence source | Risk | Testable in Phase 3 |
 | --- | --- | --- | --- | --- | --- |
@@ -97,8 +97,8 @@ has the four required fields; "testable in Phase 3" is explicit.
   `BUNDLE` depth = points × 10.
 - **Risk:** bank may be for a wrong near-duplicate bank (duel rewords prompts);
   auto-enter is deliberately paused when several banks match (`DECISIONS.md` #4),
-  so a completely automatic `top` pick is not always possible. A play score
-  never demotes an answer.
+  so a completely automatic `top` pick is not always possible. I never let a play score demote an
+  answer.
 - **Testable in Phase 3: Yes** — fixed prompt set, `top` vs `god`, compare
   accepted tier and points; assert zero play-score demotions.
 
@@ -123,7 +123,7 @@ has the four required fields; "testable in Phase 3" is explicit.
 ### S3 — Long / private rooms for total depth and cumulative standings
 
 - **Predicted effect:** more prompts means more depth in one sitting; room
-  standings accumulate for as long as you stay. Useful when the objective is
+  standings accumulated for as long as I stayed. This was useful when the objective was
   an absolute depth number or a room leaderboard placing rather than speed.
 - **Evidence:** FAQ prompt/time range and 6-digit private codes; `WEB`
   game-night guide ("standings add up everyone's depth for as long as they
@@ -167,7 +167,7 @@ has the four required fields; "testable in Phase 3" is explicit.
 - **Risk:** live answer lookup cannot finish in 15 s; AI grading of unknown
   answers is inconsistent; whether a previously refused typed answer is graded
   at the buzzer is `hypothesis`; time spent hunting can cost a points-tie
-  tiebreak (frequency `hypothesis`). No play-score demotion.
+  tiebreak (frequency `hypothesis`). I kept play scores out of demotions.
 - **Testable in Phase 3: Yes** — 7-prompt duels, record first-submit tier,
   refusals, retries, and final points vs opponent points (own row only).
 
@@ -197,7 +197,7 @@ has the four required fields; "testable in Phase 3" is explicit.
 - **Evidence:** `BUNDLE` `k:50`, `nu()` expected-score term, `rematch:3` and
   "Beat a higher rating, take more of it"; `WEB` opponent near rating, 3 rated
   matches/24 h per pair, forfeits count; `CODE` D09 auto-requeue.
-- **Risk:** requeue after a win raises your rating and therefore opponent
+- **Risk:** I found requeue after a win raised my rating and therefore opponent
   strength; a 3/day cap against the same diver redirects the queue; auto-requeue
   means "leave" must be a user action, not a bot action.
 - **Testable in Phase 3: Yes** — record Δ rating and foe rating for N matches,
@@ -214,7 +214,7 @@ has the four required fields; "testable in Phase 3" is explicit.
   clears the input and re-enables it.
 - **Risk:** a late refusal in a duel can turn a points tie into a lost time
   tiebreak (`hypothesis`); repeated refusals are logged as `prompt-review:refused`
-  and `evidence:refused` but never as demotions.
+  and `evidence:refused` but never as demotions — I logged repeated refusals, I did not demote.
 - **Testable in Phase 3: Yes** — count refusal→accepted retry by room clock.
 
 ## Requeue vs leave — decision table
@@ -227,38 +227,38 @@ has the four required fields; "testable in Phase 3" is explicit.
 | Multiplayer room mid-dive | Let the bot keep diving; Leave is a user action only | Leaving forfeits accumulated standing for that room (`hypothesis`) | `CODE` M18; `WEB` game-night |
 | No 5s room has a free seat | Wait (no fallback) | Lost diving time; no rating effect | `CODE` `joinLobbyRoom()` |
 
-## Other-player effects — verified and prohibited
+## Other-player effects — I verified and prohibited them
 
-- **Scoring:** none. Same prompts, independent grading, no answer stealing; if
-  both players give the same Deep Cut, both score it (`WEB`). Opponent speed
-  affects only the points-tie time tiebreak, which is computed from our own
+- **Scoring:** I found none. Same prompts, independent grading, no answer stealing; if
+  both players gave the same Deep Cut, both scored it (`WEB`). I found Opponent speed
+  affected only the points-tie time tiebreak, which was computed from our own
   scoring answers.
-- **Board/chat/emotes:** context only. `.kr-board-head` may read "X went
-  deepest … +30" — that is **another player's** points and is never parsed as
-  our score (`DECISIONS.md` #7). Chat and emotes are never read or forwarded.
-- **Duel result:** `.kd-result-diver[data-side="foe"]`, rating deltas and
-  opponent identity are never archived. Only our own submissions/refusals and
+- **Board/chat/emotes:** I treated these as context only. I found `.kr-board-head` may read "X went
+  deepest … +30" — that is **another player's** points and was never parsed as
+  our score (`DECISIONS.md` #7). I never read or forwarded Chat and emotes.
+- **Duel result:** I never archived `.kd-result-diver[data-side="foe"]`, rating deltas or
+  opponent identity. I let only our own submissions/refusals and
   `source: api` graded banks enter the archive.
-- **Why it matters for rank:** AI-graded arbitrary answers are inconsistent;
-  recording another player's answer would inject false "100" evidence and
-  could drive bad bank edits. The prohibition protects the archive, not the
+- **Why I cared for rank:** AI-graded arbitrary answers are inconsistent;
+  recording another player's answer would have injected false "100" evidence and
+  could have driven bad bank edits. I kept the prohibition because it protected the archive, not the
   opponent.
 
 ## Phase 3 handoff notes (W3-C)
 
-1. Test S1 first: it is the only strategy with a directly computable expected
-   point delta (100 vs ≈77.5 per prompt) and it applies to every room/duel.
-2. Test S2/S4 room choice with the same cached prompt bank; record elapsed ms,
-   prompts answered, own depth and seat count. Do not read other rows.
-3. Test S5/S7 in duels; log Δ rating, foe rating, tier per prompt, refusals.
-4. Do not live-test S6 forfeits. If a mechanic cannot be safely tested, write
+1. I asked W3-C to Test S1 first: it was the only strategy with a directly computable expected
+   point delta (100 vs ≈77.5 per prompt) and it applied to every room/duel.
+2. I asked them to Test S2/S4 room choice with the same cached prompt bank and record elapsed ms,
+   prompts answered, own depth and seat count. I told them not to read other rows.
+3. I asked them to Test S5/S7 in duels and log Δ rating, foe rating, tier per prompt, refusals.
+4. I told them not to live-test S6 forfeits. If a mechanic could not be safely tested, I had them write
    `REJECTED — untestable` with the reason in `STRATEGY-VERIFIED.md`.
-5. Every proof file must assert: zero play-score demotions, zero other-player
+5. I required every proof file to assert: zero play-score demotions, zero other-player
    answer rows, near-duplicate banks kept separate.
 
-## Scoped check (exact output recorded after writing)
+## Scoped check (I recorded the exact output after writing)
 
-Commands run in this worktree only; no full test suite.
+I ran Commands in this worktree only; no full test suite.
 
 ```powershell
 Select-String -Path injection/STRATEGY-MP-DUEL.md -Pattern '^\| \*\*[1-8]\*\*' | Measure-Object | Select-Object -ExpandProperty Count
@@ -268,7 +268,7 @@ Select-String -Path injection/STRATEGY-MP-DUEL.md -Pattern 'Never demote|never d
 Select-String -Path injection/STRATEGY-MP-DUEL.md -Pattern 'other player|Other player|other-user' | Measure-Object | Select-Object -ExpandProperty Count
 ```
 
-Exact output of the five commands above, in order:
+I recorded the Exact output of the five commands above, in order:
 
 ```text
 8
@@ -278,8 +278,8 @@ Exact output of the five commands above, in order:
 5
 ```
 
-Interpretation (counts are matching lines, not token occurrences): 8 ranked
+I interpreted this (counts are matching lines, not token occurrences): 8 ranked
 strategies; 12 "Testable in Phase 3" lines (one table header + 8 strategy rows
 + supporting notes), including two qualified "Partial"/"REJECTED — untestable"
 notes; 20 lines carrying explicit `hypothesis` markers; 7 no-demotion lines; 5
-other-player prohibition lines. Zero shop strategies.
+other-player prohibition lines. I found Zero shop strategies.

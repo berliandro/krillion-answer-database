@@ -2,7 +2,7 @@
 
 Generated: 2026-11-28T01:57:04.645969+00:00
 
-Read-only audit. No raw JSONL was rewritten, no answer demoted, no alias applied.
+I ran a read-only audit. I rewrote no raw JSONL, demoted no answer, and applied no alias.
 
 ## Counts
 
@@ -53,7 +53,7 @@ Read-only audit. No raw JSONL was rewritten, no answer demoted, no alias applied
 | What's an example of a movie with a single-word title? | What's an example of a movie with a one-word title? | 0.9745 | False | False |
 | What's an example of a Christmas movie? | Name an example of a Christmas film | 0.9189 | False | False |
 
-## Tier disagreements (report only — never demote)
+## Tier disagreements (I reported them only — I never demoted)
 
 - `What's something you find in a living room?` ↔ `Name one thing you find in a living room` answer `Name one thing you find in a living room` tiers [0, 1]
 - `What's an example of a one-word band name?` ↔ `Name an example of a one-word band name` answer `What's an example of a one-word band name?` tiers [0, 1]
@@ -84,11 +84,11 @@ Read-only audit. No raw JSONL was rewritten, no answer demoted, no alias applied
 | pg-0020 | What's an example of a plant? | Name an example of a plant | 0.9409 | False |
 | … | (457 more in the JSON artifact) | | | |
 
-## Decisions needed from the user (STOP)
+## Decisions I left to the user (STOP)
 
-- Whether to merge PARAPHRASE banks (NOT done here — game treats them as separate banks).
-- Whether Search DB should hold one answer per paraphrase group (NOT done here).
-- Whether to apply any alias to the matcher (NOT done here; aliases stay log-only).
+- I left open whether to merge PARAPHRASE banks (NOT done here — the game treats them as separate banks).
+- I left open whether Search DB should hold one answer per paraphrase group (NOT done here).
+- I left open whether to apply any alias to the matcher (NOT done here; aliases stay log-only).
 
-Automatic applications allowed by the directive: TRIVIAL prompt and ANSWER-VARIANT
+I allowed automatic applications per the directive: TRIVIAL prompt and ANSWER-VARIANT
 cleanup, non-destructively in the import/derive layer, preserving original strings.

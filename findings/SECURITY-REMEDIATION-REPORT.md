@@ -6,11 +6,11 @@
 ## Executive Summary
 * **Overall Risk Posture:** High
 * **Top 3 Immediate Fixes (Highest Impact, Lowest Effort):**
-  1. Add server-side per-turn plausibility enforcement: a hard answer-count ceiling scaled to the prompt clock and a maximum credible score per 30-second turn, with anomalous runs shadow-banned from leaderboards instead of silently accepted. A `too fast` rejection already exists — extend it with an aggregate cap rather than relying on per-request throttling alone.
-  2. Lock down display names at the write boundary: cooldown, character/similarity validation against reserved and leaderboard names, and a server-side session→name binding for the duration of a race. The client currently PUTs `{"name":...}` with only a 1.5-second debounce.
-  3. Close the graded-bank export path: authenticate and scope `GET /api/krillion/answers` to a live, server-signed round, and replace the shared 65-second `425 wait` window with per-client limits. A complete public dataset of 127,118 graded answers exists and is the direct source of the cheat payoff.
+  1. I would add server-side per-turn plausibility enforcement: a hard answer-count ceiling scaled to the prompt clock and a maximum credible score per 30-second turn, with anomalous runs shadow-banned from leaderboards instead of silently accepted. A `too fast` rejection already exists — I would extend it with an aggregate cap rather than relying on per-request throttling alone.
+  2. I would lock down display names at the write boundary: cooldown, character/similarity validation against reserved and leaderboard names, and a server-side session→name binding for the duration of a race. The client currently PUTs `{"name":...}` with only a 1.5-second debounce.
+  3. I would close the graded-bank export path: authenticate and scope `GET /api/krillion/answers` to a live, server-signed round, and replace the shared 65-second `425 wait` window with per-client limits. A complete public dataset of 127,118 graded answers exists and is the direct source of the cheat payoff.
 
-**What is already working well (please keep it):** Krillocity does **not** ship answer banks or tier metadata to the browser — prompts arrive via a signed `/lineup` ticket and grading happens server-side; answers carry single-use-looking `stamp` tokens; the server already rejects `too fast`, `dup`, `late` and `closed` answers and can `shut` the AI fallback judge mid-prompt; realtime rooms expose public standings, not raw opponent answers; source maps are not published; room/board reads are CDN-cached and contain no bank data. These are strong foundations — the fixes below are about closing the remaining gaps without adding maintenance burden.
+**What was already working well (I would keep it):** Krillocity does **not** ship answer banks or tier metadata to the browser — prompts arrive via a signed `/lineup` ticket and grading happens server-side; answers carry single-use-looking `stamp` tokens; the server already rejects `too fast`, `dup`, `late` and `closed` answers and can `shut` the AI fallback judge mid-prompt; realtime rooms expose public standings, not raw opponent answers; source maps are not published; room/board reads are CDN-cached and contain no bank data. These are strong foundations — my fixes below are about closing the remaining gaps without adding maintenance burden.
 
 ---
 
@@ -23,10 +23,10 @@
 * **How the Cheat Works:** A client with no game session requests deals, receives seven prompts plus a ticket, then fetches each prompt's *complete* graded bank — including the 100-point "One in a Krillion" tier — and repeats in bursts. The published `wait` value on HTTP 425 is a shared window: waiting `wait + 2s` and then firing seven requests yields roughly 350 answers per cycle. This is not theoretical: this repository documents a harvest ending at 127,118 graded answers, 21,384 of them rare, using plain `fetch` with no cookies. Those answers are exactly what a Krillocity bot needs to flood a 30-second prompt with rare hits.
 * **Root Cause:** The bank endpoint authorises the *request*, not the *player in an active round*, and its throttle is a coarse global window rather than a per-identity budget. The bank is a static asset reachable outside gameplay.
 * **Recommended Fix (Step-by-Step):**
-  * Require a live, server-signed round ticket (the same `d/s/t/k/l/lk` structure already used by `/lineup`) on every `/answers` call, and reject tickets whose round has ended or whose `upto` exceeds the current prompt index.
-  * Return only the tier of answers the player has already legitimately earned in that round; never return the full bank to the browser.
-  * Replace the shared `425 wait` window with per-identity/per-IP token buckets and a daily export budget; alert on any identity fetching hundreds of banks.
-  * Keep the JSON schema, `425` response shape and `wait` field so the existing clients degrade gracefully.
+  * I would require a live, server-signed round ticket (the same `d/s/t/k/l/lk` structure already used by `/lineup`) on every `/answers` call, and reject tickets whose round has ended or whose `upto` exceeds the current prompt index.
+  * I would return only the tier of answers the player has already legitimately earned in that round; never return the full bank to the browser.
+  * I would replace the shared `425 wait` window with per-identity/per-IP token buckets and a daily export budget, and alert on any identity fetching hundreds of banks.
+  * I would keep the JSON schema, `425` response shape and `wait` field so the existing clients degrade gracefully.
 
 ### [FLAW-02] No published per-turn plausibility ceiling — velocity control is per-request only
 * **Severity:** High
@@ -35,10 +35,10 @@
 * **How the Cheat Works:** The client schedules submissions about 400 ms apart and its per-prompt limit formula (`ceil(seconds/250)+3`) allows up to ~123 answers in a 30-second prompt, while the game's own guide says a strong human manages about 10. A script can therefore sit just inside the per-request `too fast` threshold and submit dozens of rare answers, producing 3,000–25,000-point turns. Accepted answers return a `stamp`, so the run looks legitimate request-by-request even though the aggregate is impossible.
 * **Root Cause:** Enforcement is local to each submission (a `too fast` reason with no stamp). There is no server-side aggregate answer-count or score bound per prompt/turn, and no cross-request pattern scoring. The client-side `limit` and `400 ms` scheduler are advisory only — anything can call the endpoint directly.
 * **Recommended Fix (Step-by-Step):**
-  * Enforce a server-side per-turn answer ceiling derived from the signed clock: e.g. `min(24, 8 + floor(seconds/5))` accepted answers for a 30-second prompt (≈14), and reject or drop further submissions with `reason: "limit"` rather than trusting the client's count.
-  * Add a per-turn score cap consistent with that ceiling (e.g. ≤1,500 points/30 s in public races) and a per-prompt maximum number of 85/100-tier accepts, so a bot cannot win on a single lucky rarity streak.
-  * Track a lightweight anomaly score per turn (answers/second, rarity distribution, inter-arrival variance, duplicate-normalised answers). Above threshold, **shadow-ban**: keep the player's UI normal but exclude the run from Daily Race and public leaderboards and from token payouts.
-  * Reuse the existing response fields (`accepted`, `stamp`, `shut`, `reason`) so no client change is required to roll this out.
+  * I would enforce a server-side per-turn answer ceiling derived from the signed clock: e.g. `min(24, 8 + floor(seconds/5))` accepted answers for a 30-second prompt (≈14), and reject or drop further submissions with `reason: "limit"` rather than trusting the client's count.
+  * I would add a per-turn score cap consistent with that ceiling (e.g. ≤1,500 points/30 s in public races) and a per-prompt maximum number of 85/100-tier accepts, so a bot cannot win on a single lucky rarity streak.
+  * I would track a lightweight anomaly score per turn (answers/second, rarity distribution, inter-arrival variance, duplicate-normalised answers). Above threshold, I would shadow-ban: keep the player's UI normal but exclude the run from Daily Race and public leaderboards and from token payouts.
+  * I would reuse the existing response fields (`accepted`, `stamp`, `shut`, `reason`) so no client change is required to roll this out.
 
 ### [FLAW-03] Bot attestation relies on the edge only; no game-layer proof of humanity
 * **Severity:** Medium
@@ -47,10 +47,10 @@
 * **How the Cheat Works:** A headless browser that passes the Cloudflare edge challenge can join a room and drive the whole race through the normal JSON API; nothing in the game's own join/answer contract asks for a bot-management token or behavioural proof. The repository's own 24-hour automated session demonstrates the pattern works from an ordinary browser.
 * **Root Cause:** Cloudflare's challenge protects the page, not the game API. The API trusts any correctly shaped request carrying the client-generated `client` and `key` UUIDs.
 * **Recommended Fix (Step-by-Step):**
-  * Add Cloudflare Turnstile (invisible mode) to room join and daily-race start only — not to every answer, to avoid harming latency — and verify the token in the Worker before issuing a race ticket.
-  * Bind the resulting ticket to the verified client ID so the same token cannot be reused across many rooms.
-  * Keep a manual fallbacks path for users who cannot complete the challenge; log verification failures rather than silently blocking.
-  * Do **not** add keystroke dynamics or heavy fingerprinting yet: they are high-maintenance and provide little extra value once FLAW-02 and FLAW-04 are fixed.
+  * I would add Cloudflare Turnstile (invisible mode) to room join and daily-race start only — not to every answer, to avoid harming latency — and verify the token in the Worker before issuing a race ticket.
+  * I would bind the resulting ticket to the verified client ID so the same token cannot be reused across many rooms.
+  * I would keep a manual fallbacks path for users who cannot complete the challenge; I would log verification failures rather than silently blocking.
+  * I would **not** add keystroke dynamics or heavy fingerprinting yet: they are high-maintenance and provide little extra value once FLAW-02 and FLAW-04 are fixed.
 
 ### [FLAW-04] Display name can be changed with no server-side cooldown, similarity check, or match binding
 * **Severity:** High
@@ -59,10 +59,10 @@
 * **How the Cheat Works:** On load the browser automatically PUTs the client-chosen name with only a `content-type` header for a guest. A script can change the name repeatedly mid-lobby or between races, adopt a top-racer's exact spelling or a homoglyph/invisible-character variant, and appear on public boards as that player. Because the name lives in `localStorage` and is echoed to the server, nothing in the client prevents cycling or impersonation; server-side policy is not visible from client assets and must be assumed absent until proven otherwise.
 * **Root Cause:** The display name is treated as client-owned presentation data, while leaderboards and room standings treat it as identity. There is no uniqueness, reserved-name, Unicode-confusable, or session-binding step at the write boundary.
 * **Recommended Fix (Step-by-Step):**
-  * Apply a cooldown (e.g. one change per 24 h for guests, 30 days for accounts) and a lifetime change counter; reject faster requests with `429` and a `retry_after` header.
-  * Validate server-side: NFC normalisation, reject zero-width/invisible characters, cap length (25 chars matches the current client), and compare against a reserved-name list plus the top 100 leaderboard names using a confusable-aware similarity check (homoglyph folding).
-  * Freeze the name at race start: store the authoritative name in the signed race ticket/session and render standings from it; ignore later `PUT /scores` writes until the race ends.
-  * Keep the existing `{name}` body and 200/204 response shape so the shipped client continues to work unchanged.
+  * I would apply a cooldown (e.g. one change per 24 h for guests, 30 days for accounts) and a lifetime change counter; reject faster requests with `429` and a `retry_after` header.
+  * I would validate server-side: NFC normalisation, reject zero-width/invisible characters, cap length (25 chars matches the current client), and compare against a reserved-name list plus the top 100 leaderboard names using a confusable-aware similarity check (homoglyph folding).
+  * I would freeze the name at race start: store the authoritative name in the signed race ticket/session and render standings from it; ignore later `PUT /scores` writes until the race ends.
+  * I would keep the existing `{name}` body and 200/204 response shape so the shipped client continues to work unchanged.
 
 ### [FLAW-05] Guest identities are client-minted; account merge can inherit unvetted standings
 * **Severity:** Medium
@@ -71,9 +71,9 @@
 * **How the Cheat Works:** Identity is a pair of UUIDs generated and stored in the browser and replayed in every request. Clearing storage mints a fresh identity with no observable server-side cost, which lets a bad actor probe prompts, retry races, or abandon a flagged session and continue. If a guest record with anomalous scores is later merged into a signed-in Daily Games account, the tainted standing could be laundered into a permanent profile. Merge behaviour was not live-tested (no account was available) — this is a design-level risk, not a reproduced exploit.
 * **Root Cause:** Guest identity is entirely client-held and there is no visible device/IP issuance limit or trust tier separating guest-created standings from account-created ones.
 * **Recommended Fix (Step-by-Step):**
-  * Issue the guest `client`/`key` server-side when a ticket is minted; treat client-supplied values as untrusted hints and bind them to the signed ticket.
-  * Rate-limit identity issuance per IP/device fingerprint (generous enough for shared NAT — e.g. 20/hour) and keep a "flagged" bit on identities with anomalous runs.
-  * On guest→account merge, transfer only verified standings and drop flagged or shadow-banned runs; log the merge with both identity IDs for audit.
+  * I would issue the guest `client`/`key` server-side when a ticket is minted; treat client-supplied values as untrusted hints and bind them to the signed ticket.
+  * I would rate-limit identity issuance per IP/device fingerprint (generous enough for shared NAT — e.g. 20/hour) and keep a "flagged" bit on identities with anomalous runs.
+  * On guest→account merge, I would transfer only verified standings and drop flagged or shadow-banned runs; log the merge with both identity IDs for audit.
 
 ### [FLAW-06] Predictable, publicly cached board endpoints enable name reconnaissance
 * **Severity:** Medium
@@ -82,9 +82,9 @@
 * **How the Cheat Works:** The daily board is a public CDN cache hit keyed only by a date, and returns names, looks and points for the top ten plus a distribution. An attacker can enumerate dates for months to harvest the exact spelling of top racers, then feed those names into FLAW-04 to impersonate them. This is reconnaissance, not the scoring exploit itself, which is why it is ranked below the hotfixes.
 * **Root Cause:** Board data is intentionally public, but it is also the input to a weak identity system; caching and predictability make bulk collection trivial.
 * **Recommended Fix (Step-by-Step):**
-  * Once FLAW-04 is fixed, most of this risk disappears — prioritise that first.
-  * Add stable public player IDs to board rows and render names from the ID record, so a display name change cannot silently rewrite history.
-  * Keep the 30-second CDN cache (good for performance), but apply the same reserved-name/confusable check to historical display names when they are served, and avoid exposing email-like or account identifiers.
+  * Once FLAW-04 is fixed, most of this risk disappears — I would prioritise that first.
+  * I would add stable public player IDs to board rows and render names from the ID record, so a display name change cannot silently rewrite history.
+  * I would keep the 30-second CDN cache (good for performance), but apply the same reserved-name/confusable check to historical display names when they are served, and avoid exposing email-like or account identifiers.
 
 ### [FLAW-07] Clock authority is good but the grace window is generous
 * **Severity:** Medium
@@ -93,9 +93,9 @@
 * **How the Cheat Works:** The client derives the count-in, answer window and reveal from a server anchor plus a fixed 4-second RTT allowance. A script can submit in the last seconds of the window — or just after it, while claiming latency — and still receive a `stamp`. The server does reject `late`/`closed` answers, so this is a bounded residual, not an open door; tightening it improves fairness at the margins.
 * **Root Cause:** The latency grace is a fixed constant rather than a measured value, and the client is allowed to decide when a window is open.
 * **Recommended Fix (Step-by-Step):**
-  * Make the server the sole authority on phase: include `startsAt`/`endsAt` in the signed ticket and reject any submission whose server receive-time is outside `[startsAt, endsAt + grace]`.
-  * Derive `grace` from observed p99 client→worker RTT (e.g. 500–800 ms) with a hard 1-second ceiling, replacing the current 4-second allowance; keep a small `closeMarginMs` so slow clients are not unfairly cut off.
-  * Keep `/api/time` for display synchronisation only; never use the client's computed phase for validation.
+  * I would make the server the sole authority on phase: include `startsAt`/`endsAt` in the signed ticket and reject any submission whose server receive-time is outside `[startsAt, endsAt + grace]`.
+  * I would derive `grace` from observed p99 client→worker RTT (e.g. 500–800 ms) with a hard 1-second ceiling, replacing the current 4-second allowance; keep a small `closeMarginMs` so slow clients are not unfairly cut off.
+  * I would keep `/api/time` for display synchronisation only; never use the client's computed phase for validation.
 
 ### [FLAW-08] AI fallback judge lacks visible input caps, injection sanitisation, and per-user quota
 * **Severity:** High
@@ -104,10 +104,10 @@
 * **How the Cheat Works:** Anything outside the bank is judged by an AI model. If the judge can be prompted with crafted strings, an attacker may coax it into returning `krillion` (100 points) for nonsense input. The client applies length caps (250 chars for Krillocity, 160 for classic) and answer normalisation, and the response schema is checked, but none of that is proof of *server-side* enforcement, and no per-user judge quota is visible. The good news: the server already has a `shut` flag that switches a prompt to bank-only mode — use it as the mitigation lever.
 * **Root Cause:** The judge is an LLM-based oracle on the critical scoring path, with client-side sanitisation as the only visible guardrail.
 * **Recommended Fix (Step-by-Step):**
-  * Enforce server-side input limits: NFC-normalise, strip control/zero-width characters, cap at 120 characters for the judge path, and apply a strict character allowlist appropriate to the prompt language. Reject rather than truncate.
-  * Never interpolate user text into the judge instruction as instructions; pass it as a quoted, delimited data field with an explicit system prompt that forbids tier assignment for off-topic or instruction-like text.
-  * Cap judge calls per user per turn (e.g. 6) and per prompt globally; after the cap, return `shut:true` and grade only against the known bank.
-  * Automatically set `shut:true` for a prompt whose judge-accepted rarity distribution is statistically impossible, and surface a concise reason to the client using the existing `reason` field.
+  * I would enforce server-side input limits: NFC-normalise, strip control/zero-width characters, cap at 120 characters for the judge path, and apply a strict character allowlist appropriate to the prompt language. Reject rather than truncate.
+  * I would never interpolate user text into the judge instruction as instructions; I would pass it as a quoted, delimited data field with an explicit system prompt that forbids tier assignment for off-topic or instruction-like text.
+  * I would cap judge calls per user per turn (e.g. 6) and per prompt globally; after the cap, return `shut:true` and grade only against the known bank.
+  * I would automatically set `shut:true` for a prompt whose judge-accepted rarity distribution is statistically impossible, and surface a concise reason to the client using the existing `reason` field.
 
 ---
 

@@ -2,43 +2,43 @@
 
 ## The problem
 
-A player types what Krillion shows, and the webapp fails to surface the right answer.
-Investigation showed two distinct causes:
+A player typed what Krillion shows, and the webapp failed to surface the right answer.
+My investigation showed two distinct causes:
 
 1. **Near-duplicate prompts are distinct games.** Krillion's bank contains separate prompt
    IDs such as `Name a Mario character` and `Name a character from Mario`, each with its own
-   answer bank. Both are stored in the DB, but literal search can rank the wrong one first —
-   or return nothing when the typed wording differs slightly.
+   answer bank. Both were stored in the DB, but literal search could rank the wrong one first —
+   or return nothing when the typed wording differed slightly.
 2. **User-typed paraphrases.** Wording such as `Name any one famous park` or
-   `Name a movie with a one word title` is not stored verbatim anywhere in the DB.
+   `Name a movie with a one word title` was not stored verbatim anywhere in the DB.
 
-The game itself does **not** paraphrase at display time: the bundle renders `prompt.text`
+I confirmed the game itself does **not** paraphrase at display time: the bundle renders `prompt.text`
 verbatim (module `981714`), and a live capture confirmed the DOM text equals the deal API's
-`text` field byte for byte. So the fix has to live in the search layer, not in the data.
+`text` field byte for byte. So the fix had to live in the search layer, not in the data.
 
 The site's own placeholder was a working reproduction of cause 2:
 
-| What the user types | What the DB stores | Old result |
+| What the player typed | What the DB stored | Old result |
 | --- | --- | --- |
 | `Name any one famous park` | `Name a famous park` | **no result** |
 | `Give an example of a well-known park` | `Name a famous park` | **no result** |
 
 `index.html`'s old `score()` required *every* typed word to be a substring of the stored
-question, and the local webapp used FTS5 phrase/prefix matching. Both are
-order-sensitive, give no partial credit, and treat `name` and `park` as equally informative.
+question, and the local webapp used FTS5 phrase/prefix matching. Both were
+order-sensitive, gave no partial credit, and treated `name` and `park` as equally informative.
 
-The archive itself contains evidence of natural variant wording, e.g.
+The archive itself contained evidence of natural variant wording, e.g.
 `Name a clothing item for winter` / `Name an item of winter clothing`,
 `Name a Mario character` / `Name a character from Mario`.
 
-Near-duplicate pairs found in the bank itself (finite, already in the DB):
+Near-duplicate pairs I found in the bank itself (finite, already in the DB):
 `Name a clothing item for winter` / `Name an item of winter clothing`,
 `Name a Mario character` / `Name a character from Mario`,
 `Name a film with a one-word title` / `Name a film with a single-word title`,
 `Name a sport played with a ball` / `Name a sport played without a ball`,
 `Name a chemical element ending in -ium` / `not ending in -ium`, and others. The matcher
-keeps such look-alikes visibly separate via quoted-term matching and the negation guard, and
-returns both answers when they are genuine aliases.
+kept such look-alikes visibly separate via quoted-term matching and the negation guard, and
+returned both answers when they were genuine aliases.
 
 ## Options investigated
 
@@ -58,34 +58,34 @@ Verified sources: [transformers.js docs](https://huggingface.co/docs/transformer
 [BM25](https://en.wikipedia.org/wiki/Okapi_BM25),
 [soft TF-IDF (Cohen et al.)](https://www.cs.cmu.edu/~wcohen/postscript/kdd-2003-match-ws.pdf).
 
-## The shipped solution
+## The solution I shipped
 
-`scripts/paraphrase_match.py` is the dependency-free reference implementation. The same
-algorithm is mirrored in `scripts/build_static.py` (static site) and used directly by
-`webapp/app.py` (local server). The user's text is never rewritten — only the *internal
-comparison form* is normalised.
+I wrote `scripts/paraphrase_match.py` as the dependency-free reference implementation. I
+mirrored the same algorithm in `scripts/build_static.py` (static site) and used it directly
+in `webapp/app.py` (local server). The rule I applied was that the player's text is never
+rewritten — only the *internal comparison form* was normalised.
 
-Scoring, in order:
+I scored in this order:
 
 1. **Normalisation** — lowercase, Unicode quotes/dashes, contractions (`you'd → you would`),
    punctuation, multi-word phrases (`one word → oneword`, `well known → wellknown`).
-2. **Tokenisation** — quoted terms become `q:<term>` so `Name a word that can follow "star"`
-   cannot be confused with `Name a rock star`; light stemming; a small domain stop list
-   (`a`, `an`, `any`, `one`, `of`, `name`, `give`, …) that removes paraphrase filler.
+2. **Tokenisation** — quoted terms became `q:<term>` so `Name a word that can follow "star"`
+   could not be confused with `Name a rock star`; light stemming; a small domain stop list
+   (`a`, `an`, `any`, `one`, `of`, `name`, `give`, …) that removed paraphrase filler.
 3. **Synonym canonicalisation** — `give/list/state → name`, `movie → film`,
    `well-known/notable → famous`, `item/thing → item`, `one-word/single-word`, `3D/three-dimensional`.
-4. **IDF-weighted overlap** — `name` appears in ~all 2,512 questions (low weight);
-   `park` is rare (high weight). Score is the harmonic mean of query coverage and candidate
-   precision, so a candidate with extra words is penalised.
+4. **IDF-weighted overlap** — `name` appeared in ~all 2,512 questions (low weight);
+   `park` was rare (high weight). The score was the harmonic mean of query coverage and
+   candidate precision, so a candidate with extra words was penalised.
 5. **Trigram Dice** (12%) — typo/inflection rescue.
-6. **Quote cross-match + negation guard** — `star` can match `"star"`, but `with` must not
-   match `without`; a negation mismatch applies a 0.7 penalty.
-7. **Relative cut-off** — keep the best hit and genuine aliases (≥72% of the best score),
-   drop loosely related questions.
+6. **Quote cross-match + negation guard** — `star` could match `"star"`, but `with` must not
+   match `without`; a negation mismatch applied a 0.7 penalty.
+7. **Relative cut-off** — I kept the best hit and genuine aliases (≥72% of the best score)
+   and dropped loosely related questions.
 
 ## Verification
 
-Run the harness:
+I ran the harness:
 
 ```powershell
 python scripts/paraphrase_match.py
@@ -96,31 +96,32 @@ python scripts/paraphrase_match.py
 | Old literal `score()` | **26 / 36** |
 | New paraphrase-tolerant matcher | **36 / 36** |
 
-Browser-verified on the rebuilt static page (Chrome, no console errors):
+I verified in the browser on the rebuilt static page (Chrome, no console errors):
 
 - `Name any one famous park` → single result `Name a famous park → Tsavo`
 - `Give an example of a well-known park` → `Name a famous park → Tsavo`
 - `Name a movie with a one word title` → `Name a film with a one-word title → Gummo`
 - `Name a word after star` → `Name a word that can follow "star" → Fort`
 - `Name a sport played without a ball` → correct hit only; `with a ball` is excluded
-- `Name a DC villain` and `Name a DC superhero` remain distinct
+- `Name a DC villain` and `Name a DC superhero` remained distinct
 
-Local webapp (`http://127.0.0.1:8765/api/search`) returns the same results.
+The local webapp (`http://127.0.0.1:8765/api/search`) returned the same results.
 
 ## Optional: true semantic fallback
 
-If Krillion later uses open-ended paraphrases that share no content words, the lexical layer
-can be backed by embeddings:
+I noted that if Krillion later uses open-ended paraphrases that share no content words, the
+lexical layer could be backed by embeddings:
 
 - Build time: `pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { dtype: 'q8' })`,
-  embed all 2,512 questions (`pooling: 'mean', normalize: true`, 384 dims), store a
+  embedding all 2,512 questions (`pooling: 'mean', normalize: true`, 384 dims), storing a
   `Float32Array` of **3,858,432 bytes** (`2512 × 384 × 4`).
 - Runtime: import `@huggingface/transformers@4.3.2` from jsDelivr, embed the typed query
   lazily on first search, brute-force cosine (≈965k multiply-adds, single-digit ms), reuse
-  the cached pipeline. Prefer `Xenova/paraphrase-MiniLM-L3-v2` (17.4 MB) for mobile.
-- Do **not** make this the default: first visit downloads ≈55 MB and inference is far slower
-  than the lexical path. Load it only when the lexical matcher has no confident hit.
+  the cached pipeline. I would prefer `Xenova/paraphrase-MiniLM-L3-v2` (17.4 MB) for mobile.
+- I did **not** make this the default: first visit downloads ≈55 MB and inference is far
+  slower than the lexical path. I would load it only when the lexical matcher has no
+  confident hit.
 
-No ANN library is needed at this corpus size (`hnswlib-wasm`, `faiss-wasm`, `usearch` were
-evaluated and rejected as overkill / Node-only). Hosted embedding APIs are worse here because
-a static site cannot hide an API key.
+I found no ANN library was needed at this corpus size (`hnswlib-wasm`, `faiss-wasm`, `usearch`
+were evaluated and rejected as overkill / Node-only). Hosted embedding APIs were worse here
+because a static site cannot hide an API key.

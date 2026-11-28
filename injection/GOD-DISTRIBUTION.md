@@ -1,13 +1,13 @@
 # God-player pick distribution — normal, centred on 85pt
 
-Decision (2026-11-23): God mode selects answers by **point group** using a
+I decided on 2026-11-23 that God mode selected answers by **point group** using a
 normal (Gaussian) probability centred on the 85-point "Deep Cut" tier, so lower
-point answers are picked rarely and 85 is the single most likely pick. This
-replaces the old fixed "1-in-7 rare / rest deepcut" cadence.
+point answers were picked rarely and 85 was the single most likely pick. This
+replaced the old fixed "1-in-7 rare / rest deepcut" cadence.
 
 ## Point groups and probabilities
 
-Tiers follow the game's six grades. With Gaussian `sigma = 1.1` centred on
+I followed the game's six grades. With Gaussian `sigma = 1.1` centred on
 tier index 4 (85pt), `w(i) = exp(-(i-4)^2 / (2 * 1.1^2))`, normalised:
 
 | Tier index | Points | Chance |
@@ -19,14 +19,14 @@ tier index 4 (85pt), `w(i) = exp(-(i-4)^2 / (2 * 1.1^2))`, normalised:
 | 4 | 85 (Deep Cut) | **39.37%** |
 | 5 | 100 (One in a Krillion) | 26.04% |
 
-Total = 100%. 85pt is the peak; each step down is less likely. The 100pt group
-stays prominent because those answers are the exact, instant ones from the
-rare preload — the user explicitly wants those shown instantly.
+I checked the total = 100%. 85pt was the peak; each step down was less likely. I kept the 100pt group
+prominent because those answers were the exact, instant ones from the
+rare preload — I explicitly wanted those shown instantly.
 
 ## Where point values come from
 
-`data/krillion_full.db` has **no points/tier column** — only `is_krillion`.
-The only graded point data is `injection/data/learned.jsonl` (4,920 rows;
+I found `data/krillion_full.db` had **no points/tier column** — only `is_krillion`.
+The only graded point data was `injection/data/learned.jsonl` (4,920 rows;
 1,043 with `tierIndex` 0-5). For an answer:
 
 1. `tierIndex` -> points = `[10, 15, 30, 60, 85, 100][tierIndex]`.
@@ -49,8 +49,8 @@ The only graded point data is `injection/data/learned.jsonl` (4,920 rows;
    from that group (excluding refused/submitted ones as today).
 4. Keep the stale guards, forever-retry fallback and all policy guards.
 
-## Verification requirement
-- A deterministic harness must assert the empirical distribution over many
-  draws matches the table within tolerance when every group is populated, and
-  that an empty group's chance is redistributed without ever selecting from it.
-- `node --check` and the existing 8-test suite must still pass.
+## Verification I required
+- I required a deterministic harness to assert that the empirical distribution over many
+  draws matched the table within tolerance when every group was populated, and
+  that an empty group's chance was redistributed without ever selecting from it.
+- I required `node --check` and the existing 8-test suite to still pass.

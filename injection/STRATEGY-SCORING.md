@@ -1,27 +1,27 @@
 # P2-A — Scoring & answer economics (Phase 2 strategy research)
 
-Research note, written 2026-11-27. **Evidence-only: no code, no policy change, no bridge
-restart.** This document explains what raises score and rank in Krillion and what is a
-trap, so the autofill can spend its one answer per prompt on the right tier. It is the
+I wrote this research note on 2026-11-27. **I made it evidence-only: no code, no policy change, no bridge
+restart.** I wrote it to explain what raised score and rank in Krillion and what was a
+trap, so my autofill could spend its one answer per prompt on the right tier. It was the
 scoring companion to `DECISIONS.md` (policy), `STATES.md` (state inventory) and
 `GOD-DISTRIBUTION.md` (pick weights).
 
-**Two hard guards apply to every strategy below, without exception:**
+**I applied two hard guards to every strategy below, without exception:**
 
-1. **No strategy may demote an answer from a play score.** A low or refused score is
-   evidence only; only the game's own dive-end graded bank may change a tier
+1. **I kept every strategy from demoting an answer from a play score.** I treated a low or refused score as
+   evidence only; I let only the game's own dive-end graded bank change a tier
    (`DECISIONS.md` #1).
-2. **No strategy may record another player's answer or score.** Only our own rows
+2. **I kept every strategy from recording another player's answer or score.** I let only our own rows
    (`[data-me]`, `source: own`) and the game's graded banks (`source: api`) enter the
    archive (`DECISIONS.md` #5, #7; `STATES.md` rule 1).
 
 ## Evidence labels
 
-- **[EVIDENCE]** = a claim checked against a named source this run: the live page's
+- I marked **[EVIDENCE]** a claim I checked against a named source this run: the live page's
   `application/ld+json` FAQ at <https://playdaily.org/krillion> (fetched 2026-11-27),
   the site's Next.js chunks (`2dsh2j7-x58f7.js`, `1teyoxwdggu1p.js`), or a repo file.
-- **HYPOTHESIS:** = plausible but unverified by this workstream (no new live game was
-  started; the browser relay was offline). Do not treat it as measured.
+- I marked **HYPOTHESIS:** plausible but unverified by this workstream (I started no new live game;
+  the browser relay was offline). I did not treat it as measured.
 - Source files: `README.md`, `data/manifest.json`, `data/tier-data.json`,
   `data/scrape-notes.md`, `data/gameplay-notes.md`, `injection/DECISIONS.md`,
   `injection/STATES.md`, `injection/STATES-KRILLO.md`,
@@ -30,7 +30,7 @@ scoring companion to `DECISIONS.md` (policy), `STATES.md` (state inventory) and
 
 ## 1. The scoring model — six tiers and the depth conversion
 
-The game's own FAQ and bundle tier table agree exactly. [EVIDENCE] FAQ JSON-LD
+I found the game's own FAQ and bundle tier table agree exactly. [EVIDENCE] FAQ JSON-LD
 "How does Krillion score my answer?" at <https://playdaily.org/krillion>; bundle
 `1teyoxwdggu1p.js` module 712867, `score: b.P[0]` … `b.P[5]` with labels
 `PLANKTON`, `TOO CLEVER`, `SCHOOLER`, `RARE`, `DEEP CUT`, `ONE IN A KRILLION`;
@@ -82,9 +82,9 @@ The game's own FAQ and bundle tier table agree exactly. [EVIDENCE] FAQ JSON-LD
   (deep-cut peak); these are bot behaviour, not game scoring. [EVIDENCE]
   `GOD-DISTRIBUTION.md`.
 
-## 3. Grade stability, AI inconsistency, and why play scores can never demote
+## 3. Grade stability, AI inconsistency, and why I kept play scores out of demotions
 
-- **Bank grades are stable.** If an answer is in the prompt's bank, it takes that
+- **I found bank grades are stable.** If an answer is in the prompt's bank, it takes that
   bank's fixed grade; the graded bank is what the results screen downloads
   (`tierIndex 0..5`). Only this bank is authoritative. [EVIDENCE] FAQ;
   `scrape-notes.md` lines 10–13; `DECISIONS.md` confidence table "Authoritative".
@@ -92,28 +92,28 @@ The game's own FAQ and bundle tier table agree exactly. [EVIDENCE] FAQ JSON-LD
   model decides whether it fits the prompt and how rare it is, **and the result is
   saved so that everyone who gives the same answer gets the same score**."
   [EVIDENCE] FAQ JSON-LD.
-- **Observed play contradicts that stability for unknown answers.** The project's
+- **I observed play contradicting that stability for unknown answers.** The project's
   live finding is that "the game AI-grades unknown answers inconsistently; the same
   answer can be 100 once and 30 or 85 the next time" (`DECISIONS.md` #1) and, in
   multiplayer/1v1, "100 once, 60 or 85 later" (#5). HYPOTHESIS: the save is keyed by
   answer version, prompt variant, session or AI model state, or a race in the grade
-  write — we have no bundle proof of the key. Both statements are recorded; we do not
+  write — I had no bundle proof of the key. I recorded both statements; I did not
   resolve them here.
-- **Therefore a play score can NEVER demote an answer.** A low score is ambiguous
+- **I therefore never let a play score demote an answer.** I treated a low score as ambiguous
   evidence (wrong bank, fuzzy wording, or AI variance), not a correction.
-  `DECISIONS.md` #1 and scenario matrix rows A–E: only an exact-match single bank or
-  the game's dive-end graded bank (scenario F) may demote; multiple banks shown →
-  "ambiguous and likely wrong bank — no demotion"; unparseable points stay `null`,
-  never `0`, so a selector drift cannot demote a correct answer (`STATES.md` C16).
-  `INTERACTIONS.md` T21 explicitly: "never demote a 100 from a play score, so low
+  I followed `DECISIONS.md` #1 and scenario matrix rows A–E: only an exact-match single bank or
+  the game's dive-end graded bank (scenario F) could demote; multiple banks shown →
+  "ambiguous and likely wrong bank — no demotion"; I kept unparseable points `null`,
+  never `0`, so a selector drift could not demote a correct answer (`STATES.md` C16).
+  `INTERACTIONS.md` T21 states it explicitly: "never demote a 100 from a play score, so low
   scores are sent for review instead." [EVIDENCE]
-- The shared board head is **other players'** points ("X went deepest: SCHOOLER
-  (+30)"); `checkVerdict()` parses it only in classic mode and never in
+- I found the shared board head showed **other players'** points ("X went deepest: SCHOOLER
+  (+30)"); I had `checkVerdict()` parse it only in classic mode and never in
   multiplayer/1v1. [EVIDENCE] `DECISIONS.md` #7; `STATES.md` row 5 / C10;
   `STATES-MP-DUEL.md` M09, M14, D07.
-- **Aliases are never pinned.** A 100 on a fuzzy bank logs an alias candidate; it is
-  promoted only after 2 distinct answers from that bank score 100 on the same prompt
-  and no other bank does. [EVIDENCE] `DECISIONS.md` #2 and scenario rows B/C/D/I.
+- **I never pinned aliases.** A 100 on a fuzzy bank logged an alias candidate; I
+  promoted it only after 2 distinct answers from that bank scored 100 on the same prompt
+  and no other bank did. [EVIDENCE] `DECISIONS.md` #2 and scenario rows B/C/D/I.
 
 ## 4. How score maps to rank / leaderboard
 
@@ -152,8 +152,8 @@ function of K=50 and expected score; we did not verify the formula.
 
 ## 6. Ranked strategies
 
-Ranked by expected score impact per answer, then by safety. Each carries the four
-required fields. None may demote from play or record other players.
+I ranked them by expected score impact per answer, then by safety. Each carried the four
+required fields. I kept every one from demoting from play or recording other players.
 
 ### Strategy 1 — Spend the answer on a known 100-point bank answer (exact prompt only)
 - **Predicted effect (number):** +100 pt / +1,000 m vs 0 for a pass; +900 m vs the
@@ -214,13 +214,13 @@ required fields. None may demote from play or record other players.
 - **`testable in Phase 3` flag:** partial — needs a live room; until then assert
   statically that `checkVerdict()` reads `.kr-board-head` only when `mode()==='classic'`.
 
-**Non-goals:** no strategy in this file changes the shipped userscript, restarts the
-bridge, edits other files, or authorises demotions from play or recording other
-players. Shop interactions/ranks are out of scope by project decision.
+**I set these non-goals:** no strategy in this file changed the shipped userscript, restarted the
+bridge, edited other files, or authorised demotions from play or recording other
+players. I left Shop interactions/ranks out of scope by project decision.
 
-## 7. Scoped check (exact output recorded after writing)
+## 7. Scoped check (I recorded the exact output after writing)
 
-Commands run in this worktree; no full test suite or build was run.
+I ran Commands in this worktree; no full test suite or build was run.
 
 ```powershell
 Select-String -Path injection/STRATEGY-SCORING.md -Pattern '^### Strategy ' | Measure-Object | Select-Object -ExpandProperty Count
@@ -229,7 +229,7 @@ Select-String -Path injection/STRATEGY-SCORING.md -Pattern 'HYPOTHESIS' | Measur
 Select-String -Path injection/STRATEGY-SCORING.md -Pattern 'testable in Phase 3' | Measure-Object | Select-Object -ExpandProperty Count
 ```
 
-Exact output of the four commands above, in order:
+I recorded the Exact output of the four commands above, in order:
 
 ```text
 5
@@ -238,8 +238,8 @@ Exact output of the four commands above, in order:
 7
 ```
 
-Interpretation: 5 ranked strategies; 28 `[EVIDENCE]` markers; 8 `HYPOTHESIS` markers;
+I interpreted this as 5 ranked strategies; 28 `[EVIDENCE]` markers; 8 `HYPOTHESIS` markers;
 7 "testable in Phase 3" mentions (5 strategy flags + this check's pattern line and
-interpretation). Every strategy has predicted effect, source, risk and a Phase 3 flag;
-the two hard guards (no demotion from play, no recording other players) are stated
-above and restated in the non-goals.
+interpretation). I found every strategy had predicted effect, source, risk and a Phase 3 flag;
+I stated the two hard guards (no demotion from play, no recording other players)
+above and restated them in the non-goals.

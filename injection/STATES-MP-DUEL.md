@@ -1,6 +1,6 @@
 # Multiplayer & 1v1 duel state inventory (Phase 1 / W1-C)
 
-Scope: every multiplayer and 1v1 state/interaction from intro to results/leave,
+I scoped this to every multiplayer and 1v1 state/interaction from intro to results/leave,
 including room selection (Marathon 5s/50, custom 6s/50, most-populated),
 room countdown, between-round board, chat/emotes as interactions only,
 prompt-before-input, active input, refusal/verdict, round transition,
@@ -20,46 +20,46 @@ duel queue/rule/versus/answers/result/requeue/elsewhere/leave.
 - `FAQ` — site JSON-LD FAQ fetched from `https://playdaily.org/krillion` on
   2026-11-27 (room/duel rules).
 
-Live-browser check (exact result): `tools.browse.status` returned
+I ran a Live-browser check (exact result): `tools.browse.status` returned
 `{"connected":false,"pairingState":"paired-offline","tabs":[]}` with
 `nextStep: "The paired browser isn't connected right now…"`. The in-app
-`browser` tool and Playwright MCP are not exposed in this subagent session, so
-there are **zero new live rows**; each row below carries its source label.
-Site shell fetched today confirms the cold-load state (`<p class="game-label">
-Loading</p>` inside `[data-game-viewport]`), and the FAQ confirms: rooms of up
+`browser` tool and Playwright MCP were not exposed in my session, so I recorded
+**zero new live rows**; each row below carries its source label.
+I fetched the Site shell that day and it confirmed the cold-load state (`<p class="game-label">
+Loading</p>` inside `[data-game-viewport]`), and the FAQ confirmed: rooms of up
 to 40 players, 5–50 prompts at 5–60 s each, 6-digit private-room codes; 1v1 =
 7 prompts at 15 s each with rating changes (start 1000).
 
-## Governing policy (every row)
+## Policy I applied to every row
 
-1. **OTHER PLAYERS' ANSWERS AND SCORES ARE NEVER RECORDED.** Board rows, chat,
-   emotes and opponent results are interaction/context only. Only our own
+1. **I never recorded OTHER PLAYERS' ANSWERS AND SCORES.** I treated Board rows, chat,
+   emotes and opponent results as interaction/context only. I let only our own
    (`[data-me]`, `source: own`) rows and the site's graded API banks
-   (`source: api`) may enter the archive.
-2. Play scores never demote an answer; only the game's dive-end graded bank can
+   (`source: api`) enter the archive.
+2. I kept play scores from demoting an answer; I let only the game's dive-end graded bank
    demote (`DECISIONS.md` #1).
-3. Log the situation, not the noise: a log needs a decision-grade signal
+3. I logged the situation, not the noise: I required a log to carry a decision-grade signal
    (answer outcome, uncertain prompt, bot decision). Idle frames and other
-   players' activity are not logged.
+   players' activity were not logged.
 
-## Scope exclusions (no inventory rows)
+## Scope exclusions (no inventory rows I recorded)
 
-- **SHOP — EXCLUDED.** The Colosseum rewards rail and the shop card markup
-  (`.kr-shop-card-head`, `emote-*` track items, depth-token spend) were seen in
-  the bundles and in the site FAQ but are deliberately **not** inventoried.
-  Emotes are listed below only as in-room interactions, never as shop content.
-- Classic-only solo verdict and Krillocity are out of W1-C scope; the shared
-  rows below include them only where needed to contrast MP behaviour or to
+- **I excluded SHOP.** I saw the Colosseum rewards rail and the shop card markup
+  (`.kr-shop-card-head`, `emote-*` track items, depth-token spend) in
+  the bundles and in the site FAQ but deliberately did not inventory them.
+  I listed Emotes below only as in-room interactions, never as shop content.
+- I left Classic-only solo verdict and Krillocity out of W1-C scope; I included the shared
+  rows below only where needed to contrast MP behaviour or to
   cover the Phase 0 registry.
 
-Modes in the Phase 0 registry: `classic`, `krillocity` (out of scope),
-`marathon5`, `showoff`, `duel` (all three in scope). Bot mode values come from
+I noted the modes in the Phase 0 registry: `classic`, `krillocity` (out of scope),
+`marathon5`, `showoff`, `duel` (all three in scope). Bot mode values came from
 `#ka-mode` in the userscript: `Multiplayer · 5s / 50 prompts`,
 `Multiplayer · most players`, `1 vs 1`.
 
 ## Inventory — shared entry / classic contrast
 
-All rows have detection, input state, timing, script action and logging rationale.
+I gave all rows detection, input state, timing, script action and logging rationale.
 
 | ID | State / interaction | Evidence | Detection (selector + visibility) | Input state | Timing | Script action (v1.1.2) | Logging allowed? |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -109,8 +109,8 @@ All rows have detection, input state, timing, script action and logging rational
 
 ## Phase 0 registry coverage (all 38 selectors)
 
-MP/duel-relevant selectors are mapped to their row above; classic-only hooks are
-listed as contrast rows. No selector is mapped to a shop row.
+I mapped MP/duel-relevant selectors to their row above; I listed classic-only hooks
+as contrast rows. I mapped no selector to a shop row.
 
 | Registry selector | Row(s) | Scope |
 | --- | --- | --- |
@@ -153,9 +153,9 @@ listed as contrast rows. No selector is mapped to a shop row.
 | `input.kr-input` | M02, M07, M11, M12, D06 | shared input/name/code field |
 | `p.kr-prompt` | M11, M12, D06 | prompt |
 
-## Scoped check (exact output recorded after writing)
+## Scoped check (I recorded the exact output after writing)
 
-Commands were run in this worktree with no full test suite.
+I ran Commands in this worktree with no full test suite.
 
 ```powershell
 Select-String -Path injection/STATES-MP-DUEL.md -Pattern '^\| [SMD]\d' | Measure-Object | Select-Object -ExpandProperty Count
@@ -164,7 +164,7 @@ Select-String -Path injection/STATES-MP-DUEL.md -Pattern '^\| [SMD]\d.*CODE' | M
 Select-String -Path injection/STATES-MP-DUEL.md -Pattern '^\|.*[Ss]hop' | Measure-Object | Select-Object -ExpandProperty Count
 ```
 
-Exact output of the four commands above, in order:
+I recorded the Exact output of the four commands above, in order:
 
 ```text
 33
@@ -173,7 +173,7 @@ Exact output of the four commands above, in order:
 0
 ```
 
-Structural check (same file, registry at
+I ran a Structural check (same file, registry at
 `C:\Users\nberl\AppData\Local\Temp\opencode\roadmap-registry.json`):
 
 ```text
@@ -184,7 +184,7 @@ registry_states=10 missing=0
 registry_modes=5 missing=0
 ```
 
-Interpretation: 33 inventory rows (3 shared/classic-contrast, 18 multiplayer,
-12 duel); 12 carry a live-verified note, 31 carry code/bundle derivation (some
-rows carry both); zero shop inventory rows; every registry selector, state and
-mode is represented in this document.
+I interpreted this as 33 inventory rows (3 shared/classic-contrast, 18 multiplayer,
+12 duel); 12 carried a live-verified note, 31 carried code/bundle derivation (some
+rows carried both); zero shop inventory rows; every registry selector, state and
+mode was represented in this document.

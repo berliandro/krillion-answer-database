@@ -1,15 +1,15 @@
 # Restructure contract (coordinator-owned, frozen for this restructure)
 
-All workers implement to THIS document. Do not change it. If you need a change,
-report a blocker; the coordinator edits it once between phases.
+I had all workers implement to THIS document. I told them not to change it. If they needed a change,
+they reported a blocker; I, as coordinator, edited it once between phases.
 
-## Non-negotiable rules for every worker
-- Edit ONLY the files you own (listed per job). Do not touch any other file.
-- Do NOT run any git command (no add/commit/checkout/stash/reset/clean/pull/push).
-  The coordinator commits between phases.
-- Do NOT restart the bridge or kill any process. It is running on port 8768.
-- Re-read your own file immediately before each edit; edit tools match exact text.
-- Preserve behaviour: near-duplicate prompts stay as SEPARATE labelled `groups[]`;
+## Non-negotiable rules I set for every worker
+- I had them edit ONLY the files they owned (listed per job). I told them not to touch any other file.
+- I told them NOT to run any git command (no add/commit/checkout/stash/reset/clean/pull/push).
+  I, as coordinator, committed between phases.
+- I told them NOT to restart the bridge or kill any process. I had it running on port 8768.
+- I had them re-read their own file immediately before each edit; edit tools matched exact text.
+- I required them to preserve behaviour: near-duplicate prompts stay as SEPARATE labelled `groups[]`;
   play scores never demote; only the game's graded bank demotes; other players'
   answers are never recorded; IDs in the userscript stay unchanged.
 
@@ -26,40 +26,40 @@ report a blocker; the coordinator edits it once between phases.
   "artifacts": {"search-data.json": "<sha256>", "krillion/krillion-data.json": "<sha256>"}
 }
 ```
-- `data_version` is a monotonic integer; bump it on every derived rebuild.
+- I made `data_version` a monotonic integer; I bumped it on every derived rebuild.
 - `etag` is the sha256 of the concatenation of source answer JSONLs + corrections.
-- If absent, consumers must fall back to old behaviour (no version checking).
+- If absent, I required consumers to fall back to old behaviour (no version checking).
 
 ### `/api/all` response (owned by bridge worker; consumed by userscript)
-Keep `data` as objects for backward compatibility; ADD fields:
+I had them keep `data` as objects for backward compatibility; I had them ADD fields:
 ```json
 {"ok": true, "version": <int from manifest.data_version>, "etag": "<manifest.etag>",
  "data": [{"q": "<stored question>", "nq": "<normalised+rewritten key>", "answers": ["..."]}]}
 ```
-- `nq` = `rewrite_query(normalise(q))` (the bridge's own strict pipeline). Clients use
-  `nq` when present and fall back to local `normLocal` when absent. This removes the
+- I defined `nq` = `rewrite_query(normalise(q))` (the bridge's own strict pipeline). I had clients use
+  `nq` when present and fall back to local `normLocal` when absent. This removed the
   duplicated client normaliser from the hot path without breaking old userscript copies.
 
 ### `/api/answers`, `/api/answers-tier`, `/api/perf` — shapes UNCHANGED.
-`/api/answers` must still return `groups[]` with separate labelled banks.
+I required `/api/answers` to still return `groups[]` with separate labelled banks.
 
 ### Prefetch (owned by userscript worker)
-`watchApi()` already captures `/deal` prompts. For each captured prompt, warm
-`state.netCache` with `request('/api/answers?q=...')` (cap concurrency <=3). Key by
-`normLocal(prompt)`. Never log prefetch failures as misses; the normal lookup path
-still owns miss logging.
+I noted `watchApi()` already captured `/deal` prompts. For each captured prompt, I had them warm
+`state.netCache` with `request('/api/answers?q=...')` (cap concurrency <=3). I keyed by
+`normLocal(prompt)`. I kept prefetch failures out of miss logs; the normal lookup path
+still owned miss logging.
 
 ### Generated normaliser (owned by build worker; consumed by sites only)
-`shared/norm.generated.js` exposes:
+I had `shared/norm.generated.js` expose:
 ```js
 window.KrillionNorm = {
   norm: function (q) { /* == paraphrase_match.normalise */ },
   rewrite: function (q) { /* == bridge.rewrite_query */ }
 };
 ```
-The userscript does NOT depend on this file (it uses `nq` from `/api/all`).
+I kept the userscript independent of this file (it used `nq` from `/api/all`).
 
-## Ownership map (phase 2, parallel — disjoint files)
+## Ownership map I set (phase 2, parallel — disjoint files)
 - Bridge worker: `injection/bridge.py` ONLY.
 - Build worker: `scripts/build.py`, `scripts/config.py`, `scripts/ingest.py`,
   `scripts/derive.py`, `scripts/emit.py`, `scripts/verify.py`, `scripts/publish.py`,
@@ -70,7 +70,7 @@ The userscript does NOT depend on this file (it uses `nq` from `/api/all`).
 - Site worker (separate session, webapp-optimizer): `site-template.html`,
   `index.html`, `webapp/*`, `krillion/*` — assigned in a later phase.
 
-## Verification each worker must report
-- Exact command run and result (tests / syntax check / byte counts).
-- Confirmation no other file was touched (`git status --short` shows only owned paths).
-- One result-contract message, no progress chatter.
+## Verification I required each worker to report
+- I required exact command run and result (tests / syntax check / byte counts).
+- I required confirmation no other file was touched (`git status --short` showed only owned paths).
+- I required one result-contract message, no progress chatter.

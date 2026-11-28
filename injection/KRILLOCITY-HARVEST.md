@@ -1,10 +1,10 @@
 # Krillocity prompt + other-player answer harvest
 
-## What was built
+## What I built
 
-`scripts/krillocity_watch.js` — a one-process watcher with one collector per
-active multiplayer room. It uses only the game's **public REST endpoints**; it
-does not occupy a seat, submit answers, or touch rating.
+I built `scripts/krillocity_watch.js` — a one-process watcher with one collector per
+active multiplayer room. I had it use only the game's **public REST endpoints**; it
+did not occupy a seat, submit answers, or touch rating.
 
 | Concern | How it is handled |
 | --- | --- |
@@ -18,30 +18,30 @@ does not occupy a seat, submit answers, or touch rating.
 | Rate limits | HTTP 425 returns `wait`; the collector sleeps `wait + 300 ms` before one retry |
 | Restart safety | All outputs are append-only JSONL; processed keys + locks + last race are persisted |
 
-## Two required logging paths
+## The two logging paths I required
 
-1. **Zero index matches** (`index_status=ok` and `index_matches=0`): every other
-   player's answer for that prompt is written to `data/krillocity_answers.jsonl`
+1. **Zero index matches** (`index_status=ok` and `index_matches=0`): I wrote every other
+   player's answer for that prompt to `data/krillocity_answers.jsonl`
    with `match=false, zero_match=true`, and separately to
    `data/krillocity_zero_match.jsonl` with
    `needs_review: [duplicate-check, search-engine-fault-check]` for later data
    processing.
-2. **One or more index matches**: every other player's answer is still stored,
+2. **One or more index matches**: I still stored every other player's answer,
    with `match=true`, `index_banks`, `index_exact`, and a distinct
-   `source: "krillocity"` / `authoritative: false` marker. It is **never** merged
-   into the graded 100-point archive; it stays a separate reviewable dataset.
+   `source: "krillocity"` / `authoritative: false` marker. I **never** merged it
+   into the graded 100-point archive; it stayed a separate reviewable dataset.
 
-No player name or id is stored — only the answer text, the game-assigned points,
+I stored no player name or id — only the answer text, the game-assigned points,
 the slot/prompt, room/race, and how many other players gave that answer.
 
-## Why REST instead of joining a room
+## Why I used REST instead of joining a room
 
-The same answers are already public in `/results`, so actually joining a room
-would add account/rating risk with no extra data. The watcher still honours the
-requested multi-watcher design: it fans out one collector per qualifying room,
-skips a room when only one player is present, and never runs two collectors on
-the same room/race. If a future game change hides results behind a seat, the
-collector boundary is isolated in `results()`/`lineup()` and can be swapped for
+I found the same answers were already public in `/results`, so actually joining a room
+would have added account/rating risk with no extra data. I kept the watcher honouring the
+requested multi-watcher design: it fanned out one collector per qualifying room,
+skipped a room when only one player was present, and never ran two collectors on
+the same room/race. If a future game change hid results behind a seat, I had isolated the
+collector boundary in `results()`/`lineup()` so it could be swapped for
 a browser-driven seat without changing the logging/classification code.
 
 ## Run
@@ -59,7 +59,7 @@ KRILLO_MAX_MINUTES=12 node scripts/krillocity_watch.js     # bounded
 KRILLO_MIN_PLAYERS=3 KRILLO_POLL_MS=10000 node scripts/krillocity_watch.js
 ```
 
-Windows PowerShell uses `$env:KRILLO_MAX_MINUTES='12'; node ...`.
+On Windows PowerShell I used `$env:KRILLO_MAX_MINUTES='12'; node ...`.
 
 ## Scale-up research (what would make it massively faster)
 
@@ -104,41 +104,41 @@ I probed the backend for a bulk shortcut. Findings, with command evidence in the
 | Race 105781, repeated passes as room cooldowns expired | `ok` 5 → 151 → … per pass | 633 total |
 | Races 105782 / 105783 / 105784, 2 passes each as they went live | `promptsAfter` 810 → 990 → 1129 | **1129 total** |
 
-The growth per pass drops as rooms hit HTTP 425 cooldowns; every pass still
-appends only new prompt text, so the file is the exact coverage record.
+I saw the growth per pass drop as rooms hit HTTP 425 cooldowns; every pass still
+appended only new prompt text, so I treated the file as the exact coverage record.
 
 ## Userscript integration (v1.1.8)
 
-- **Mode dropdown** now includes `Krillocity · multiplayer race` (`value="krillomulti"`).
-  It enters through the `/krillocity` lobby, picks the most-populated room with the
-  proven `most-populated-trap` path, and uses the rapid-fire race strategy set.
-  Pick and Mode controls are now always visible, even when `Play for me` is off.
-- The userscript fetches `/api/krillo-prompts` from the bridge at page start and uses
-  the harvested wordings as a fallback lookup query when the on-screen phrasing has
-  no local index hit (logged as `krillocity-bank-match`). This targets the reported
+- I added `Krillocity · multiplayer race` (`value="krillomulti"`) to the **Mode dropdown**.
+  It entered through the `/krillocity` lobby, picked the most-populated room with the
+  proven `most-populated-trap` path, and used the rapid-fire race strategy set.
+  I made Pick and Mode controls always visible, even when `Play for me` was off.
+- I had the userscript fetch `/api/krillo-prompts` from the bridge at page start and use
+  the harvested wordings as a fallback lookup query when the on-screen phrasing had
+  no local index hit (logged as `krillocity-bank-match`). I aimed this at the reported
   "misses a lot" problem without inventing aliases.
-- Live race prompts are appended to the separate archive via `/api/krillo-prompt`;
-  zero-match prompts are mirrored to `/api/krillo-zero` with review flags. Matched
-  wordings are logged as `krillocity-race-prompt`. None of this demotes a graded
-  answer or merges other-player data into the 100-point bank.
+- I appended live race prompts to the separate archive via `/api/krillo-prompt`;
+  I mirrored zero-match prompts to `/api/krillo-zero` with review flags. I logged matched
+  wordings as `krillocity-race-prompt`. None of this demoted a graded
+  answer or merged other-player data into the 100-point bank.
 - Bridge endpoints: `GET /api/krillo-prompts`, `POST /api/krillo-prompt`,
   `POST /api/krillo-answer`, `POST /api/krillo-zero`. All append-only and deduped.
 
 ## Continuous follower
 
-`scripts/krillocity_continuous.js` discovers the newest race that has actually
-run (`lineup` HTTP 200), harvests it over the enumerated room range, records
+I used `scripts/krillocity_continuous.js` to discover the newest race that had actually
+run (`lineup` HTTP 200), harvest it over the enumerated room range, record
 `before/after/added` unique-prompt counts in `data/krillocity_continuous.json`,
-and repeats. This is the mechanism for tracking growth until it truly saturates;
-leave it running as long as the game keeps dealing races.
+and repeat. This was the mechanism I used for tracking growth until it truly saturated;
+I left it running as long as the game kept dealing races.
 
 ```
 KRILLO_MAX_MINUTES=30 node scripts/krillocity_continuous.js
 ```
 
-## Concrete blocker for "fetch the entire bank"
+## Concrete blocker I hit for "fetch the entire bank"
 
-Verified probes (see transcript for raw output):
+I ran verified probes (see transcript for raw output):
 
 | Attempt | Result |
 | --- | --- |
@@ -149,45 +149,45 @@ Verified probes (see transcript for raw output):
 | Supabase `krillion_blitz_results`, `krillion_prompt_stats`, `krillion_answers` with anon key | `42501 permission denied` |
 | All 32 Next.js chunks from `/krillocity` scanned for API paths and prompt-bank strings (plus build manifest) | only UI prompt selectors/`"prompts"`; no bank or bulk endpoint |
 
-There is no authoritative full-prompt endpoint or readable table exposed to an
-anonymous client. The only obtainable source is the live lineup of current and
-just-scheduled races, which changes over time; therefore "all prompts ever" is
-not reachable in one pass and the continuous follower is the honest upper bound.
+I found no authoritative full-prompt endpoint or readable table exposed to an
+anonymous client. The only obtainable source was the live lineup of current and
+just-scheduled races, which changed over time; I therefore concluded "all prompts ever" was
+not reachable in one pass and the continuous follower was the honest upper bound.
 
 ## Honest limitations
 
-- The server only exposes the **current and immediately scheduled races**;
-  older race lineups return 404. "All prompts" therefore means all prompts the
-  game exposes while the watcher runs. Longer runs accumulate more of the bank;
-  the append-only prompt file is the running record of coverage.
-- The classification uses the local index via the bridge. A fuzzy bank match is
-  still a match (`index_exact=false`); the `index_banks` field preserves the
-  evidence so later processing can reject false positives. Zero-match logging
-  is exact when the bridge answers with zero groups.
-- Results are read after a race ends, so a live in-progress race may return
-  fewer rows. The watcher re-polls on later ticks.
+- I found the server only exposed the **current and immediately scheduled races**;
+  older race lineups returned 404. I therefore took "All prompts" to mean all prompts the
+  game exposed while the watcher ran. Longer runs accumulated more of the bank;
+  I treated the append-only prompt file as the running record of coverage.
+- I based classification on the local index via the bridge. A fuzzy bank match was
+  still a match (`index_exact=false`); the `index_banks` field preserved the
+  evidence so later processing could reject false positives. Zero-match logging
+  was exact when the bridge answered with zero groups.
+- I read results after a race ended, so a live in-progress race could return
+  fewer rows. The watcher re-polled on later ticks.
 
 ## Canonical merge lookup (v1.1.9)
 
-`scripts/build_krillocity_canonical.py` writes `data/krillocity_canonical.json`
+I had `scripts/build_krillocity_canonical.py` write `data/krillocity_canonical.json`
 (`generated_at`, `counts`, `groups`; each group has `canonical`, `variants`,
-`bank_questions`, `constraint_signature`). The bridge serves it read-only at
+`bank_questions`, `constraint_signature`). I had the bridge serve it read-only at
 `GET /api/krillo-canonical?t=krillion-local-v1`, token-enforced like every other
 endpoint, with a short content-hash `version`, `counts` and `groups` in `data`.
-A missing, partial or malformed file yields an empty payload (`version: "0"`,
-`data: []`) rather than an error, so an old clone keeps working.
+I made a missing, partial or malformed file yield an empty payload (`version: "0"`,
+`data: []`) rather than an error, so an old clone kept working.
 
-The userscript preloads this alongside `/api/krillo-prompts` into
+I had the userscript preload this alongside `/api/krillo-prompts` into
 `state.krilloCanonical`: `normLocal(variant.text) -> {target, canonical, bank_questions}`.
-Only variants marked **`exact_bank: true` and not `log_only`** become keys, and the
-retry target is always a **verbatim bank question** (`bank_questions[0]`), never the
-merge canonical — a merge canonical can be a generic wording that is not a bank,
-and a log-only rewrite would be an applied alias (forbidden by `injection/DECISIONS.md`).
-`loadAnswers()` still queries the on-screen wording first; only when that reply
-has zero answer groups does it retry with the reviewed bank question (else the
-previously harvested wording). If the retry yields answers, the returned banks
-are displayed exactly as-is — no merging, no answer demotion — and
-`reportPrompt('krillocity-canonical-match', …)` records the target bank, the merge
+I made only variants marked **`exact_bank: true` and not `log_only`** become keys, and the
+retry target was always a **verbatim bank question** (`bank_questions[0]`), never the
+merge canonical — a merge canonical could be a generic wording that is not a bank,
+and a log-only rewrite would have been an applied alias (forbidden by `injection/DECISIONS.md`).
+I kept `loadAnswers()` querying the on-screen wording first; only when that reply
+had zero answer groups did it retry with the reviewed bank question (else the
+previously harvested wording). If the retry yielded answers, I had the returned banks
+displayed exactly as-is — no merging, no answer demotion — and
+`reportPrompt('krillocity-canonical-match', …)` recorded the target bank, the merge
 canonical (as `merge_canonical`) and its bank questions in `data/prompt_review.jsonl`
-for review. A failed retry keeps
+for review. A failed retry kept
 the original zero-group result.

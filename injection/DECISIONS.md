@@ -1,33 +1,32 @@
 # Answer-panel decisions: how play should improve the database
 
-Design note, written 2026-11-21, updated 2026-11-23. **Implemented.** The policy
-below is enforced in the shipped userscript and bridge; "Current behaviour"
-records the original bug it replaced, and "Decisions made" lists the rules now
+I wrote this design note on 2026-11-21 and updated it on 2026-11-23. **Implemented.** I enforced the policy
+below in the shipped userscript and bridge; "Current behaviour"
+records the original bug I replaced, and "Decisions made" lists the rules I put
 in force.
 
 ## Current behaviour (the problem)
 
-`checkVerdict()` reads the points after a submission and calls
+`checkVerdict()` read the points after a submission and called
 `POST /api/correction` with the bank question stored on the clicked chip
-(`data-q`). The bridge demotes `(question, answer)` whenever `points < 100`.
+(`data-q`). The bridge demoted `(question, answer)` whenever `points < 100`.
 
-It does **not** know:
+It did **not** know:
 
-- which of several candidate banks the user chose,
+- which of several candidate banks I had chosen,
 - whether the match was exact or a guess,
-- whether the on-screen wording differs from the stored prompt,
+- whether the on-screen wording differed from the stored prompt,
 - whether the answer was refused or merely timed out.
 
-So clicking an 80%-match bank that is the *wrong* prompt and getting 85 points
-will demote a correct 100-point answer. That is the bug the user reported.
+So clicking an 80%-match bank that was the *wrong* prompt and getting 85 points
+would demote a correct 100-point answer. That was the bug I set out to fix.
 
 ## Core principle
 
-**Evidence first, mutations second.** The script records what happened; a
-reviewer turns repeated, consistent evidence into database changes. Only signals
-that are *authoritative* may change the rare tier immediately.
+**Evidence first, mutations second.** I had the script record what happened; I, as reviewer, turned repeated, consistent evidence into database changes. Only signals
+that were *authoritative* could change the rare tier immediately.
 
-Confidence levels:
+I used these confidence levels:
 
 | Level | Meaning | Action |
 | --- | --- | --- |
@@ -38,7 +37,7 @@ Confidence levels:
 
 ## Scenario matrix
 
-Let `P` = prompt on screen, `G` = bank the user clicked, `a` = answer, `p` = points.
+I wrote the matrix with `P` = prompt on screen, `G` = bank I clicked, `a` = answer, `p` = points.
 
 | # | Situation | `p = 100` | `p < 100` | refused / timeout |
 | --- | --- | --- | --- | --- |
@@ -52,15 +51,15 @@ Let `P` = prompt on screen, `G` = bank the user clicked, `a` = answer, `p` = poi
 | H | Auto-enter ON with several banks | **Do not auto-pick** — require a manual choice; otherwise a wrong bank causes false demotions | — | — |
 | I | Same answer exists in several banks | Alias evidence only if **distinct** answers from the same bank also score 100; otherwise an overlapping answer proves nothing | No demotion without bank-level consensus | Log only |
 
-### The two questions the user raised
+### The two questions I raised
 
-1. *"I clicked a 70% bank and got 85 — don't demote it."* Correct: scenario D.
+1. *"I clicked a 70% bank and got 85 — don't demote it."* I agreed: scenario D.
    No demotion; the answer may be perfectly rare for the real prompt and simply
-   wrong for the one whose bank we clicked.
-2. *"I clicked a bank and got 100 — that's a new phrasing."* Correct: scenarios
-   B/C/D. Record `P → G` as an **alias candidate**, with the answer as evidence.
-   Promote it to a real alias only after 2 distinct answers from G score 100 on
-   P and no other bank scores 100 on P. Then future exact `P` maps straight to
+   wrong for the one whose bank I had clicked.
+2. *"I clicked a bank and got 100 — that's a new phrasing."* I agreed: scenarios
+   B/C/D. I recorded `P → G` as an **alias candidate**, with the answer as evidence.
+   I promoted it to a real alias only after 2 distinct answers from G scored 100 on
+   P and no other bank scored 100 on P. Then future exact `P` mapped straight to
    `G`, removing the ambiguity entirely.
 
 ## Proposed data structures (all under `injection/data/`)
@@ -72,77 +71,75 @@ Let `P` = prompt on screen, `G` = bank the user clicked, `a` = answer, `p` = poi
 - `unresolved.jsonl` — prompts with no confident bank, plus what was tried
 - `corrections.jsonl` — unchanged; only authoritative demotions land here
 
-The bridge applies aliases as a **pre-match rewrite** (alias text → canonical
-text) before calling the shared matcher, so the optimizer's matcher file is
-never modified.
+I had the bridge apply aliases as a **pre-match rewrite** (alias text → canonical
+text) before calling the shared matcher, so I never modified the optimizer's matcher file.
 
 ## Proposed flow
 
-1. Chip click → remember the full context (screen prompt, chosen bank, score of
+1. A chip click remembered the full context (screen prompt, chosen bank, score of
    that bank, how many banks were shown, auto on/off).
-2. Verdict → `POST /api/evidence` with that context. Bridge decides:
-   - authoritative → apply demotion + changelog,
-   - ambiguous → store evidence only,
-   - 100 → store alias evidence.
-3. `/api/review` (manual or scheduled) promotes corroborated evidence into
-   aliases or demotions and writes a summary to `CHANGELOG.md`.
-4. Dive end → bank import additionally compares every graded tier against the
-   rare list; tier < 100 for a rare answer is an authoritative demotion (F).
+2. A verdict posted `POST /api/evidence` with that context. The bridge decided:
+   - authoritative → applied demotion + changelog,
+   - ambiguous → stored evidence only,
+   - 100 → stored alias evidence.
+3. I used `/api/review` (manual or scheduled) to promote corroborated evidence into
+   aliases or demotions, and it wrote a summary to `CHANGELOG.md`.
+4. At dive end, bank import additionally compared every graded tier against the
+   rare list; tier < 100 for a rare answer was an authoritative demotion (F).
 
 ## Decisions made (2026-11-21)
 
-1. **Never demote from play.** Only the game's own dive-end graded bank may
+1. **I kept play scores out of demotions.** I let only the game's own dive-end graded bank
    change the rare tier. The game grades unknown answers with AI, so the same
-   answer can be 100 once and 30 or 85 the next time. A low play score is
+   answer can be 100 once and 30 or 85 the next time. I treated a low play score as
    evidence only.
-2. **Never pin aliases.** Record the on-screen wording and which bank scored
-   100, but do not add it to the matcher. Aliases stay as log data only.
-3. **Fetch missing prompts: yes.** When a prompt has no bank, the PC helper may
+2. **I never pinned aliases.** I recorded the on-screen wording and which bank scored
+   100, but I did not add it to the matcher. Aliases stayed as log data only.
+3. **I allowed fetching missing prompts.** When a prompt had no bank, I let the PC helper
    download that prompt's real graded bank from `playdaily.org`, respecting the
-   ~65s cooldown and de-duplicating before writing. The user can disable it
+   ~65s cooldown and de-duplicating before writing. I could disable it
    with `KRILLION_NO_FETCH=1`.
-4. **Auto-enter is paused when several banks match.** A wrong-bank auto pick
-   would produce misleading evidence.
-5. **Never record other players' answers.** In multiplayer/1v1 the site AI-grades
+4. **I paused auto-enter when several banks matched.** A wrong-bank auto pick
+   would have produced misleading evidence.
+5. **I kept other players' answers out of the archive.** In multiplayer/1v1 the site AI-grades
    arbitrary user answers inconsistently (100 once, 60 or 85 later). Bank capture
-   keeps only our own rows (`.kr-line[data-me]`, `source: own`) and the game's own
-   graded banks (`source: api`). Past `dom` rows were quarantined to
+   kept only our own rows (`.kr-line[data-me]`, `source: own`) and the game's own
+   graded banks (`source: api`). I quarantined past `dom` rows to
    `data/other_users_quarantine.jsonl`.
 
-6. **Log by state, not by frame.** Every game screen was mapped live on
+6. **I logged by state, not by frame.** I mapped every game screen live on
    2026-11-23 (including the slow-loading shell and a real 6-second / 50-prompt
-   Marathon room). Only decision-grade states are logged: answers (`answering`,
+   Marathon room). Only decision-grade states were logged: answers (`answering`,
    `verdict`, `refusal`), uncertain prompts (`prompt-reveal`), dive-end banks
    (`results`), and bot choices (`lobby`, `duel`). Idle/transient frames
-   (`loading-shell`, `intro`, `create-room`, `arena-wait`) are NOT logged. The
-   full inventory and per-state rationale is in `STATES.md`; every event now
-   carries `game_state` + `input_state`.
-7. **Never read the shared board head as our score.** Live play showed the
+   (`loading-shell`, `intro`, `create-room`, `arena-wait`) were not logged. The
+   full inventory and per-state rationale is in `STATES.md`; every event then
+   carried `game_state` + `input_state`.
+7. **I kept the shared board head out of our score.** Live play showed the
    multiplayer board head shows OTHER players' points ("X went deepest:
-   SCHOOLER (+30)"). `checkVerdict()` now parses `.kr-board-head` only in
-   classic mode; in multiplayer/1v1 only our own refusal/submit outcomes are
-   logged, never a scraped opponent score. `mode()` detects the persistent
+   SCHOOLER (+30)"). I had `checkVerdict()` parse `.kr-board-head` only in
+   classic mode; in multiplayer/1v1 only our own refusal/submit outcomes were
+   logged, never a scraped opponent score. I made `mode()` detect the persistent
    arena container (`.kr-stage-multi`), because `.kr-board-rows` exists only
    between rounds and mis-reported the mode while answering.
-8. **Keep one indexed DB; fix speed with caching, not sharding.** Parent
+8. **I kept one indexed DB and fixed speed with caching, not sharding.** Parent
    benchmarks showed the slowdown was in-process: `resolve_question()` normalised
    all 5,801 prompts on every call and ran a ~10.6s fuzzy `Matcher.search()` on
    non-exact prompts, and `tier_answers()` re-read the 826KB / 4,920-row
    `learned.jsonl` (~234ms) on every call. SQLite was not the bottleneck —
    `data/krillion_only.db` (21,384 answers / 5,801 prompts, indexed on `question`)
-   answers exact lookups in ~0ms. Splitting answers into multiple files with a
-   pointer adds complexity without fixing the matcher/IO cost. Fix with caching,
+   answered exact lookups in ~0ms. Splitting answers into multiple files with a
+   pointer added complexity without fixing the matcher/IO cost. I fixed it with caching,
    an O(1) exact lookup and a single read of `learned.jsonl`; full evidence in
    `PERF.md`.
-9. **Answer-lookup GETs retry forever.** Lookup GETs use a shorter timeout so a
-   5-second room is not missed. On failure they retry indefinitely with capped
-   exponential backoff; after 3 failed attempts the script logs once, then keeps
-   retrying instead of showing an error. POST/queue behaviour is unchanged —
-   failed writes stay queued in Tampermonkey storage for the next run.
+9. **I made answer-lookup GETs retry forever.** Lookup GETs used a shorter timeout so a
+   5-second room was not missed. On failure they retried indefinitely with capped
+   exponential backoff; after 3 failed attempts the script logged once, then kept
+   retrying instead of showing an error. POST/queue behaviour I left unchanged —
+   failed writes stayed queued in Tampermonkey storage for the next run.
 
 ### "Process the log"
 
-When the user says **"process the log" in any session on this project**, it
-means: follow `injection/PROCESS-LOG.md` end to end — review evidence/aliases/
+When I say **"process the log" in any session on this project**, I mean: follow `injection/PROCESS-LOG.md` end to end — review evidence/aliases/
 unresolved prompts, apply authoritative bank demotions, import new answers,
 rebuild derived databases, and write the changelog.

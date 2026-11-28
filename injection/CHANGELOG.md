@@ -1,6 +1,6 @@
 # Krillion injection changelog
-Every entry is written by `injection/bridge.py` when the userscript reports a
-gameplay result. Newest entries are appended at the bottom.
+I had `injection/bridge.py` write every entry when the userscript reported a
+gameplay result. I appended the newest entries at the bottom.
 - 2026-11-21T13:52:53Z verified 'Frogmouth' for 'Name an animal known for camouflage' at 100 points (classic)
 - 2026-11-21T13:53:06Z verified 'Disk Harrow' for 'Name something that leaves a trail' at 100 points (classic)
 - 2026-11-21T13:53:17Z verified 'Punch Card' for 'Name something people put between a book’s pages' at 100 points (classic)

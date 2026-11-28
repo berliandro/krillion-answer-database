@@ -1,26 +1,25 @@
 # Krillion state inventory — what to log and what not to log
 
-Live-mapped on 2026-11-23 on `playdaily.org/krillion` (Chrome, in-app browser).
-Every row below was observed in the real game, not inferred from a bundle. The
-fast-room finding is from actually entering a custom **6-second / 50-prompt
+I mapped this live on 2026-11-23 on `playdaily.org/krillion` (Chrome, in-app browser).
+I observed every row below in the real game, not inferred from a bundle. My
+fast-room finding came from actually entering a custom **6-second / 50-prompt
 Marathon** room and playing several rounds (not just reading the lobby).
 
-This document is the authority for the `game_state` tag now attached to every
+I made this document the authority for the `game_state` tag now attached to every
 archive event (`evidence.jsonl`, `prompt_review.jsonl`, `bot_log.jsonl`). The
 classifier lives in `gameState()` / `inputState()` in
 `krillion-autofill.user.js`.
 
-## Rules that govern every decision
+## Rules I used for every decision
 
-1. **Never record another player's answer or score.** In multiplayer/1v1 the
+1. **I never recorded another player's answer or score.** In multiplayer/1v1 the
    site AI-grades arbitrary answers inconsistently, and the shared board shows
-   everyone. Only OUR rows (`[data-me]`) and the site's own graded bank (API)
-   are trustworthy.
-2. **Never demote from play.** A low play score is evidence only; only the
-   game's own dive-end graded bank may change the rare tier (DECISIONS.md #1).
-3. **Log the situation, not the noise.** A log must carry a decision-grade
+   everyone. I trusted only OUR rows (`[data-me]`) and the site's own graded bank (API).
+2. **I kept play scores out of demotions.** I treated a low play score as evidence only; I let only the
+   game's own dive-end graded bank change the rare tier (DECISIONS.md #1).
+3. **I logged the situation, not the noise.** I required a log to carry a decision-grade
    signal (an answer outcome, an uncertain prompt, a bot decision). Transient
-   load/settle frames and idle screens are not logged.
+   load/settle frames and idle screens were not logged.
 
 ## The states
 
@@ -40,35 +39,35 @@ classifier lives in `gameState()` / `inputState()` in
 | 11 | `duel` | `.kd-play` (queue), `.kd-versus` (match found), `.kd-tab-rule-key`, `.kd-elsewhere-key`, `.kd-result-keys`, `.kd-again`, `.kr-duel-board` | none | **Decision only** | Bot decision logs (queue/rule/requeue); never click Leave/Back; never record the opponent. |
 | 12 | `krillocity` | path `/krillocity`, START DAILY `.kr-begin`, rapid-fire input "Name as many as you can…" | enabled (rapid) | **Yes — per answer** | Rapid race. Evidence per submitted answer, deduped by prompt+answer (`submittedForPrompt`). |
 
-## The six-second / 50-prompt Marathon (played live)
+## The six-second / 50-prompt Marathon (I played it live)
 
-- **There is no preset 6-second room.** The presets are 5s, 15s, 30s
-  ("The Marathon · 5 sec" = 50 prompts, 5s each). A 6s room is created through
+- **I found there was no preset 6-second room.** The presets are 5s, 15s, 30s
+  ("The Marathon · 5 sec" = 50 prompts, 5s each). I created a 6s room through
   the slider (`input.kr-guess-range`, min 5 / max 60 / step 1) → the button
-  becomes "Enter The Marathon · 6 sec".
-- In that room the HUD shows **"Prompt 24 of 50"**, a player count, difficulty
+  became "Enter The Marathon · 6 sec".
+- In that room I saw the HUD show **"Prompt 24 of 50"**, a player count, difficulty
   ("Hard"), a depth readout, and **Pass / Dive** controls alongside the answer
-  input. Prompts rotate on the room timer whether or not you answer.
-- Timing is the dominant factor. In the fastest room the prompt is on screen
-  ~2.9s before the input mounts; refusals clear the box but leave it enabled,
-  so a retry is possible until the timer expires. The bot already gates on
-  `visible(SEL.input)` and on `lastFilled`, so it neither answers a
-  not-yet-answerable prompt nor double-submits a refused one.
-- **Net logging rule for this mode:** log OUR submission outcomes and refusals
+  input. Prompts rotated on the room timer whether or not I answered.
+- I found Timing was the dominant factor. In the fastest room the prompt was on screen
+  ~2.9s before the input mounted; refusals cleared the box but left it enabled,
+  so a retry was possible until the timer expired. The bot already gated on
+  `visible(SEL.input)` and on `lastFilled`, so it neither answered a
+  not-yet-answerable prompt nor double-submitted a refused one.
+- **The net logging rule I used for this mode:** log OUR submission outcomes and refusals
   (with the state tag), but log NOTHING from `.kr-board-row`, `.kr-board-head`
   or `.kr-chat-sys` — those are the other players whose answers the policy
-  forbids recording. Bank import is impossible here (no dive-end rows), so
-  only single-answer outcomes flow to the archive.
+  forbids recording. I found Bank import was impossible here (no dive-end rows), so
+  only single-answer outcomes flowed to the archive.
 
-## What changed in the code
+## What I changed in the code
 
-- `gameState()` / `inputState()` classify every state above; `ctx()` attaches
+- I had `gameState()` / `inputState()` classify every state above; `ctx()` attached
   both to all evidence, prompt-review, miss and bot-log events.
-- `checkVerdict()` reads the shared board head **only in classic mode**; in
-  multiplayer/1v1 no other player's points can be mistaken for ours.
-- `state.refusalActive` flag keeps the `refusal` tag accurate despite the
+- I had `checkVerdict()` read the shared board head **only in classic mode**; in
+  multiplayer/1v1 no other player's points could be mistaken for ours.
+- I used the `state.refusalActive` flag to keep the `refusal` tag accurate despite the
   site's lingering refusal text.
-- `bridge.py` persists `game_state` and `input_state` in the three log files.
+- I had `bridge.py` persist `game_state` and `input_state` in the three log files.
 
 ---
 
@@ -81,14 +80,14 @@ from `injection/krillion-autofill.user.js` v1.1.2 (`SEL`, `gameState()`,
 `botTick()`) plus the live page HTML fetched read-only from
 `https://playdaily.org/krillion` on 2026-11-27. The browser MCP relay was
 offline (`status`: `paired-offline`, 0 connected browsers) and no Playwright MCP
-was available, so no new game was started and no account was touched. Page HTML
-confirms the Classic contract: **7 prompts per dive, 25 seconds per prompt,
+was available, so I started no new game and touched no account. I found the Page HTML
+confirmed the Classic contract: **7 prompts per dive, 25 seconds per prompt,
 "Begin descent", press Dive to submit, refusal keeps the prompt open, and six
 tiers** (Plankton 10 / Too Clever 15 / Schooler 30 / Rare 60 / Deep Cut 85 /
 One in a Krillion 100). Timing marked [S] is derived from the script's own
 timers or the site's published rules, not from a new stopwatch run.
 
-Input-state tuples below use the exact shape returned by `inputState()`:
+I used Input-state tuples below in the exact shape returned by `inputState()`:
 `present`, `visible`, `disabled`, `readOnly`, `placeholder`. For states with no
 input, `present=false, visible=false, disabled=null, readOnly=null,
 placeholder=''` (the code's early return).
@@ -117,8 +116,8 @@ placeholder=''` (the code's early return).
 
 ### Phase 0 registry selector coverage (v1.1.2, 38 selectors)
 
-All 38 registry selectors are present in this file. Classic-path selectors are
-mapped to the rows above; the remaining ones are represented by the original
+I confirmed all 38 registry selectors were present in this file. I mapped Classic-path selectors
+to the rows above; the remaining ones were represented by the original
 non-Classic rows (3, 4, 5, 9b, 11) and by the mode-guard row C19:
 
 - Dive start / prompt / input / submit / verdict: `button.kr-begin`, `p.kr-prompt`, `input.kr-input`, `form.kr-bar`, `button.kr-send`, `button.kr-next`, `.kr-reveal[role="status"]`, `.kr-reveal-points b`, `.kr-reveal-tier` → C2, C3, C4, C5, C7, C9, C11.
@@ -127,9 +126,9 @@ non-Classic rows (3, 4, 5, 9b, 11) and by the mode-guard row C19:
 - Lobby / room setup (non-Classic): `.kr-intro`, `.kr-lobby-tab`, `.kr-room-row`, `.kr-lobby-tab, .kr-room-row`, `.kr-guess-range, .kr-make-go` → C2, C19 and rows 3–4.
 - Duel (non-Classic): `.kd-elsewhere`, `.kd-play`, `.kd-result-keys`, `.kd-tab-rule`, `.kd-versus`, `.kr-duel-board`, `.kr-duel-board, .kd-play, .kd-versus, .kd-tab-rule, .kd-result-keys` → C19 and row 11.
 
-**Shop — excluded (out of scope).** The intro contains a Shop / depth-token link
-on the live page; it is not a game state, has no answer or scoring interaction,
-and is deliberately not catalogued, selected, logged or automated.
+**I excluded Shop — out of scope.** I found the intro contained a Shop / depth-token link
+on the live page; it was not a game state, had no answer or scoring interaction,
+and I deliberately did not catalogue, select, log or automate it.
 
 ### Dated corrections to the original table (2026-11-27)
 

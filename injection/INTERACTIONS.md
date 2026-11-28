@@ -2,20 +2,20 @@
 
 **Phase 1 · script-side only · independent of game mode**
 
-Authoritative source: `injection/krillion-autofill.user.js` v1.1.2 (2104 lines).
-Cross-check input: `roadmap-registry.json` (generated 2026-11-27T07:20:29.962Z; 38 selectors, 10 game states, 4 log sites, 5 modes, 16 markup ids).
-Scope of this document: every panel control, every script trigger, every observer/timer, every script-side state, and a cross-reference of all 10 game states. **SHOP interactions are excluded.** The authoritative userscript contains no shop/store/purchase/buy/coin logic (the only lexical hit is the comment "stored question" at line 1796), so this catalogue contains **zero shop rows**.
+I used `injection/krillion-autofill.user.js` v1.1.2 (2104 lines) as the authoritative source.
+I cross-checked against `roadmap-registry.json` (generated 2026-11-27T07:20:29.962Z; 38 selectors, 10 game states, 4 log sites, 5 modes, 16 markup ids).
+I scoped this document to every panel control, every script trigger, every observer/timer, every script-side state, and a cross-reference of all 10 game states. I excluded **SHOP interactions.** I found the authoritative userscript contained no shop/store/purchase/buy/coin logic (the only lexical hit is the comment "stored question" at line 1796), so I recorded **zero shop rows**.
 
 ## Conventions
 
-- **Log decision vocabulary** (one appears in every trigger/control/state row):
+- I used this **Log decision vocabulary** (one appears in every trigger/control/state row):
   - `evidence` → `reportScore()` POST `/api/evidence`, or the direct `/api/evidence` POST in `checkRefusal()`.
   - `prompt-review` → `reportPrompt(kind, …)` POST `/api/prompt-review` (`kind`: `no-match`, `ambiguous`, `low-score`, `refused`).
   - `bot-log` → `reportBot(event, …)` POST `/api/bot-log`.
   - `miss` → `reportMiss(prompt, reason, …)` POST `/api/miss`.
   - `none` → no archive/log write; UI/chrome/transport/read-only context only.
-- Every log POST uses `request(..., {method:'POST', retries:1})` and falls back to `queuePost()` (bounded durable queue, cap 20) on failure. `reportScore()` is the exception: it sets `status('Could not log score — bridge offline.', 'error')` instead of queueing.
-- `ctx()` (line 1106) attaches `{game_state, input_state, mode}` to all four log sites, so log decisions are made at the trigger, not at the state detector.
+- I had every log POST use `request(..., {method:'POST', retries:1})` and fall back to `queuePost()` (bounded durable queue, cap 20) on failure. `reportScore()` was the exception: it set `status('Could not log score — bridge offline.', 'error')` instead of queueing.
+- I noted `ctx()` (line 1106) attached `{game_state, input_state, mode}` to all four log sites, so log decisions were made at the trigger, not at the state detector.
 - **Timing vocabulary**: sync = same task; MO 50 = `MO_DEBOUNCE_MS`; tick 500 = `setInterval(botTick, 500)`; timer `Nms` = `setTimeout(..., N)`; `forever` = retries exhausted then 1/2/4/8/16/30 s cap.
 
 ---
@@ -97,7 +97,7 @@ Scope of this document: every panel control, every script trigger, every observe
 
 ## D. Game-state cross-reference (all 10 registry states)
 
-Detection is `gameState()` (lines 1071–1088) in priority order; `ctx()` attaches the detected state, `inputState()` and `mode()` to every log. The script **never logs a state merely for being detected** — a state contributes context (none) unless a trigger inside it decides a log.
+I found detection was `gameState()` (lines 1071–1088) in priority order; `ctx()` attached the detected state, `inputState()` and `mode()` to every log. I made the script **never log a state merely for being detected** — a state contributed context (none) unless a trigger inside it decided a log.
 
 | # | Game state | Detection (registry selectors) | Script trigger / resulting transition | Timing | Feedback | Log decision + rationale | Src |
 |---|---|---|---|---|---|---|---|
@@ -123,13 +123,13 @@ Detection is `gameState()` (lines 1071–1088) in priority order; `ctx()` attach
 | `reportPrompt` | `reportPrompt(kind, prompt, extra)` line 1242 | POST `/api/prompt-review` | T13 `no-match`, `ambiguous`; T21 `low-score`; T22 `refused` | `ctx()` + `kind`, `screen_prompt`, `candidates`, `chosen_bank`, `answer`, `points`, `tier`, `refusal` | Prompt quality / near-duplicate / refusal review; kept separate from answer scoring |
 | `reportScore` | `reportScore(question, answer, points, tier)` line 1110 | POST `/api/evidence` | T07 `checkVerdict()` (solo reveal or classic board head) | `ctx()` + `screen_prompt`, `chosen_bank`, `answer`, `points`, `outcome`, `tier`, `exact`, group scores, `auto` | Authoritative per-answer grade; deduped by scored Set; low score additionally queued for prompt review; **never demote a 100 from a play score** (T21) |
 
-Additional direct evidence write: `checkRefusal()` posts `outcome:'refused'` to `/api/evidence` with `queuePost` fallback (T22). Bank writes go to `/api/bank` (T16) and are **not** one of the four log sites.
+I noted an additional direct evidence write: `checkRefusal()` posted `outcome:'refused'` to `/api/evidence` with `queuePost` fallback (T22). Bank writes went to `/api/bank` (T16) and were **not** one of the four log sites.
 
 ---
 
 ## F. Registry selector cross-check (38 / 38)
 
-Every selector below is consumed by at least one row above. "Decision" names the log decision of that consuming trigger (`ctx()` = context only, hence `none` unless the trigger logs).
+I checked that every selector below was consumed by at least one row above. "Decision" named the log decision of that consuming trigger (`ctx()` = context only, hence `none` unless the trigger logs).
 
 | # | Registry selector | Consumed by | Decision | Src |
 |---|---|---|---|---|
@@ -176,9 +176,9 @@ Every selector below is consumed by at least one row above. "Decision" names the
 
 ## G. Acceptance checklist
 
-- **16/16** registry markup ids have a dedicated control row (P01–P16): `ka-auto`, `ka-body`, `ka-bot`, `ka-botbar`, `ka-botdeps`, `ka-botnote`, `ka-botstate`, `ka-count`, `ka-foot`, `ka-head`, `ka-list`, `ka-mode`, `ka-pick`, `ka-status`, `ka-title`, `ka-toggle`. Additional rows P17 (chip) and P18 (Enter) cover the remaining listed controls.
-- **4/4** registry log sites covered in §E: `reportBot`, `reportMiss`, `reportPrompt`, `reportScore`; each trigger row in §A–§B carries one of the five log decisions.
-- **10/10** registry game states cross-referenced in §D with detection selectors and log decisions.
-- **38/38** registry selectors cross-referenced in §F.
-- **5/5** modes (`classic`, `krillocity`, `marathon5`, `showoff`, `duel`) appear in P14, T18/T20/T23.
-- **0** shop rows — SHOP interactions explicitly excluded; no shop code exists in the authoritative source.
+- I verified **16/16** registry markup ids had a dedicated control row (P01–P16): `ka-auto`, `ka-body`, `ka-bot`, `ka-botbar`, `ka-botdeps`, `ka-botnote`, `ka-botstate`, `ka-count`, `ka-foot`, `ka-head`, `ka-list`, `ka-mode`, `ka-pick`, `ka-status`, `ka-title`, `ka-toggle`. Additional rows P17 (chip) and P18 (Enter) covered the remaining listed controls.
+- I covered **4/4** registry log sites in §E: `reportBot`, `reportMiss`, `reportPrompt`, `reportScore`; each trigger row in §A–§B carried one of the five log decisions.
+- I cross-referenced **10/10** registry game states in §D with detection selectors and log decisions.
+- I cross-referenced **38/38** registry selectors in §F.
+- I found **5/5** modes (`classic`, `krillocity`, `marathon5`, `showoff`, `duel`) in P14, T18/T20/T23.
+- I recorded **0** shop rows — I explicitly excluded SHOP interactions; no shop code existed in the authoritative source.

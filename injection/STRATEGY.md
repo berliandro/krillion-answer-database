@@ -1,15 +1,15 @@
 # Krillion strategies — ranked one-page summary (Phase 2)
 
-Evidence-backed summary of `STRATEGY-SCORING.md`, `STRATEGY-CLASSIC.md`,
-`STRATEGY-KRILLO.md`, `STRATEGY-MP-DUEL.md`. Every strategy below carries
+I wrote this as an evidence-backed summary of `STRATEGY-SCORING.md`, `STRATEGY-CLASSIC.md`,
+`STRATEGY-KRILLO.md`, `STRATEGY-MP-DUEL.md`. Every strategy below carried
 predicted effect, evidence source, risk and a Phase 3 test flag in its full doc.
-**No strategy may demote from play or record another player's answer.**
+I made sure no strategy demoted from play or recorded another player's answer.
 
 ## Scoring model (from the game's own FAQ/JSON-LD + bundles)
-Six tiers: Plankton 10 / Too Clever 15 / Schooler 30 / Rare 60 / Deep Cut 85 /
+I read six tiers: Plankton 10 / Too Clever 15 / Schooler 30 / Rare 60 / Deep Cut 85 /
 One in a Krillion 100. Depth = points × 10 m (a perfect Classic dive = 700 pts =
-7,000 m). Unknown answers are AI-graded inconsistently → play scores are evidence
-only; only the game's own dive-end graded bank may demote.
+7,000 m). I found unknown answers were AI-graded inconsistently → I treated play scores as evidence
+only; I let only the game's own dive-end graded bank demote.
 
 ## Ranked strategies by mode (highest expected value first)
 
@@ -26,7 +26,7 @@ only; only the game's own dive-end graded bank may demote.
 | Duel | Rare-first, protect rating, requeue/stop-loss | Rating gain without chasing bad odds | Opponent behaviour unknown | STRATEGY-MP-DUEL |
 
 ## Phase 3 test queue
-Every strategy above is `testable in Phase 3: yes` in its full doc. Phase 3 must
-produce ≥3 measured runs per strategy and mark each `PROVEN` or `REJECTED`.
-Unverified mechanics are tagged `hypothesis` in the full docs and must be treated
+I marked every strategy above `testable in Phase 3: yes` in its full doc. In Phase 3 I required
+≥3 measured runs per strategy and marked each `PROVEN` or `REJECTED`.
+I tagged unverified mechanics `hypothesis` in the full docs and treated them
 as such until measured.

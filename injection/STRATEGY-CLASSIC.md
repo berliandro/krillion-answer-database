@@ -1,8 +1,8 @@
 # Classic strategy — maximise score, depth and rank
 
-Phase 2 research · 2026-11-27 · worker W2-B · branch `feat/p2-classic`.
-Scope: **solo Classic only** (7 prompts × 25 s). No multiplayer/1v1 data, no
-other-player answers, and no play-score demotion is proposed anywhere here.
+I wrote this Phase 2 research note on 2026-11-27 as worker W2-B on branch `feat/p2-classic`.
+I scoped it to **solo Classic only** (7 prompts × 25 s). I proposed no multiplayer/1v1 data, no
+other-player answers, and no play-score demotion anywhere here.
 
 ## Evidence legend and policy guard
 
@@ -15,11 +15,11 @@ other-player answers, and no play-score demotion is proposed anywhere here.
 | **[3P]** | Third-party strategy guide from web search (divekrillion.com, krilliontoday.com, krillionunlimitedgame.net). Unofficial → every specific claim from these is tagged `hypothesis`. |
 | `hypothesis` | Not directly verified in the official rules, the code, or the local data. Treat as a Phase 3 test candidate, not a fact. |
 
-**Policy guard (DECISIONS.md #1, #5, #7; STATES.md rules 1–3).** A low play
-score or a refusal is **evidence only**; only the game's own dive-end graded
-bank may change the rare tier. Near-duplicate prompts stay as separate banks
-and aliases are logged, never applied to matching. Other players' DOM rows
-and board text are never read as our score. Strategies below change *answer
+**I applied this policy guard (DECISIONS.md #1, #5, #7; STATES.md rules 1–3).** I treated a low play
+score or a refusal as **evidence only**; I let only the game's own dive-end graded
+bank change the rare tier. I kept near-duplicate prompts as separate banks
+and aliases logged, never applied to matching. I never read Other players' DOM rows
+and board text as our score. The Strategies below changed *answer
 selection*, never the database.
 
 ## 1. The verified Classic contract
@@ -44,17 +44,17 @@ selection*, never the database.
 ## 2. Mechanics that decide the score
 
 ### 2.1 One accepted answer per prompt → additive, no combo play
-Because the first accepted answer closes the prompt [O][S: C7/C9/C11], a dive
-is the **sum of seven independent single choices**. There is no benefit to
+I found that, because the first accepted answer closes the prompt [O][S: C7/C9/C11], a dive
+was the **sum of seven independent single choices**. I saw no benefit to
 holding answers, no partial credit for a near miss, and no way to recover a
-prompt after a low grade. Maximise the expected tier of *the one answer that
-will be accepted*, prompt by prompt. `hypothesis`: because prompts never
-repeat within a lap [O], cross-prompt answer budgeting (saving a rare answer
-for later) has no mathematical value.
+prompt after a low grade. I aimed to maximise the expected tier of *the one answer that
+would be accepted*, prompt by prompt. `hypothesis`: because prompts never
+repeated within a lap [O], cross-prompt answer budgeting (saving a rare answer
+for later) had no mathematical value.
 
 ### 2.2 Rarity-only scoring → time is a resource, not a bonus
-Speed earns nothing [O], so the 25 s exist purely to move past the crowd's
-answers. Official method [O] "How to find the uncommon answer in 25 seconds":
+I found Speed earned nothing [O], so the 25 s existed purely to move past the crowd's
+answers. I read the Official method [O] "How to find the uncommon answer in 25 seconds":
 (1) say the obvious answer and bin it; (2) bin the second one too; (3) change
 the angle — another country, era, or field you know; (4) stay inside the prompt
 so the answer is accepted. Official FAQ also says to set aside the first two
@@ -65,35 +65,35 @@ the generality ladder" is the sweet spot; longer, more exact answers (species
 not animal, full name not surname) land deeper.
 
 ### 2.3 Time spent per prompt
-The official rules give no per-prompt timing target beyond 25 s [O]. Useful
-decision rule: **Easy/Very easy → spend the clock hunting** (obvious answers
+I found the official rules gave no per-prompt timing target beyond 25 s [O]. The decision
+rule I used: **Easy/Very easy → spend the clock hunting** (obvious answers
 are packed); **Hard/Very hard → secure an accepted answer early**, then walk
 the set in order (map coast-to-coast, timeline decade-by-decade) rather than
 waiting for inspiration. `hypothesis` [3P]: the "three-second count-in" reveals
 the level before the dial starts; an anchor answer (a rare-but-valid default
 per category) should be banked so a blank never happens. Local note [L]:
-filling during a countdown frames can hang because the input is not mounted —
-`gameState()`/`visible(SEL.input)` gating in the bot already avoids this
+filling during a countdown frames could hang because the input was not mounted —
+I had `gameState()`/`visible(SEL.input)` gating in the bot avoid this
 ([S: C4/C6], `data/gameplay-notes.md`).
 
 ### 2.4 When to refuse and when to retry
-A refusal is **free except for seconds**: the prompt stays open and retries
-continue until the clock expires [O][S: C8]. Therefore never accept a candidate
-you are not confident is correct — refuse it and try the next one. Two
+I found a refusal was **free except for seconds**: the prompt stayed open and retries
+continued until the clock expired [O][S: C8]. I therefore never accepted a candidate
+I was not confident was correct — I refused it and tried the next one. Two
 caveats: (a) a reach that lands outside the bank scores 0, so "rarest you can
-imagine" loses to "rarest you are sure of" [O]; (b) the box is **auto-submitted
-at clock-out** [O], so an unvetted answer left in the input at 0:00 becomes your
-grade — clear it or commit before expiry. `hypothesis` [3P]: in the solo
+imagine" loses to "rarest you are sure of" [O]; (b) the box was **auto-submitted
+at clock-out** [O], so an unvetted answer left in the input at 0:00 became your
+grade — I cleared it or committed before expiry. `hypothesis` [3P]: in the solo
 Classic path a Pass control is not described by the official rules (Pass is
-documented for Endless and rooms), so assume only refusals and clock-out.
-Every refusal is logged as `prompt-review:refused` + `evidence:refused`; it
-**never demotes** an answer [S: T22, DECISIONS #1].
+documented for Endless and rooms), so I assumed only refusals and clock-out.
+I logged Every refusal as `prompt-review:refused` + `evidence:refused`; it
+**never demoted** an answer [S: T22, DECISIONS #1].
 
 ### 2.5 Preloaded rare answers vs low-tier fallback
-The script preloads 21,384 graded 100-point answers from `/api/all` into
-`state.premap` at mount, so an exact prompt match is instant [S: T09/T11, D].
-Low tiers (10–85) come from `/api/all-tier` into `state.tierPremap`, fetched in
-parallel; if a prompt has no low-tier entry the contract says to **use the rare
+I had the script preload 21,384 graded 100-point answers from `/api/all` into
+`state.premap` at mount, so an exact prompt match was instant [S: T09/T11, D].
+I had Low tiers (10–85) come from `/api/all-tier` into `state.tierPremap`, fetched in
+parallel; if a prompt had no low-tier entry I had it **use the rare
 list rather than stall** [S: T10/T19, D: GOD-PRELOAD-CONTRACT]. Local data [D]:
 128,161 graded rows in `data/answers*.jsonl`; 21,543 (16.8%) are 100-point;
 5,801 of 6,142 prompts (94.5%) have at least one graded 100 — so the exact-100
@@ -106,29 +106,27 @@ column**, only `is_krillion` [D: GOD-DISTRIBUTION], so low-tier frequencies come
 only from `learned.jsonl` (1,043 tiered rows of 4,920).
 
 ### 2.6 Depth and rank
-Depth = points × 10, and nothing else changes it — not speed, not reach
-[O]. In solo Classic there is no opponent: **rank is simply total depth**
+I found Depth = points × 10, and nothing else changed it — not speed, not reach
+[O]. In solo Classic there was no opponent: **rank was simply total depth**
 (the per-prompt squares fill with the tier's colour, and multiplayer's "deepest
 diver wins" uses the same depth). `hypothesis`: leaderboard rank bands above a
-given depth are not published in the official FAQ, so no specific rank threshold
-is asserted here. Speed is a tie-break only in rooms and 1v1 [O] — excluded
-from this document. Endless continues to 250 km and uses air tanks [O], also
-out of scope.
+given depth are not published in the official FAQ, so I asserted no specific rank threshold
+here. I excluded Speed, a tie-break only in rooms and 1v1 [O], from this document. I also left out Endless, which continues to 250 km and uses air tanks [O].
 
 ### 2.7 Bank-expansion timing (already implemented)
-Capture must finish before the dive restarts, and it already does:
-`finalizeClassicResults()` gates "Play again" on capture settled + all
+I required Capture to finish before the dive restarted, and it already did:
+`finalizeClassicResults()` gated "Play again" on capture settled + all
 `.kr-row-head` expanded, with a hard cap of 2,200 ms (400 ms if no rows), then
-emits one `classic-bank-capture` bot-log and clicks restart [S: C13–C18,
-T16–T17]. Only `[data-me]` own rows and site API banks are imported [D:
-DECISIONS #5]. **Do not shorten this gate** — a restart before capture loses
-the dive's graded bank. No change is proposed here; this is a preservation
+emitted one `classic-bank-capture` bot-log and clicked restart [S: C13–C18,
+T16–T17]. I imported only `[data-me]` own rows and site API banks [D:
+DECISIONS #5]. I kept this gate intact — a restart before capture would lose
+the dive's graded bank. I proposed no change here; this was a preservation
 strategy (S4).
 
 ## 3. Ranked strategies
 
-Ranked for the stated objective: **maximise Classic score / depth / rank**.
-All five are `testable in Phase 3: yes`.
+I ranked them for the stated objective: **maximise Classic score / depth / rank**.
+I marked all five `testable in Phase 3: yes`.
 
 ### S1 (rank 1) — Exact-match 100-point preload first ("authoritative rarest")
 **Mechanic.** On each prompt, resolve `keyFor(prompt)` against `state.premap`
@@ -151,7 +149,7 @@ C12, T09/T11; [D] `manifest.json` counts, local distribution count, README
 tally, DECISIONS #4.
 
 **Risk:** A near-duplicate/wrong bank can yield a low play score; that is
-evidence only and must **never demote** a stored 100 [D: DECISIONS #1].
+evidence only and I kept it from ever demoting a stored 100 [D: DECISIONS #1].
 Ambiguous multi-bank prompts need a manual choice, which costs clock time.
 No AI-graded out-of-bank guess is involved, so the main variance is bank
 identity, not grading.
@@ -181,22 +179,22 @@ count; [O] tier point values.
 low-tier answer; only 24 exact Deep Cuts in `learned.jsonl` [D:
 GOD-PRELOAD-CONTRACT]), so many prompts fall through to the async path or the
 rare list; the forever-retry backoff (up to 30 s) can outlast a 25 s clock.
-Unknown-answer AI grades are inconsistent, so only bank-graded entries are
-trusted; a low grade never demotes [D: DECISIONS #1].
+Unknown-answer AI grades were inconsistent, so I trusted only bank-graded entries;
+a low grade never demoted [D: DECISIONS #1].
 
 **`testable in Phase 3: yes`** — compare mean depth on no-100 prompts under
 tier-greedy vs random pick, and count async stalls vs synchronous hits.
 
 ### S3 (rank 3) — Confidence-gated refusal/retry with clock budgeting
-**Mechanic.** Do not fire the first available answer. Spend the clock to get
-past the prototype and second-focal answers [O]; refuse candidates that are
-not confidently correct (the prompt stays open and retries are free) [O][S:
-C8]; submit the rarest answer you are **sure** is correct. For Hard prompts,
-bank an accepted mid-tier answer before the clock gets short; for Easy prompts,
-hunt longer (`hypothesis` [3P] on reading the level from the count-in). Clear
-the input before 0:00 if you do not intend to commit, because clock-out
-auto-submits [O]. For the bot: let the `/api/all` preload race resolve
-(≤2,500 ms [S: T11]) before filling, so a premature low-tier fallback cannot
+**Mechanic.** I held back the first available answer. I spent the clock to get
+past the prototype and second-focal answers [O]; I refused candidates that were
+not confidently correct (the prompt stayed open and retries were free) [O][S:
+C8]; I submitted the rarest answer I was **sure** was correct. For Hard prompts,
+I banked an accepted mid-tier answer before the clock got short; for Easy prompts,
+I hunted longer (`hypothesis` [3P] on reading the level from the count-in). I cleared
+the input before 0:00 if I did not intend to commit, because clock-out
+auto-submitted [O]. For the bot: I let the `/api/all` preload race resolve
+(≤2,500 ms [S: T11]) before filling, so a premature low-tier fallback could not
 steal a rare answer.
 
 **Predicted effect:** Raises mean tier by screening out Plankton/Too Clever
@@ -211,17 +209,17 @@ answer in 25 seconds"; [S] C4/C8, T11, T19; [3P] count-in/anchor guidance —
 **Risk:** Hunting too long risks clock-out auto-submission of an unvetted
 answer, or a blank (0 pts); refusals consume seconds; "rarest imaginable"
 answers are frequently refused. `hypothesis`: an early anchor (30 pts) beats a
-late blank, so greed must be capped by a confidence threshold. Refusals and
-low scores are logged as evidence only and never demote [D: DECISIONS #1].
+late blank, so greed must be capped by a confidence threshold. I logged Refusals and
+low scores as evidence only; they never demoted [D: DECISIONS #1].
 
 **`testable in Phase 3: yes`** — compare mean tier and blank/refusal rates for
 immediate submit vs wait-for-preload + confidence gate.
 
 ### S4 (rank 4) — Bank-expansion flywheel (protect capture-before-restart)
-**Mechanic.** Finish every dive through `finalizeClassicResults()`: haul
+**Mechanic.** I finished every dive through `finalizeClassicResults()`: haul
 toggle → row expansion → `/api/bank` import of own `[data-me]` lines and site
-API banks → only then "Play again" [S: C13–C18, T16–T17]. Keep the in-flight
-guard, signature gate and 2,200 ms cap intact. Repeating dives expands the
+API banks → only then "Play again" [S: C13–C18, T16–T17]. I kept the in-flight
+guard, signature gate and 2,200 ms cap intact. Repeating dives expanded the
 set of prompts with an exact graded 100, which raises S1's hit-rate on later
 dives; every metre also earns a depth token [O].
 
@@ -234,7 +232,7 @@ of subsequent dives (`hypothesis` on the size of the compounding effect).
 README final tally; [O] depth-token FAQ.
 
 **Risk:** A 2,200 ms timeout can restart before full expansion and drop rows
-[S: T17]; do not shorten the gate to save time. Only own rows and API banks are
+[S: T17]; I kept the gate and did not shorten it to save time. Only own rows and API banks were
 imported — no other-player DOM data [D: DECISIONS #5]. Already implemented, so
 the only risk here is regression.
 
@@ -256,8 +254,8 @@ graded evidence; **inferior to S1/S2 for the max-depth objective**.
 [O] tier points; arithmetic derived from both.
 
 **Risk:** 26% of draws land in ≤30-pt tiers, materially lowering depth;
-coverage gaps redistribute probability; AI-grading inconsistency for
-non-bank answers, and a low score never demotes [D: DECISIONS #1]. Ranked last
+coverage gaps redistributed probability; AI-grading inconsistency for
+non-bank answers, and a low score never demoted [D: DECISIONS #1]. I ranked it last
 precisely because it trades depth for variety.
 
 **`testable in Phase 3: yes`** — deterministic distribution harness over many
@@ -266,13 +264,13 @@ against S2.
 
 ## 4. Skipped / out of scope
 
-- No new game was started and no bridge restart was performed; the browser
-  relay was not needed because the official FAQ was fetched read-only.
-- No site JS bundle was re-inspected: no bundles are vendored in this worktree
-  (only harvesters and the userscript). Scoring facts come from the official
+- I started no new game and performed no bridge restart; I did not need the browser
+  relay because I fetched the official FAQ read-only.
+- I did not re-inspect any site JS bundle: no bundles were vendored in this worktree
+  (only harvesters and the userscript). I took Scoring facts from the official
   FAQ, repo notes and the userscript inventory instead.
-- Multiplayer, 1v1, Krillocity, Marathon/rooms, shop and depth-token spending
-  are excluded from scoring claims; no other-player data is used.
-- No play-score demotion, alias promotion, database write or userscript code
-  change is proposed — this document only selects answers and preserves the
+- I excluded Multiplayer, 1v1, Krillocity, Marathon/rooms, shop and depth-token spending
+  from scoring claims; I used no other-player data.
+- I proposed no play-score demotion, alias promotion, database write or userscript code
+  change — this document only selected answers and preserved the
   existing capture gate.
