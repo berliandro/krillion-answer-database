@@ -1,6 +1,6 @@
 # Krillion — "Process the log" full run + paraphrase-duplicate audit
 
-**Status:** APPROVED — awaiting execution
+**Status:** EXECUTED — all 12 pipeline steps complete; policy changes applied after user approval 2026-11-28.
 **Created:** 2026-11-28
 **Owner:** Supervisor session; execute directly in the main worktree (no new worktrees needed — this is data/pipeline work, not feature work).
 **Source:** user directive, verbatim intent preserved below.
@@ -115,3 +115,26 @@ BEFORE/AFTER table; `inserted`; `demoted`; still unresolved; anomalies; paraphra
 - `data/paraphrase_eval.json` / `injection/PROCESS-REPORT.md` contain per-class counts, examples and proposed groups; the policy STOP at 3f was honoured.
 - `python tests/run_all.py` passes; second import is idempotent; spot-check passes.
 - BEFORE/AFTER explained; `HEAD == origin/main` after both commits; final report cites hashes.
+
+---
+
+## Execution record (2026-11-28)
+
+- Backup: `C:\Users\nberl\AppData\Local\Temp\opencode\krillion-backup-20261128T075557`.
+- Pipeline: import `+9 / demoted 0` → second import `inserted=0` → three site builders →
+  `tests/run_all.py` 10/10 → spot-check resolves (exact bank now exists; `Name a famous park` rank 3)
+  → BEFORE/AFTER → commit `5d5cedf` → changelog → rotation dry-run + `--apply` (all logs `ok`, no trim)
+  → commit `b1161ce`.
+- Audit: `injection/PROCESS-REPORT.md`, `data/norm_audit.json` — 0 TRIVIAL, 0 ANSWER-VARIANT,
+  10,187 PARAPHRASE pairs, 477 game-graded link-only groups, 2 tier disagreements (report-only).
+- User approved all three policy questions. Applied via `scripts/apply_paraphrase_policy.py`:
+  468 transitive merged groups (945 wordings / 861 merged answers),
+  `group_search_answers` 468 one-answer rows, 2,808 alias rewrite keys.
+  Bridge loads `data/alias_rewrites.json` and applies rewrites only after exact and
+  rewritten-exact fail. Live check: `name an example of a christmas film` →
+  `What's an example of a Christmas movie?`.
+- `tests/run_all.py` 10/10 and `python scripts/build.py verify` PASS after the policy change.
+- Final commit `fd0a552`; `HEAD == origin/main`.
+- **Fresh-clone note:** DB files are generated/ignored, so after `scripts/bootstrap.py --apply`
+  or `krillion_db.py import`, run `python scripts/apply_paraphrase_policy.py` to recreate the
+  group tables and alias map, then restart the bridge.
