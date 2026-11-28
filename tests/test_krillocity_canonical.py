@@ -61,7 +61,7 @@ def test_krillocity_canonical() -> str:
                 unsafe_keys += 1
     check(safe_keys > 0, "no eligible verbatim-bank lookup keys found")
     return (f"canonical keys verbatim-bank={safe_keys}, excluded(log-only/non-bank)="
-            f"{unsafe_keys}, no merge-canonical rewrite, version=1.1.9")
+            f"{unsafe_keys}, no merge-canonical rewrite, version=1.2.0")
 
 
 if __name__ == "__main__":

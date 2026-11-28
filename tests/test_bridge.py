@@ -43,6 +43,14 @@ def _prepare(temp: Path) -> Path:
         REPO_ROOT / "injection" / "krillion-autofill.user.js",
         temp / "injection" / "krillion-autofill.user.js",
     )
+    # Inputs used by /api/krillocity-race-pool.
+    for rel in ("data/krillocity_answers.jsonl", "injection/data/learned.jsonl",
+                "data/tier-data.json"):
+        src = REPO_ROOT / rel
+        if src.exists():
+            dst = temp / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dst)
 
     source = (REPO_ROOT / "injection" / "bridge.py").read_text(encoding="utf-8")
     port_line = re.compile(r"(?m)^PORT[ \t]*=[ \t]*\d+[ \t]*(\r?)$")
@@ -174,6 +182,26 @@ def test_bridge_endpoints() -> str:
                 payload.get("matcher_index") == "loaded",
                 f"matcher_index status is {payload.get('matcher_index')!r}, expected 'loaded'",
             )
+            checks += 1
+
+            # /api/krillocity-race-pool: bank + full-DB/near-dup low tiers,
+            # deduped and sorted high->low (the fix for "only 100s entered").
+            status, payload = _get(
+                _auth("/api/krillocity-race-pool?q=Name%20any%20one%20ice%20cream%20flavor")
+            )
+            require(status == 200, f"/api/krillocity-race-pool status={status}")
+            require(payload.get("ok") is True, "race pool missing ok=true")
+            pool = payload.get("answers")
+            require(isinstance(pool, list) and len(pool) > 10,
+                    "race pool must carry bank + low-tier answers")
+            pts = [x.get("points") for x in pool]
+            require(pts == sorted(pts, reverse=True),
+                    "race pool answers must be sorted highest points first")
+            sources = {x.get("source") for x in pool}
+            require("bank" in sources, "race pool missing graded 100-point bank answers")
+            require(bool(sources & {"full-db-low", "near-dup-low", "krillocity-other"}),
+                    "race pool missing low-tier answers")
+            require(all(100 >= p >= 10 for p in pts), "race pool points out of range")
             checks += 1
 
             # No token -> 403, on a read-only endpoint.

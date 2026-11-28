@@ -12,6 +12,7 @@ import importlib.util
 import json
 import re
 import sqlite3
+import collections
 from collections import OrderedDict
 import sys
 import threading
@@ -50,6 +51,8 @@ KRILLO_PROMPTS = DATA_DIR / "krillocity_prompts.jsonl"
 KRILLO_ANSWERS = DATA_DIR / "krillocity_answers.jsonl"
 KRILLO_ZERO = DATA_DIR / "krillocity_zero_match.jsonl"
 KRILLO_POOL_USE = DATA_DIR / "krillocity_pool_use.jsonl"
+KRILLO_PROMPT_BANKS = {}  # harvested wording -> resolved bank tuple (cache)
+NEAR_DUP_CACHE = {}       # normalised bank -> sibling wordings (low-tier pool only)
 # Canonical merge of REAL observed wordings -> labelled bank questions, built by
 # scripts/build_krillocity_canonical.py. Optional: a missing/corrupt file yields
 # an empty payload rather than an error, so old clones work unchanged.
@@ -592,12 +595,70 @@ def krillo_race_pool(query):
         if key[0] in banks and key[1]:
             learned_points[key] = _points_of(rec)
 
+    # Full-DB low tiers: the authoritative archive's non-krillion answers for
+    # each resolved bank, via the same path /api/answers-tier uses. Their exact
+    # tier is unknown, so give them the conservative lowest point (10) -- they
+    # are tried after every graded tier, but they are real known answers and
+    # must not be dropped. Graded learned tiers (above) always win on dedupe.
+    full_low = {}
+    for bank in banks:
+        _, low_answers, _ = tier_answers(bank)
+        for answer in low_answers:
+            a = str(answer).strip()
+            if not a:
+                continue
+            norm_key = normalise(a)
+            if norm_key not in full_low:
+                full_low[norm_key] = {"answer": a, "points": 10,
+                                      "source": "full-db-low"}
+
+    # Near-duplicate low tiers: an on-screen wording is often an exact bank
+    # with no low-tier rows of its own while a sibling wording carries the
+    # real set ("What's an example of a holiday celebrated in winter?" vs
+    # "Name a holiday celebrated in winter"). Pool ONLY their low tiers --
+    # never their 100-point banks -- so the answer list is complete without
+    # merging distinct banks in matching, display or the search DB.
+    near_banks = []
+    for bank in banks:
+        nq = normalise(bank)
+        cached = NEAR_DUP_CACHE.get(nq)
+        if cached is None:
+            hits = MATCHER.search(nq, limit=6, threshold=0.85) if MATCHER else []
+            cached = tuple(h["question"] for h in hits
+                           if h.get("question") and h["question"] != bank)
+            NEAR_DUP_CACHE[nq] = cached
+        for q2 in cached:
+            if q2 not in banks and q2 not in near_banks:
+                near_banks.append(q2)
+    for bank in near_banks:
+        _, low_answers, _ = tier_answers(bank)
+        for answer in low_answers:
+            a = str(answer).strip()
+            if not a:
+                continue
+            norm_key = normalise(a)
+            if norm_key not in full_low:
+                full_low[norm_key] = {"answer": a, "points": 10,
+                                      "source": "near-dup-low"}
+
+    # A harvested wording can be a reworded form of a bank ("Name an example
+    # of a video game from the 2020s" vs "Name a video game from the 2020s").
+    # Include those answers when their resolved banks overlap this prompt's.
+    bank_set = set(banks)
     others = {}
     for rec in read_jsonl(KRILLO_ANSWERS):
         prompt = rec.get("prompt")
         answer = rec.get("answer")
-        if not prompt or not answer or prompt not in banks:
+        if not prompt or not answer:
             continue
+        if prompt not in bank_set:
+            cached_banks = KRILLO_PROMPT_BANKS.get(prompt)
+            if cached_banks is None:
+                _, cands = _resolve_candidates(normalise(prompt))
+                cached_banks = tuple(c[0] for c in cands)
+                KRILLO_PROMPT_BANKS[prompt] = cached_banks
+            if not bank_set.intersection(cached_banks):
+                continue
         points = rec.get("game_points")
         if points not in TIER_INDEX_POINTS:
             points = _points_of(rec)
@@ -609,6 +670,13 @@ def krillo_race_pool(query):
         if current is None or points > current["points"]:
             others[norm_key] = {"answer": key, "points": points,
                                 "source": "krillocity-other"}
+
+    # Merge full-DB low tiers last: a graded other-player answer at a higher
+    # point always wins; otherwise these become the lowest-ranked entries.
+    for norm_key, entry in full_low.items():
+        current = others.get(norm_key)
+        if current is None or entry["points"] > current["points"]:
+            others[norm_key] = entry
 
     removed = removed_pairs()
     out = []
@@ -633,13 +701,16 @@ def krillo_race_pool(query):
         out.append(entry)
     out.sort(key=lambda x: (-x["points"], x["answer"].casefold()))
 
-    # Audit log: which other-player answers were served for this on-screen prompt.
+    # Audit log: which answers were served for this on-screen prompt, with a
+    # source breakdown (bank / learned / other-player / full-DB low tier).
     try:
         used = [x for x in out if x.get("source") == "krillocity-other"]
+        breakdown = dict(collections.Counter(x["source"] for x in out))
         with KRILLO_POOL_USE.open("a", encoding="utf-8") as f:
             f.write(json.dumps({
                 "at": now(), "screen_prompt": q, "banks": banks,
                 "other_player_answers": used,
+                "sources": breakdown,
                 "total_answers": len(out),
             }, ensure_ascii=False) + "\n")
     except Exception:
